@@ -18,7 +18,10 @@ Further documentation can be found at <https://hexdocs.pm/elm_compat>.
 
 ## Development
 
-```sh
-gleam run   # Run the project
-gleam test  # Run the tests
+Build:
+
 ```
+gleam build --target javascript
+```
+
+Then serve the repo root with a static file server.
