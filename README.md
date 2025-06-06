@@ -21,7 +21,7 @@ Further documentation can be found at <https://hexdocs.pm/elm_compat>.
 Build:
 
 ```
-gleam build --target javascript
+gleam build
 ```
 
 Then serve the repo root with a static file server.
