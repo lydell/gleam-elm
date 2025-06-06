@@ -23,5 +23,11 @@ pub fn init(arg: dynamic.Dynamic) {
 }
 
 pub fn html_program() {
-  virtual_dom.init(virtual_dom.text("Virtual DOM!"))
+  virtual_dom.init(
+    virtual_dom.node(
+      "a",
+      [virtual_dom.attribute("href", "https://elm-lang.org/")],
+      [virtual_dom.text("Elm!")],
+    ),
+  )
 }

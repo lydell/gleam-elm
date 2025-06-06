@@ -141,16 +141,11 @@ var _VirtualDom_nodeNS = F2(function(namespace, tag)
 {
 	return F2(function(factList, kidList)
 	{
-		for (var kids = []; kidList.b; kidList = kidList.b) // WHILE_CONS
-		{
-			kids.push(kidList.a);
-		}
-
 		return {
 			$: __2_NODE,
 			__tag: tag,
 			__facts: _VirtualDom_organizeFacts(factList),
-			__kids: kids,
+			__kids: kidList.toArray(),
 			__namespace: namespace,
 			// Unused, only exists for backwards compatibility with:
 			// https://github.com/elm-explorations/test/blob/9669a27d84fc29175364c7a60d5d700771a2801e/src/Test/Html/Internal/ElmHtml/InternalTypes.elm#L279
@@ -477,10 +472,8 @@ function _VirtualDom_organizeFacts(factList)
 	// Mark all elements for virtualization of server rendered nodes – see `_VirtualDom_markerProperty`.
 	facts[_VirtualDom_markerProperty] = true;
 
-	for (; factList.b; factList = factList.b) // WHILE_CONS
+	for (var entry of factList) // WHILE_CONS
 	{
-		var entry = factList.a;
-
 		var tag = entry.$;
 		var key = entry.__key;
 		var value = entry.__value;
@@ -2108,4 +2101,14 @@ function _VirtualDom_dekey(keyedNode)
 	});
 }
 
-export { _VirtualDom_init, _VirtualDom_text };
+function _VirtualDom_attribute_(name, value)
+{
+	return A2(_VirtualDom_attribute, name, value);
+}
+
+function _VirtualDom_node_(tag, facts, kids)
+{
+	return A3(_VirtualDom_node, tag, facts, kids);
+}
+
+export { _VirtualDom_init, _VirtualDom_attribute_, _VirtualDom_text, _VirtualDom_node_ };
