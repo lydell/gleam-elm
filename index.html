@@ -6,11 +6,13 @@
     <title>Gleam Elm Compat Demo</title>
 </head>
 <body>
+    <div id="html_program_main"></div>
     <script type="module">
-        import { main, add, init } from "./build/dev/javascript/elm_compat/elm_compat.mjs";
+        import { main, add, init, html_program } from "./build/dev/javascript/elm_compat/elm_compat.mjs";
         main();
         console.log("Adding 2 and 3:", add(2, 3));
         init(1337)();
+        html_program()({ node: html_program_main });
     </script>
 </body>
 </html>

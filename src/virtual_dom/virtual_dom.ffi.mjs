@@ -12,6 +12,14 @@ import VirtualDom exposing (toHandlerInt)
 
 */
 
+import { F2, F3, F4, F5, F6, F7, F8, F9, A2, A3, A4, A5, A6, A7, A8, A9 } from '../elm.ffi.mjs';
+
+var __2_TEXT = 0;
+var __2_NODE = 1;
+var __2_KEYED_NODE = 2;
+var __2_CUSTOM = 3;
+var __2_TAGGER = 4;
+var __2_THUNK = 5;
 
 
 // Double underscore sequences are replaced with single letters or numbers.
@@ -92,11 +100,11 @@ var _VirtualDom_moveBefore = _VirtualDom_supports_moveBefore ? _VirtualDom_moveB
 
 var _VirtualDom_moveAfter = _VirtualDom_supports_moveBefore ? _VirtualDom_moveAfter_ : _VirtualDom_insertAfter;
 
-var _VirtualDom_init = F4(function(virtualNode, flagDecoder, debugMetadata, args)
+var _VirtualDom_init = F2(function(virtualNode, args)
 {
 	// NOTE: this function needs __Platform_export available to work
 
-	/**__PROD/
+	/**__PROD*/
 	var node = args['node'];
 	//*/
 	/**__DEBUG/
@@ -387,14 +395,14 @@ function _VirtualDom_noInnerHtmlOrFormAction(key)
 function _VirtualDom_noJavaScriptUri(value)
 {
 	return _VirtualDom_RE_js.test(value)
-		? /**__PROD/''//*//**__DEBUG/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
+		? /**__PROD/''//*//**__DEBUG*/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
 		: value;
 }
 
 function _VirtualDom_noJavaScriptOrHtmlUri(value)
 {
 	return _VirtualDom_RE_js_html.test(value)
-		? /**__PROD/''//*//**__DEBUG/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
+		? /**__PROD/''//*//**__DEBUG*/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
 		: value;
 }
 
@@ -2099,3 +2107,5 @@ function _VirtualDom_dekey(keyedNode)
 		value: keyedNode[_VirtualDom_instance]
 	});
 }
+
+export { _VirtualDom_init, _VirtualDom_text };
