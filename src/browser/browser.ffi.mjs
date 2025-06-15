@@ -20,6 +20,17 @@ import Url exposing (fromString)
 */
 
 import {
+	Empty,
+	Ok,
+} from '../gleam.mjs';
+import {
+	None,
+	Some,
+} from "../../gleam_stdlib/gleam/option.mjs";
+import {
+	_Json_runHelp as __Json_runHelp,
+} from '../json/json.ffi.mjs';
+import {
 	_Platform_initialize as __Platform_initialize,
 } from '../core/platform.ffi.mjs';
 import {
@@ -92,7 +103,7 @@ var _Browser_document = __Debugger_document || function(impl) { return function(
 			{
 				_VirtualDom_set_divertHrefToApp(divertHrefToApp);
 				var doc = view(model);
-				var nextNode = __VirtualDom_node('body')(__List_Nil)(doc.body);
+				var nextNode = __VirtualDom_node('body')(new Empty)(doc.body);
 				var patches = __VirtualDom_diff(currNode, nextNode);
 				bodyNode = __VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
@@ -325,7 +336,7 @@ var _Browser_on = function(node, eventName, sendToSelf)
 var _Browser_decodeEvent = function(decoder, event)
 {
 	var result = __Json_runHelp(decoder, event);
-	return __Result_isOk(result) ? __Maybe_Just(result.a) : __Maybe_Nothing;
+	return result instanceof Ok ? new Some(result.a) : new None;
 };
 
 

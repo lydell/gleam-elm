@@ -12,6 +12,12 @@ import VirtualDom exposing (toHandlerInt)
 
 */
 
+import {
+	Empty,
+	NonEmpty,
+	Ok,
+} from '../gleam.mjs';
+
 var __2_TEXT = 0;
 var __2_NODE = 1;
 var __2_KEYED_NODE = 2;
@@ -204,7 +210,10 @@ var _VirtualDom_keyedNodeNS = function(namespace, tag, factList, kidList)
 };
 
 
-var _VirtualDom_keyedNode = _VirtualDom_keyedNodeNS(undefined);
+var _VirtualDom_keyedNode = function(tag, factList, kidList)
+{
+	return _VirtualDom_keyedNodeNS(undefined, tag, factList, kidList);
+};
 
 
 
@@ -953,7 +962,7 @@ function _VirtualDom_makeCallback(initialEventNode, initialHandler)
 		var eventNode = callback.__eventNode;
 		var result = __Json_runHelp(handler.a, event);
 
-		if (!__Result_isOk(result))
+		if (!(result instanceof Ok))
 		{
 			return;
 		}
@@ -1944,7 +1953,7 @@ function _VirtualDom_virtualizeHelp(node)
 	// ELEMENT NODES
 
 	var tag = node.localName;
-	var attrList = __List_Nil;
+	var attrList = new Empty;
 	var attrs = node.attributes;
 	for (var i = attrs.length; i--; )
 	{
@@ -1973,7 +1982,7 @@ function _VirtualDom_virtualizeHelp(node)
 				{
 					var cssKey = part.slice(0, index).trim();
 					var cssValue = part.slice(index + 1).trim();
-					attrList = __List_Cons(_VirtualDom_style(cssKey, cssValue), attrList);
+					attrList = new NonEmpty(_VirtualDom_style(cssKey, cssValue), attrList);
 				}
 			}
 			continue;
@@ -2001,7 +2010,7 @@ function _VirtualDom_virtualizeHelp(node)
 		// section while virtualizing? I don’t think so, because they will already
 		// have executed at this point, and the first render will remove any disallowed
 		// attributes.
-		attrList = __List_Cons(
+		attrList = new NonEmpty(
 			// `Html.Attributes.value` sets the `.value` property to a string, because that’s the
 			// only way to set the value of an input element. The `.value` property has no corresponding
 			// attribute; the `value` attribute maps to the `.defaultValue` property. But when serializing,
@@ -2028,7 +2037,7 @@ function _VirtualDom_virtualizeHelp(node)
 		node.namespaceURI === 'http://www.w3.org/1999/xhtml'
 			? undefined
 			: node.namespaceURI;
-	var kidList = __List_Nil;
+	var kidList = new Empty;
 
 	// To create a text area with default text in HTML:
 	// - correct: <textarea>default text</textarea>
@@ -2043,7 +2052,7 @@ function _VirtualDom_virtualizeHelp(node)
 	// Note that in <textarea>, HTML isn’t parsed as usual – it is more of a plain text element.
 	if (node.localName === 'textarea')
 	{
-		attrList = __List_Cons(
+		attrList = new NonEmpty(
 			_VirtualDom_property('value', node.value),
 			attrList
 		);
@@ -2067,7 +2076,7 @@ function _VirtualDom_virtualizeHelp(node)
 			// text from both.
 			if (kidNode)
 			{
-				kidList = __List_Cons(kidNode, kidList);
+				kidList = new NonEmpty(kidNode, kidList);
 			}
 		}
 
@@ -2106,8 +2115,13 @@ function _VirtualDom_dekey(keyedNode)
 }
 
 export {
+	_VirtualDom_applyPatches,
 	_VirtualDom_attribute,
+	_VirtualDom_diff,
+	_VirtualDom_doc,
 	_VirtualDom_init,
+	_VirtualDom_keyedNode,
+	_VirtualDom_keyedNodeNS,
 	_VirtualDom_node,
 	_VirtualDom_nodeNS,
 	_VirtualDom_passiveSupported,

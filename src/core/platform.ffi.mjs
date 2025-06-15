@@ -11,7 +11,6 @@ import Result exposing (isOk)
 */
 
 import {
-	_Json_run as __Json_run,
 	_Json_wrap as __Json_wrap,
 } from '../json/json.ffi.mjs';
 
@@ -445,7 +444,6 @@ var _Platform_incomingPortMap = function(tagger, finalTagger)
 function _Platform_setupIncomingPort(name, sendToApp)
 {
 	var subs = __List_Nil;
-	var converter = _Platform_effectManagers[name].__converter;
 
 	// CREATE MANAGER
 
@@ -462,14 +460,9 @@ function _Platform_setupIncomingPort(name, sendToApp)
 
 	function send(incomingValue)
 	{
-		var result = __Json_run(converter, __Json_wrap(incomingValue));
-
-		__Result_isOk(result) || __Debug_crash(4, name, result.a);
-
-		var value = result.a;
 		for (var temp = subs; temp.b; temp = temp.b) // WHILE_CONS
 		{
-			sendToApp(temp.a(value));
+			sendToApp(temp.a(__Json_wrap(incomingValue)));
 		}
 	}
 
