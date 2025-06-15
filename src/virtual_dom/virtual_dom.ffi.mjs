@@ -182,13 +182,13 @@ var _VirtualDom_keyedNodeNS = function(namespace, tag, factList, kidList)
 		for (var kids = kidList.toArray(), kidsMap = Object.create(null), i = 0; i < kids.length; i++)
 		{
 			var kid = kids[i];
-			var key = kid.a;
+			var key = kid[0];
 			// Handle duplicate keys by adding a postfix.
 			while (key in kidsMap)
 			{
 				key += _VirtualDom_POSTFIX;
 			}
-			kidsMap[key] = kid.b;
+			kidsMap[key] = kid[1];
 		}
 
 		return {
@@ -461,7 +461,7 @@ function _VirtualDom_mapHandler(func, handler)
 
 var _VirtualDom_mapEventTuple = function(func, tuple)
 {
-	return __Utils_Tuple2(func(tuple.a), tuple.b);
+	return [func(tuple.a), tuple.b];
 };
 
 var _VirtualDom_mapEventRecord = function(func, record)
@@ -1552,10 +1552,10 @@ function _VirtualDom_diffKeyedKids(parentDomNode, xParent, yParent, eventNode)
 		{
 			var xKid = xKids[xIndexLower];
 			var yKid = yKids[yIndexLower];
-			var xKey = xKid.a;
-			var yKey = yKid.a;
-			var x = xKid.b;
-			var y = yKid.b;
+			var xKey = xKid[0];
+			var yKey = yKid[0];
+			var x = xKid[1];
+			var y = yKid[1];
 
 			if (xKey === yKey)
 			{
@@ -1599,10 +1599,10 @@ function _VirtualDom_diffKeyedKids(parentDomNode, xParent, yParent, eventNode)
 		{
 			var xKid = xKids[xIndexUpper];
 			var yKid = yKids[yIndexUpper];
-			var xKey = xKid.a;
-			var yKey = yKid.a;
-			var x = xKid.b;
-			var y = yKid.b;
+			var xKey = xKid[0];
+			var yKey = yKid[0];
+			var x = xKid[1];
+			var y = yKid[1];
 
 			if (xKey === yKey)
 			{
@@ -1651,14 +1651,14 @@ function _VirtualDom_diffKeyedKids(parentDomNode, xParent, yParent, eventNode)
 			var xKidUpper = xKids[xIndexUpper];
 			var yKidUpper = yKids[yIndexUpper];
 
-			var xKeyLower = xKidLower.a;
-			var yKeyLower = yKidLower.a;
-			var xKeyUpper = xKidUpper.a;
-			var yKeyUpper = yKidUpper.a;
+			var xKeyLower = xKidLower[0];
+			var yKeyLower = yKidLower[0];
+			var xKeyUpper = xKidUpper[0];
+			var yKeyUpper = yKidUpper[0];
 
 			if (xKeyLower === yKeyUpper)
 			{
-				var diffReturn = _VirtualDom_diffHelp(xKidLower.b, yKidUpper.b, eventNode);
+				var diffReturn = _VirtualDom_diffHelp(xKidLower[1], yKidUpper[1], eventNode);
 				xIndexLower++;
 				yIndexUpper--;
 				_VirtualDom_moveBefore(parentDomNode, diffReturn.__domNode, domNodeUpper);
@@ -1668,7 +1668,7 @@ function _VirtualDom_diffKeyedKids(parentDomNode, xParent, yParent, eventNode)
 
 			if (xKeyUpper == yKeyLower)
 			{
-				var diffReturn = _VirtualDom_diffHelp(xKidUpper.b, yKidLower.b, eventNode);
+				var diffReturn = _VirtualDom_diffHelp(xKidUpper[1], yKidLower[1], eventNode);
 				yIndexLower++;
 				xIndexUpper--;
 				_VirtualDom_moveAfter(parentDomNode, diffReturn.__domNode, domNodeLower);
@@ -1694,8 +1694,8 @@ function _VirtualDom_diffKeyedKids(parentDomNode, xParent, yParent, eventNode)
 	for (; yIndexLower <= yIndexUpper; yIndexLower++)
 	{
 		var yKid = yKids[yIndexLower];
-		var yKey = yKid.a;
-		var y = yKid.b;
+		var yKey = yKid[0];
+		var y = yKid[1];
 		if (yKey in xKidsMap)
 		{
 			var x = xKidsMap[yKey];
@@ -1715,9 +1715,9 @@ function _VirtualDom_diffKeyedKids(parentDomNode, xParent, yParent, eventNode)
 	for (; xIndexLower <= xIndexUpper; xIndexLower++)
 	{
 		var xKid = xKids[xIndexLower];
-		var xKey = xKid.a;
+		var xKey = xKid[0];
 		if (!(xKey in yKidsMap)) {
-			_VirtualDom_removeVisit(xKid.b, true);
+			_VirtualDom_removeVisit(xKid[1], true);
 		}
 	}
 

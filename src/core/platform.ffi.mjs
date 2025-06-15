@@ -11,6 +11,10 @@ import Result exposing (isOk)
 */
 
 import {
+	Empty,
+	NonEmpty,
+} from '../gleam.mjs';
+import {
 	_Json_wrap as __Json_wrap,
 } from '../json/json.ffi.mjs';
 
@@ -43,18 +47,18 @@ function _Platform_initialize(args, init, update, subscriptions, stepperBuilder)
 {
 	var managers = {};
 	var initPair = init(__Json_wrap(args ? args['flags'] : undefined));
-	var model = initPair.a;
+	var model = initPair[0];
 	var stepper = stepperBuilder(sendToApp, model);
 	var ports = _Platform_setupEffects(managers, sendToApp);
 
 	function sendToApp(msg, viewMetadata)
 	{
 		var pair = update(msg, model);
-		stepper(model = pair.a, viewMetadata);
-		_Platform_enqueueEffects(managers, pair.b, subscriptions(model));
+		stepper(model = pair[0], viewMetadata);
+		_Platform_enqueueEffects(managers, pair[1], subscriptions(model));
 	}
 
-	_Platform_enqueueEffects(managers, initPair.b, subscriptions(model));
+	_Platform_enqueueEffects(managers, initPair[1], subscriptions(model));
 
 	return ports ? { ports: ports } : {};
 }
@@ -160,7 +164,7 @@ var _Platform_sendToApp = function(router, msg)
 	return __Scheduler_binding(function(callback)
 	{
 		router.__sendToApp(msg);
-		callback(__Scheduler_succeed(__Utils_Tuple0));
+		callback(__Scheduler_succeed(undefined));
 	});
 };
 
@@ -269,7 +273,7 @@ function _Platform_dispatchEffects(managers, cmdBag, subBag)
 	{
 		__Scheduler_rawSend(managers[home], {
 			$: 'fx',
-			a: effectsDict[home] || { __cmds: __List_Nil, __subs: __List_Nil }
+			a: effectsDict[home] || { __cmds: new Empty, __subs: new Empty }
 		});
 	}
 }
@@ -323,11 +327,11 @@ function _Platform_toEffect(isCmd, home, taggers, value)
 
 function _Platform_insert(isCmd, newEffect, effects)
 {
-	effects = effects || { __cmds: __List_Nil, __subs: __List_Nil };
+	effects = effects || { __cmds: new Empty, __subs: new Empty };
 
 	isCmd
-		? (effects.__cmds = __List_Cons(newEffect, effects.__cmds))
-		: (effects.__subs = __List_Cons(newEffect, effects.__subs));
+		? (effects.__cmds = new NonEmpty(newEffect, effects.__cmds))
+		: (effects.__subs = new NonEmpty(newEffect, effects.__subs));
 
 	return effects;
 }
@@ -368,7 +372,6 @@ var _Platform_outgoingPortMap = function(tagger, value) { return value; };
 function _Platform_setupOutgoingPort(name)
 {
 	var subs = [];
-	var converter = _Platform_effectManagers[name].__converter;
 
 	// CREATE MANAGER
 
@@ -381,7 +384,7 @@ function _Platform_setupOutgoingPort(name)
 		{
 			// grab a separate reference to subs in case unsubscribe is called
 			var currentSubs = subs;
-			var value = __Json_unwrap(converter(cmdList.a));
+			var value = __Json_unwrap(cmdList.a);
 			for (var i = 0; i < currentSubs.length; i++)
 			{
 				currentSubs[i](value);
@@ -443,7 +446,7 @@ var _Platform_incomingPortMap = function(tagger, finalTagger)
 
 function _Platform_setupIncomingPort(name, sendToApp)
 {
-	var subs = __List_Nil;
+	var subs = new Empty;
 
 	// CREATE MANAGER
 

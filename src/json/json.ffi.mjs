@@ -11,7 +11,9 @@ import Result exposing (Ok, Err, isOk)
 */
 
 import {
+	Empty,
 	Error as GleamError,
+	NonEmpty,
 	Ok,
 } from '../gleam.mjs';
 
@@ -272,7 +274,7 @@ function _Json_runHelp(decoder, value)
 				return _Json_expecting('an OBJECT', value);
 			}
 
-			var keyValuePairs = __List_Nil;
+			var keyValuePairs = new Empty;
 			// TODO test perf of Object.keys and switch when support is good enough
 			for (var key in value)
 			{
@@ -283,7 +285,7 @@ function _Json_runHelp(decoder, value)
 					{
 						return new GleamError(__Json_Field(key, result.a));
 					}
-					keyValuePairs = __List_Cons(__Utils_Tuple2(key, result.a), keyValuePairs);
+					keyValuePairs = new NonEmpty([key, result.a], keyValuePairs);
 				}
 			}
 			return new Ok(__List_reverse(keyValuePairs));
@@ -309,7 +311,7 @@ function _Json_runHelp(decoder, value)
 				: _Json_runHelp(decoder.__callback(result.a), value);
 
 		case __1_ONE_OF:
-			var errors = __List_Nil;
+			var errors = new Empty;
 			for (var temp = decoder.__decoders; temp.b; temp = temp.b) // WHILE_CONS
 			{
 				var result = _Json_runHelp(temp.a, value);
@@ -317,7 +319,7 @@ function _Json_runHelp(decoder, value)
 				{
 					return result;
 				}
-				errors = __List_Cons(result.a, errors);
+				errors = new NonEmpty(result.a, errors);
 			}
 			return new GleamError(__Json_OneOf(__List_reverse(errors)));
 

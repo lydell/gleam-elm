@@ -426,7 +426,7 @@ var _Browser_call = function(functionName, id)
 {
 	return _Browser_withNode(id, function(node) {
 		node[functionName]();
-		return __Utils_Tuple0;
+		return undefined;
 	});
 };
 
@@ -463,7 +463,7 @@ var _Browser_setViewport = function(x, y)
 	return _Browser_withWindow(function()
 	{
 		_Browser_window.scroll(x, y);
-		return __Utils_Tuple0;
+		return undefined;
 	});
 };
 
@@ -498,7 +498,7 @@ var _Browser_setViewportOf = function(id, x, y)
 	{
 		node.scrollLeft = x;
 		node.scrollTop = y;
-		return __Utils_Tuple0;
+		return undefined;
 	});
 };
 
