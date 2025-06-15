@@ -10,6 +10,13 @@ import Result exposing (isOk)
 
 */
 
+import { F2, F3, F4, F5, F6, F7, F8, F9, A2, A3, A4, A5, A6, A7, A8, A9 } from '../elm.ffi.mjs';
+import { _Json_run as __Json_run, _Json_wrap as __Json_wrap } from '../json/json.ffi.mjs';
+
+var __2_SELF = 0;
+var __2_LEAF = 1;
+var __2_NODE = 2;
+var __2_MAP = 3;
 
 
 // PROGRAMS
@@ -35,9 +42,10 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 function _Platform_initialize(flagDecoder, args, init, update, subscriptions, stepperBuilder)
 {
 	var result = A2(__Json_run, flagDecoder, __Json_wrap(args ? args['flags'] : undefined));
-	__Result_isOk(result) || __Debug_crash(2 /**__DEBUG/, __Json_errorToString(result.a) /**/);
+	// __Result_isOk(result) || __Debug_crash(2 /**__DEBUG/, __Json_errorToString(result.a) /**/);
 	var managers = {};
-	var initPair = init(result.a);
+	// var initPair = init(result.a);
+	var initPair = init(1338);
 	var model = initPair.a;
 	var stepper = stepperBuilder(sendToApp, model);
 	var ports = _Platform_setupEffects(managers, sendToApp);
@@ -519,3 +527,5 @@ function _Platform_mergeExportsDebug(moduleName, obj, exports)
 			: (obj[name] = exports[name]);
 	}
 }
+
+export { _Platform_batch, _Platform_initialize };

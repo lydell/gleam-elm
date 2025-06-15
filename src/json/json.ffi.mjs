@@ -10,6 +10,24 @@ import Result exposing (Ok, Err, isOk)
 
 */
 
+import { F2, F3, F4, F5, F6, F7, F8, F9, A2, A3, A4, A5, A6, A7, A8, A9 } from '../elm.ffi.mjs';
+
+var __0_JSON = 0;
+
+var __1_SUCCEED = 0;
+var __1_FAIL = 1;
+var __1_PRIM = 2;
+var __1_LIST = 3;
+var __1_ARRAY = 4;
+var __1_NULL = 5;
+var __1_FIELD = 6;
+var __1_INDEX = 7;
+var __1_KEY_VALUE = 8;
+var __1_MAP = 9;
+var __1_AND_THEN = 10;
+var __1_ONE_OF = 11;
+
+
 
 /**__DEBUG/
 function _Json_errorToString(error)
@@ -415,8 +433,8 @@ var _Json_encode = F2(function(indentLevel, value)
 	return JSON.stringify(_Json_unwrap(value), null, indentLevel) + '';
 });
 
-function _Json_wrap__DEBUG(value) { return { $: __0_JSON, a: value }; }
-function _Json_unwrap__DEBUG(value) { return value.a; }
+function _Json_wrap(value) { return { $: __0_JSON, a: value }; }
+function _Json_unwrap(value) { return value.a; }
 
 function _Json_wrap__PROD(value) { return value; }
 function _Json_unwrap__PROD(value) { return value; }
@@ -440,3 +458,5 @@ function _Json_addEntry(func)
 }
 
 var _Json_encodeNull = _Json_wrap(null);
+
+export { _Json_run, _Json_wrap };

@@ -19,6 +19,9 @@ import Url exposing (fromString)
 
 */
 
+import { F2, F3, F4, F5, F6, F7, F8, F9, A2, A3, A4, A5, A6, A7, A8, A9 } from '../elm.ffi.mjs';
+import { _Platform_initialize as __Platform_initialize } from '../core/platform.ffi.mjs';
+import { _VirtualDom_virtualize } from '../virtual_dom/virtual_dom.ffi.mjs';
 
 
 // ELEMENT
@@ -26,17 +29,19 @@ import Url exposing (fromString)
 
 var __Debugger_element;
 
-var _Browser_element = __Debugger_element || F4(function(impl, flagDecoder, debugMetadata, args)
+// var _Browser_element = __Debugger_element || F4(function(impl, flagDecoder, debugMetadata, args)
+var _Browser_element = __Debugger_element || F2(function(impl, args)
 {
+	var flagDecoder = 1337; // TODO
 	return __Platform_initialize(
 		flagDecoder,
 		args,
-		impl.__$init,
-		impl.__$update,
-		impl.__$subscriptions,
+		impl.init,
+		impl.update,
+		impl.subscriptions,
 		function(sendToApp, initialModel) {
-			var view = impl.__$view;
-			/**__PROD/
+			var view = impl.view;
+			/**__PROD*/
 			var domNode = args['node'];
 			//*/
 			/**__DEBUG/
@@ -540,3 +545,5 @@ function _Browser_load(url)
 		}
 	}));
 }
+
+export { _Browser_element };

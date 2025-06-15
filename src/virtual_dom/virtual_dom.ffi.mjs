@@ -2111,4 +2111,4 @@ function _VirtualDom_node_(tag, facts, kids)
 	return A3(_VirtualDom_node, tag, facts, kids);
 }
 
-export { _VirtualDom_init, _VirtualDom_attribute_, _VirtualDom_text, _VirtualDom_node_ };
+export { _VirtualDom_init, _VirtualDom_attribute_, _VirtualDom_text, _VirtualDom_node_, _VirtualDom_virtualize };
