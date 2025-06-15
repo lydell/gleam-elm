@@ -19,9 +19,18 @@ import Url exposing (fromString)
 
 */
 
-import { F2, F3, F4, F5, F6, F7, F8, F9, A2, A3, A4, A5, A6, A7, A8, A9 } from '../elm.ffi.mjs';
-import { _Platform_initialize as __Platform_initialize } from '../core/platform.ffi.mjs';
-import { _VirtualDom_virtualize } from '../virtual_dom/virtual_dom.ffi.mjs';
+import {
+	_Platform_initialize as __Platform_initialize,
+} from '../core/platform.ffi.mjs';
+import {
+	_VirtualDom_applyPatches as __VirtualDom_applyPatches,
+	_VirtualDom_diff as __VirtualDom_diff,
+	_VirtualDom_doc as __VirtualDom_doc,
+	_VirtualDom_node as __VirtualDom_node,
+	_VirtualDom_passiveSupported as __VirtualDom_passiveSupported,
+	_VirtualDom_set_divertHrefToApp,
+	_VirtualDom_virtualize,
+} from '../virtual_dom/virtual_dom.ffi.mjs';
 
 
 // ELEMENT
@@ -29,12 +38,9 @@ import { _VirtualDom_virtualize } from '../virtual_dom/virtual_dom.ffi.mjs';
 
 var __Debugger_element;
 
-// var _Browser_element = __Debugger_element || F4(function(impl, flagDecoder, debugMetadata, args)
-var _Browser_element = __Debugger_element || F2(function(impl, args)
+var _Browser_element = __Debugger_element || function(impl) { return function(args)
 {
-	var flagDecoder = 1337; // TODO
 	return __Platform_initialize(
-		flagDecoder,
 		args,
 		impl.init,
 		impl.update,
@@ -58,7 +64,7 @@ var _Browser_element = __Debugger_element || F2(function(impl, args)
 			});
 		}
 	);
-});
+}};
 
 
 
@@ -67,36 +73,35 @@ var _Browser_element = __Debugger_element || F2(function(impl, args)
 
 var __Debugger_document;
 
-var _Browser_document = __Debugger_document || F4(function(impl, flagDecoder, debugMetadata, args)
+var _Browser_document = __Debugger_document || function(impl) { return function(args)
 {
 	return __Platform_initialize(
-		flagDecoder,
 		args,
-		impl.__$init,
-		impl.__$update,
-		impl.__$subscriptions,
+		impl.init,
+		impl.update,
+		impl.subscriptions,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.__$setup && impl.__$setup(sendToApp)
-			var view = impl.__$view;
+			var divertHrefToApp = impl.setup && impl.setup(sendToApp)
+			var view = impl.view;
 			var title = __VirtualDom_doc.title;
 			var bodyNode = __VirtualDom_doc.body;
-			__VirtualDom_divertHrefToApp = divertHrefToApp;
+			_VirtualDom_set_divertHrefToApp(divertHrefToApp);
 			var currNode = _VirtualDom_virtualize(bodyNode);
-			__VirtualDom_divertHrefToApp = 0;
+			_VirtualDom_set_divertHrefToApp(0);
 			return _Browser_makeAnimator(initialModel, function(model)
 			{
-				__VirtualDom_divertHrefToApp = divertHrefToApp;
+				_VirtualDom_set_divertHrefToApp(divertHrefToApp);
 				var doc = view(model);
-				var nextNode = __VirtualDom_node('body')(__List_Nil)(doc.__$body);
+				var nextNode = __VirtualDom_node('body')(__List_Nil)(doc.body);
 				var patches = __VirtualDom_diff(currNode, nextNode);
 				bodyNode = __VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
-				__VirtualDom_divertHrefToApp = 0;
-				(title !== doc.__$title) && (__VirtualDom_doc.title = title = doc.__$title);
+				_VirtualDom_set_divertHrefToApp(0);
+				(title !== doc.title) && (__VirtualDom_doc.title = title = doc.title);
 			});
 		}
 	);
-});
+}};
 
 
 
@@ -228,18 +233,18 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.__$onUrlChange;
-	var onUrlRequest = impl.__$onUrlRequest;
+	var onUrlChange = impl.onUrlChange;
+	var onUrlRequest = impl.onUrlRequest;
 	var key = function() { key.__sendToApp(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		__$setup: function(sendToApp)
+		setup: function(sendToApp)
 		{
 			key.__sendToApp = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
 			_Browser_window.navigator.userAgent.indexOf('Trident') < 0 || _Browser_window.addEventListener('hashchange', key);
 
-			return F2(function(domNode, event)
+			return function(domNode) { return function(event)
 			{
 				if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.button < 1 && !domNode.target && !domNode.hasAttribute('download') && domNode.hasAttribute('href'))
 				{
@@ -249,23 +254,23 @@ function _Browser_application(impl)
 					var next = __Url_fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.__$protocol === next.__$protocol
-							&& curr.__$host === next.__$host
-							&& curr.__$port_.a === next.__$port_.a
+							&& curr.protocol === next.protocol
+							&& curr.host === next.host
+							&& curr.port_.a === next.port_.a
 						)
 							? __Browser_Internal(next)
 							: __Browser_External(href)
 					));
 				}
-			});
+			}};
 		},
-		__$init: function(flags)
+		init: function(flags)
 		{
-			return A3(impl.__$init, flags, _Browser_getUrl(), key);
+			return impl.init(flags, _Browser_getUrl(), key);
 		},
-		__$view: impl.__$view,
-		__$update: impl.__$update,
-		__$subscriptions: impl.__$subscriptions
+		view: impl.view,
+		update: impl.update,
+		subscriptions: impl.subscriptions
 	});
 }
 
@@ -274,29 +279,29 @@ function _Browser_getUrl()
 	return __Url_fromString(__VirtualDom_doc.location.href).a || __Debug_crash(1);
 }
 
-var _Browser_go = F2(function(key, n)
+var _Browser_go = function(key, n)
 {
-	return A2(__Task_perform, __Basics_never, __Scheduler_binding(function() {
+	return __Task_perform(__Basics_never, __Scheduler_binding(function() {
 		n && history.go(n);
 		key();
 	}));
-});
+};
 
-var _Browser_pushUrl = F2(function(key, url)
+var _Browser_pushUrl = function(key, url)
 {
-	return A2(__Task_perform, __Basics_never, __Scheduler_binding(function() {
+	return __Task_perform(__Basics_never, __Scheduler_binding(function() {
 		history.pushState({}, '', url);
 		key();
 	}));
-});
+};
 
-var _Browser_replaceUrl = F2(function(key, url)
+var _Browser_replaceUrl = function(key, url)
 {
-	return A2(__Task_perform, __Basics_never, __Scheduler_binding(function() {
+	return __Task_perform(__Basics_never, __Scheduler_binding(function() {
 		history.replaceState({}, '', url);
 		key();
 	}));
-});
+};
 
 
 
@@ -307,7 +312,7 @@ var _Browser_fakeNode = { addEventListener: function() {}, removeEventListener: 
 var _Browser_doc = typeof document !== 'undefined' ? document : _Browser_fakeNode;
 var _Browser_window = typeof window !== 'undefined' ? window : _Browser_fakeNode;
 
-var _Browser_on = F3(function(node, eventName, sendToSelf)
+var _Browser_on = function(node, eventName, sendToSelf)
 {
 	return __Scheduler_spawn(__Scheduler_binding(function(callback)
 	{
@@ -315,13 +320,13 @@ var _Browser_on = F3(function(node, eventName, sendToSelf)
 		node.addEventListener(eventName, handler, __VirtualDom_passiveSupported && { passive: true });
 		return function() { node.removeEventListener(eventName, handler); };
 	}));
-});
+};
 
-var _Browser_decodeEvent = F2(function(decoder, event)
+var _Browser_decodeEvent = function(decoder, event)
 {
 	var result = __Json_runHelp(decoder, event);
 	return __Result_isOk(result) ? __Maybe_Just(result.a) : __Maybe_Nothing;
-});
+};
 
 
 
@@ -331,17 +336,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof __VirtualDom_doc.hidden !== 'undefined')
-		? { __$hidden: 'hidden', __$change: 'visibilitychange' }
+		? { hidden: 'hidden', change: 'visibilitychange' }
 		:
 	(typeof __VirtualDom_doc.mozHidden !== 'undefined')
-		? { __$hidden: 'mozHidden', __$change: 'mozvisibilitychange' }
+		? { hidden: 'mozHidden', change: 'mozvisibilitychange' }
 		:
 	(typeof __VirtualDom_doc.msHidden !== 'undefined')
-		? { __$hidden: 'msHidden', __$change: 'msvisibilitychange' }
+		? { hidden: 'msHidden', change: 'msvisibilitychange' }
 		:
 	(typeof __VirtualDom_doc.webkitHidden !== 'undefined')
-		? { __$hidden: 'webkitHidden', __$change: 'webkitvisibilitychange' }
-		: { __$hidden: 'hidden', __$change: 'visibilitychange' };
+		? { hidden: 'webkitHidden', change: 'webkitvisibilitychange' }
+		: { hidden: 'hidden', change: 'visibilitychange' };
 }
 
 
@@ -406,13 +411,13 @@ function _Browser_withWindow(doStuff)
 // FOCUS and BLUR
 
 
-var _Browser_call = F2(function(functionName, id)
+var _Browser_call = function(functionName, id)
 {
 	return _Browser_withNode(id, function(node) {
 		node[functionName]();
 		return __Utils_Tuple0;
 	});
-});
+};
 
 
 
@@ -422,12 +427,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		__$scene: _Browser_getScene(),
-		__$viewport: {
-			__$x: _Browser_window.pageXOffset,
-			__$y: _Browser_window.pageYOffset,
-			__$width: _Browser_doc.documentElement.clientWidth,
-			__$height: _Browser_doc.documentElement.clientHeight
+		scene: _Browser_getScene(),
+		viewport: {
+			x: _Browser_window.pageXOffset,
+			y: _Browser_window.pageYOffset,
+			width: _Browser_doc.documentElement.clientWidth,
+			height: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -437,19 +442,19 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		__$width: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		__$height: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		width: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		height: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
-var _Browser_setViewport = F2(function(x, y)
+var _Browser_setViewport = function(x, y)
 {
 	return _Browser_withWindow(function()
 	{
 		_Browser_window.scroll(x, y);
 		return __Utils_Tuple0;
 	});
-});
+};
 
 
 
@@ -461,22 +466,22 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			__$scene: {
-				__$width: node.scrollWidth,
-				__$height: node.scrollHeight
+			scene: {
+				width: node.scrollWidth,
+				height: node.scrollHeight
 			},
-			__$viewport: {
-				__$x: node.scrollLeft,
-				__$y: node.scrollTop,
-				__$width: node.clientWidth,
-				__$height: node.clientHeight
+			viewport: {
+				x: node.scrollLeft,
+				y: node.scrollTop,
+				width: node.clientWidth,
+				height: node.clientHeight
 			}
 		};
 	});
 }
 
 
-var _Browser_setViewportOf = F3(function(id, x, y)
+var _Browser_setViewportOf = function(id, x, y)
 {
 	return _Browser_withNode(id, function(node)
 	{
@@ -484,7 +489,7 @@ var _Browser_setViewportOf = F3(function(id, x, y)
 		node.scrollTop = y;
 		return __Utils_Tuple0;
 	});
-});
+};
 
 
 
@@ -499,18 +504,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			__$scene: _Browser_getScene(),
-			__$viewport: {
-				__$x: x,
-				__$y: y,
-				__$width: _Browser_doc.documentElement.clientWidth,
-				__$height: _Browser_doc.documentElement.clientHeight
+			scene: _Browser_getScene(),
+			viewport: {
+				x: x,
+				y: y,
+				width: _Browser_doc.documentElement.clientWidth,
+				height: _Browser_doc.documentElement.clientHeight
 			},
-			__$element: {
-				__$x: x + rect.left,
-				__$y: y + rect.top,
-				__$width: rect.width,
-				__$height: rect.height
+			element: {
+				x: x + rect.left,
+				y: y + rect.top,
+				width: rect.width,
+				height: rect.height
 			}
 		};
 	});
@@ -523,7 +528,7 @@ function _Browser_getElement(id)
 
 function _Browser_reload(skipCache)
 {
-	return A2(__Task_perform, __Basics_never, __Scheduler_binding(function(callback)
+	return __Task_perform(__Basics_never, __Scheduler_binding(function(callback)
 	{
 		__VirtualDom_doc.location.reload(skipCache);
 	}));
@@ -531,7 +536,7 @@ function _Browser_reload(skipCache)
 
 function _Browser_load(url)
 {
-	return A2(__Task_perform, __Basics_never, __Scheduler_binding(function(callback)
+	return __Task_perform(__Basics_never, __Scheduler_binding(function(callback)
 	{
 		try
 		{
@@ -546,4 +551,8 @@ function _Browser_load(url)
 	}));
 }
 
-export { _Browser_element };
+export {
+	_Browser_element,
+	_Browser_document,
+	_Browser_application,
+};

@@ -12,8 +12,6 @@ import VirtualDom exposing (toHandlerInt)
 
 */
 
-import { F2, F3, F4, F5, F6, F7, F8, F9, A2, A3, A4, A5, A6, A7, A8, A9 } from '../elm.ffi.mjs';
-
 var __2_TEXT = 0;
 var __2_NODE = 1;
 var __2_KEYED_NODE = 2;
@@ -56,6 +54,14 @@ var _VirtualDom_divertHrefToApp;
 
 var _VirtualDom_doc = typeof document !== 'undefined' ? document : {};
 
+
+function _VirtualDom_set_divertHrefToApp(value) {
+	_VirtualDom_divertHrefToApp = value;
+}
+
+function _VirtualDom_set_doc(value) {
+	_VirtualDom_doc = value;
+}
 
 function _VirtualDom_appendChild(parent, child)
 {
@@ -100,7 +106,7 @@ var _VirtualDom_moveBefore = _VirtualDom_supports_moveBefore ? _VirtualDom_moveB
 
 var _VirtualDom_moveAfter = _VirtualDom_supports_moveBefore ? _VirtualDom_moveAfter_ : _VirtualDom_insertAfter;
 
-var _VirtualDom_init = F2(function(virtualNode, args)
+var _VirtualDom_init = function(virtualNode) { return function(args)
 {
 	// NOTE: this function needs __Platform_export available to work
 
@@ -117,7 +123,7 @@ var _VirtualDom_init = F2(function(virtualNode, args)
 	);
 
 	return {};
-});
+}};
 
 
 
@@ -137,10 +143,9 @@ function _VirtualDom_text(string)
 // NODE
 
 
-var _VirtualDom_nodeNS = F2(function(namespace, tag)
+var _VirtualDom_nodeNS = function(namespace, tag, factList, kidList)
 {
-	return F2(function(factList, kidList)
-	{
+	// Double indentation to avoid diff with original code.
 		return {
 			$: __2_NODE,
 			__tag: tag,
@@ -152,31 +157,31 @@ var _VirtualDom_nodeNS = F2(function(namespace, tag)
 			// https://github.com/dillonkearns/elm-pages/blob/fa1d0347016e20917b412de5c3657c2e6e095087/src/Test/Html/Internal/ElmHtml/InternalTypes.elm#L281
 			__descendantsCount: 0
 		};
-	});
-});
+};
 
 
-var _VirtualDom_node = _VirtualDom_nodeNS(undefined);
+var _VirtualDom_node = function(tag, factList, kidList)
+{
+	return _VirtualDom_nodeNS(undefined, tag, factList, kidList);
+};
 
 
 
 // KEYED NODE
 
 
-var _VirtualDom_keyedNodeNS = F2(function(namespace, tag)
+var _VirtualDom_keyedNodeNS = function(namespace, tag, factList, kidList)
 {
-	return F2(function(factList, kidList)
-	{
-		for (var kids = [], kidsMap = Object.create(null); kidList.b; kidList = kidList.b) // WHILE_CONS
+	// Double indentation to avoid diff with original code.
+		for (var kids = kidList.toArray(), kidsMap = Object.create(null), i = 0; i < kids.length; i++)
 		{
-			var kid = kidList.a;
+			var kid = kids[i];
 			var key = kid.a;
 			// Handle duplicate keys by adding a postfix.
 			while (key in kidsMap)
 			{
 				key += _VirtualDom_POSTFIX;
 			}
-			kids.push(kid);
 			kidsMap[key] = kid.b;
 		}
 
@@ -196,8 +201,7 @@ var _VirtualDom_keyedNodeNS = F2(function(namespace, tag)
 			__namespace: namespace,
 			__descendantsCount: 0 // See _VirtualDom_nodeNS.
 		};
-	});
-});
+};
 
 
 var _VirtualDom_keyedNode = _VirtualDom_keyedNodeNS(undefined);
@@ -223,7 +227,7 @@ function _VirtualDom_custom(factList, model, render, diff)
 // MAP
 
 
-var _VirtualDom_map = F2(function(tagger, node)
+var _VirtualDom_map = function(tagger, node)
 {
 	return {
 		$: __2_TAGGER,
@@ -231,7 +235,7 @@ var _VirtualDom_map = F2(function(tagger, node)
 		__node: node,
 		__descendantsCount: 0 // See _VirtualDom_nodeNS.
 	};
-});
+};
 
 
 
@@ -248,107 +252,107 @@ function _VirtualDom_thunk(refs, thunk)
 	};
 }
 
-var _VirtualDom_lazy = F2(function(func, a)
+var _VirtualDom_lazy = function(func, a)
 {
 	return _VirtualDom_thunk([func, a], function() {
 		return func(a);
 	});
-});
+};
 
-var _VirtualDom_lazy2 = F3(function(func, a, b)
+var _VirtualDom_lazy2 = function(func, a, b)
 {
 	return _VirtualDom_thunk([func, a, b], function() {
-		return A2(func, a, b);
+		return func(a, b);
 	});
-});
+};
 
-var _VirtualDom_lazy3 = F4(function(func, a, b, c)
+var _VirtualDom_lazy3 = function(func, a, b, c)
 {
 	return _VirtualDom_thunk([func, a, b, c], function() {
-		return A3(func, a, b, c);
+		return func(a, b, c);
 	});
-});
+};
 
-var _VirtualDom_lazy4 = F5(function(func, a, b, c, d)
+var _VirtualDom_lazy4 = function(func, a, b, c, d)
 {
 	return _VirtualDom_thunk([func, a, b, c, d], function() {
-		return A4(func, a, b, c, d);
+		return func(a, b, c, d);
 	});
-});
+};
 
-var _VirtualDom_lazy5 = F6(function(func, a, b, c, d, e)
+var _VirtualDom_lazy5 = function(func, a, b, c, d, e)
 {
 	return _VirtualDom_thunk([func, a, b, c, d, e], function() {
-		return A5(func, a, b, c, d, e);
+		return func(a, b, c, d, e);
 	});
-});
+};
 
-var _VirtualDom_lazy6 = F7(function(func, a, b, c, d, e, f)
+var _VirtualDom_lazy6 = function(func, a, b, c, d, e, f)
 {
 	return _VirtualDom_thunk([func, a, b, c, d, e, f], function() {
-		return A6(func, a, b, c, d, e, f);
+		return func(a, b, c, d, e, f);
 	});
-});
+};
 
-var _VirtualDom_lazy7 = F8(function(func, a, b, c, d, e, f, g)
+var _VirtualDom_lazy7 = function(func, a, b, c, d, e, f, g)
 {
 	return _VirtualDom_thunk([func, a, b, c, d, e, f, g], function() {
-		return A7(func, a, b, c, d, e, f, g);
+		return func(a, b, c, d, e, f, g);
 	});
-});
+};
 
-var _VirtualDom_lazy8 = F9(function(func, a, b, c, d, e, f, g, h)
+var _VirtualDom_lazy8 = function(func, a, b, c, d, e, f, g, h)
 {
 	return _VirtualDom_thunk([func, a, b, c, d, e, f, g, h], function() {
-		return A8(func, a, b, c, d, e, f, g, h);
+		return func(a, b, c, d, e, f, g, h);
 	});
-});
+};
 
 
 
 // FACTS
 
 
-var _VirtualDom_on = F2(function(key, handler)
+var _VirtualDom_on = function(key, handler)
 {
 	return {
 		$: 'a__1_EVENT',
 		__key: key,
 		__value: handler
 	};
-});
-var _VirtualDom_style = F2(function(key, value)
+};
+var _VirtualDom_style = function(key, value)
 {
 	return {
 		$: 'a__1_STYLE',
 		__key: key,
 		__value: value
 	};
-});
-var _VirtualDom_property = F2(function(key, value)
+};
+var _VirtualDom_property = function(key, value)
 {
 	return {
 		$: 'a__1_PROP',
 		__key: key,
 		__value: value
 	};
-});
-var _VirtualDom_attribute = F2(function(key, value)
+};
+var _VirtualDom_attribute = function(key, value)
 {
 	return {
 		$: 'a__1_ATTR',
 		__key: key,
 		__value: value
 	};
-});
-var _VirtualDom_attributeNS = F3(function(namespace, key, value)
+};
+var _VirtualDom_attributeNS = function(namespace, key, value)
 {
 	return {
 		$: 'a__1_ATTR_NS',
 		__key: key,
 		__value: { __namespace: namespace, __value: value }
 	};
-});
+};
 
 
 
@@ -390,14 +394,14 @@ function _VirtualDom_noInnerHtmlOrFormAction(key)
 function _VirtualDom_noJavaScriptUri(value)
 {
 	return _VirtualDom_RE_js.test(value)
-		? /**__PROD/''//*//**__DEBUG*/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
+		? /**__PROD*/''//*//**__DEBUG/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
 		: value;
 }
 
 function _VirtualDom_noJavaScriptOrHtmlUri(value)
 {
 	return _VirtualDom_RE_js_html.test(value)
-		? /**__PROD/''//*//**__DEBUG*/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
+		? /**__PROD*/''//*//**__DEBUG/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
 		: value;
 }
 
@@ -405,7 +409,7 @@ function _VirtualDom_noJavaScriptOrHtmlJson(value)
 {
 	return (typeof __Json_unwrap(value) === 'string' && _VirtualDom_RE_js_html.test(__Json_unwrap(value)))
 		? __Json_wrap(
-			/**__PROD/''//*//**__DEBUG/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
+			/**__PROD*/''//*//**__DEBUG/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
 		) : value;
 }
 
@@ -414,12 +418,12 @@ function _VirtualDom_noJavaScriptOrHtmlJson(value)
 // MAP FACTS
 
 
-var _VirtualDom_mapAttribute = F2(function(func, attr)
+var _VirtualDom_mapAttribute = function(func, attr)
 {
 	return (attr.$ === 'a__1_EVENT')
-		? A2(_VirtualDom_on, attr.__key, _VirtualDom_mapHandler(func, attr.__value))
+		? _VirtualDom_on(attr.__key, _VirtualDom_mapHandler(func, attr.__value))
 		: attr;
-});
+};
 
 function _VirtualDom_mapHandler(func, handler)
 {
@@ -434,9 +438,9 @@ function _VirtualDom_mapHandler(func, handler)
 		$: handler.$,
 		a:
 			!tag
-				? A2(__Json_map, func, handler.a)
+				? __Json_map(func, handler.a)
 				:
-			A3(__Json_map2,
+			__Json_map2(
 				tag < 3
 					? _VirtualDom_mapEventTuple
 					: _VirtualDom_mapEventRecord,
@@ -446,19 +450,19 @@ function _VirtualDom_mapHandler(func, handler)
 	};
 }
 
-var _VirtualDom_mapEventTuple = F2(function(func, tuple)
+var _VirtualDom_mapEventTuple = function(func, tuple)
 {
 	return __Utils_Tuple2(func(tuple.a), tuple.b);
-});
+};
 
-var _VirtualDom_mapEventRecord = F2(function(func, record)
+var _VirtualDom_mapEventRecord = function(func, record)
 {
 	return {
-		__$message: func(record.__$message),
-		__$stopPropagation: record.__$stopPropagation,
-		__$preventDefault: record.__$preventDefault
+		message: func(record.message),
+		stopPropagation: record.stopPropagation,
+		preventDefault: record.preventDefault
 	}
-});
+};
 
 
 
@@ -962,11 +966,11 @@ function _VirtualDom_makeCallback(initialEventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.__$message;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.__$stopPropagation;
+		var message = !tag ? value : tag < 3 ? value.a : value.message;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.stopPropagation;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.__$preventDefault) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.preventDefault) && event.preventDefault(),
 			eventNode
 		);
 		currentEventNode(message, stopPropagation); // stopPropagation implies isSync
@@ -1969,7 +1973,7 @@ function _VirtualDom_virtualizeHelp(node)
 				{
 					var cssKey = part.slice(0, index).trim();
 					var cssValue = part.slice(index + 1).trim();
-					attrList = __List_Cons(A2(_VirtualDom_style, cssKey, cssValue), attrList);
+					attrList = __List_Cons(_VirtualDom_style(cssKey, cssValue), attrList);
 				}
 			}
 			continue;
@@ -2003,19 +2007,19 @@ function _VirtualDom_virtualizeHelp(node)
 			// attribute; the `value` attribute maps to the `.defaultValue` property. But when serializing,
 			// the most likely way to do it is to serialize the `.value` property to the `value` attribute.
 			name === 'value'
-				? A2(_VirtualDom_property, name, value)
+				? _VirtualDom_property(name, value)
 				:
 			// Try to guess if the attribute comes from one of the functions
 			// implemented using `boolProperty` in `Html.Attributes`.
 			// See `Html.Attributes.spellcheck` for that exception.
 			typeof propertyValue === 'boolean' && name !== 'spellcheck'
-				? A2(_VirtualDom_property, propertyName, propertyValue)
+				? _VirtualDom_property(propertyName, propertyValue)
 				:
 			// Otherwise, guess that it is an attribute. The user might have used `Html.Attributes.property`,
 			// but there’s no way for us to know that.
 			namespaceURI
-				? A3(_VirtualDom_attributeNS, namespaceURI, name, value)
-				: A2(_VirtualDom_attribute, name, value),
+				? _VirtualDom_attributeNS(namespaceURI, name, value)
+				: _VirtualDom_attribute(name, value),
 			attrList
 		);
 	}
@@ -2040,7 +2044,7 @@ function _VirtualDom_virtualizeHelp(node)
 	if (node.localName === 'textarea')
 	{
 		attrList = __List_Cons(
-			A2(_VirtualDom_property, 'value', node.value),
+			_VirtualDom_property('value', node.value),
 			attrList
 		);
 	}
@@ -2073,7 +2077,7 @@ function _VirtualDom_virtualizeHelp(node)
 		}
 	}
 
-	var vNode = A4(_VirtualDom_nodeNS, namespace, tag, attrList, kidList);
+	var vNode = _VirtualDom_nodeNS(namespace, tag, attrList, kidList);
 	_VirtualDom_wrap(vNode);
 	vNode[_VirtualDom_instance].__newDomNodes.push(node);
 	return vNode;
@@ -2101,14 +2105,14 @@ function _VirtualDom_dekey(keyedNode)
 	});
 }
 
-function _VirtualDom_attribute_(name, value)
-{
-	return A2(_VirtualDom_attribute, name, value);
-}
-
-function _VirtualDom_node_(tag, facts, kids)
-{
-	return A3(_VirtualDom_node, tag, facts, kids);
-}
-
-export { _VirtualDom_init, _VirtualDom_attribute_, _VirtualDom_text, _VirtualDom_node_, _VirtualDom_virtualize };
+export {
+	_VirtualDom_attribute,
+	_VirtualDom_init,
+	_VirtualDom_node,
+	_VirtualDom_nodeNS,
+	_VirtualDom_passiveSupported,
+	_VirtualDom_set_divertHrefToApp,
+	_VirtualDom_set_doc,
+	_VirtualDom_text,
+	_VirtualDom_virtualize,
+};

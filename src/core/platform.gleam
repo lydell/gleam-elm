@@ -1,1 +1,1 @@
-pub type Program(flags, model, msg)
+pub type Program(model, msg)

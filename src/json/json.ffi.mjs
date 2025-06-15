@@ -10,10 +10,6 @@ import Result exposing (Ok, Err, isOk)
 
 */
 
-import { F2, F3, F4, F5, F6, F7, F8, F9, A2, A3, A4, A5, A6, A7, A8, A9 } from '../elm.ffi.mjs';
-
-var __0_JSON = 0;
-
 var __1_SUCCEED = 0;
 var __1_FAIL = 1;
 var __1_PRIM = 2;
@@ -101,23 +97,23 @@ function _Json_decodeArray(decoder) { return { $: __1_ARRAY, __decoder: decoder 
 
 function _Json_decodeNull(value) { return { $: __1_NULL, __value: value }; }
 
-var _Json_decodeField = F2(function(field, decoder)
+var _Json_decodeField = function(field, decoder)
 {
 	return {
 		$: __1_FIELD,
 		__field: field,
 		__decoder: decoder
 	};
-});
+};
 
-var _Json_decodeIndex = F2(function(index, decoder)
+var _Json_decodeIndex = function(index, decoder)
 {
 	return {
 		$: __1_INDEX,
 		__index: index,
 		__decoder: decoder
 	};
-});
+};
 
 function _Json_decodeKeyValuePairs(decoder)
 {
@@ -136,14 +132,14 @@ function _Json_mapMany(f, decoders)
 	};
 }
 
-var _Json_andThen = F2(function(callback, decoder)
+var _Json_andThen = function(callback, decoder)
 {
 	return {
 		$: __1_AND_THEN,
 		__decoder: decoder,
 		__callback: callback
 	};
-});
+};
 
 function _Json_oneOf(decoders)
 {
@@ -156,50 +152,50 @@ function _Json_oneOf(decoders)
 
 // DECODING OBJECTS
 
-var _Json_map1 = F2(function(f, d1)
+var _Json_map1 = function(f, d1)
 {
 	return _Json_mapMany(f, [d1]);
-});
+};
 
-var _Json_map2 = F3(function(f, d1, d2)
+var _Json_map2 = function(f, d1, d2)
 {
 	return _Json_mapMany(f, [d1, d2]);
-});
+};
 
-var _Json_map3 = F4(function(f, d1, d2, d3)
+var _Json_map3 = function(f, d1, d2, d3)
 {
 	return _Json_mapMany(f, [d1, d2, d3]);
-});
+};
 
-var _Json_map4 = F5(function(f, d1, d2, d3, d4)
+var _Json_map4 = function(f, d1, d2, d3, d4)
 {
 	return _Json_mapMany(f, [d1, d2, d3, d4]);
-});
+};
 
-var _Json_map5 = F6(function(f, d1, d2, d3, d4, d5)
+var _Json_map5 = function(f, d1, d2, d3, d4, d5)
 {
 	return _Json_mapMany(f, [d1, d2, d3, d4, d5]);
-});
+};
 
-var _Json_map6 = F7(function(f, d1, d2, d3, d4, d5, d6)
+var _Json_map6 = function(f, d1, d2, d3, d4, d5, d6)
 {
 	return _Json_mapMany(f, [d1, d2, d3, d4, d5, d6]);
-});
+};
 
-var _Json_map7 = F8(function(f, d1, d2, d3, d4, d5, d6, d7)
+var _Json_map7 = function(f, d1, d2, d3, d4, d5, d6, d7)
 {
 	return _Json_mapMany(f, [d1, d2, d3, d4, d5, d6, d7]);
-});
+};
 
-var _Json_map8 = F9(function(f, d1, d2, d3, d4, d5, d6, d7, d8)
+var _Json_map8 = function(f, d1, d2, d3, d4, d5, d6, d7, d8)
 {
 	return _Json_mapMany(f, [d1, d2, d3, d4, d5, d6, d7, d8]);
-});
+};
 
 
 // DECODE
 
-var _Json_runOnString = F2(function(decoder, string)
+var _Json_runOnString = function(decoder, string)
 {
 	try
 	{
@@ -208,14 +204,14 @@ var _Json_runOnString = F2(function(decoder, string)
 	}
 	catch (e)
 	{
-		return __Result_Err(A2(__Json_Failure, 'This is not valid JSON! ' + e.message, _Json_wrap(string)));
+		return __Result_Err(__Json_Failure('This is not valid JSON! ' + e.message, _Json_wrap(string)));
 	}
-});
+};
 
-var _Json_run = F2(function(decoder, value)
+var _Json_run = function(decoder, value)
 {
 	return _Json_runHelp(decoder, _Json_unwrap(value));
-});
+};
 
 function _Json_runHelp(decoder, value)
 {
@@ -250,7 +246,7 @@ function _Json_runHelp(decoder, value)
 				return _Json_expecting('an OBJECT with a field named `' + field + '`', value);
 			}
 			var result = _Json_runHelp(decoder.__decoder, value[field]);
-			return (__Result_isOk(result)) ? result : __Result_Err(A2(__Json_Field, field, result.a));
+			return (__Result_isOk(result)) ? result : __Result_Err(__Json_Field(field, result.a));
 
 		case __1_INDEX:
 			var index = decoder.__index;
@@ -263,7 +259,7 @@ function _Json_runHelp(decoder, value)
 				return _Json_expecting('a LONGER array. Need index ' + index + ' but only see ' + value.length + ' entries', value);
 			}
 			var result = _Json_runHelp(decoder.__decoder, value[index]);
-			return (__Result_isOk(result)) ? result : __Result_Err(A2(__Json_Index, index, result.a));
+			return (__Result_isOk(result)) ? result : __Result_Err(__Json_Index(index, result.a));
 
 		case __1_KEY_VALUE:
 			if (typeof value !== 'object' || value === null || _Json_isArray(value))
@@ -280,7 +276,7 @@ function _Json_runHelp(decoder, value)
 					var result = _Json_runHelp(decoder.__decoder, value[key]);
 					if (!__Result_isOk(result))
 					{
-						return __Result_Err(A2(__Json_Field, key, result.a));
+						return __Result_Err(__Json_Field(key, result.a));
 					}
 					keyValuePairs = __List_Cons(__Utils_Tuple2(key, result.a), keyValuePairs);
 				}
@@ -321,7 +317,7 @@ function _Json_runHelp(decoder, value)
 			return __Result_Err(__Json_OneOf(__List_reverse(errors)));
 
 		case __1_FAIL:
-			return __Result_Err(A2(__Json_Failure, decoder.__msg, _Json_wrap(value)));
+			return __Result_Err(__Json_Failure(decoder.__msg, _Json_wrap(value)));
 
 		case __1_SUCCEED:
 			return __Result_Ok(decoder.__msg);
@@ -337,7 +333,7 @@ function _Json_runArrayDecoder(decoder, value, toElmValue)
 		var result = _Json_runHelp(decoder, value[i]);
 		if (!__Result_isOk(result))
 		{
-			return __Result_Err(A2(__Json_Index, i, result.a));
+			return __Result_Err(__Json_Index(i, result.a));
 		}
 		array[i] = result.a;
 	}
@@ -351,12 +347,12 @@ function _Json_isArray(value)
 
 function _Json_toElmArray(array)
 {
-	return A2(__Array_initialize, array.length, function(i) { return array[i]; });
+	return __Array_initialize(array.length, function(i) { return array[i]; });
 }
 
 function _Json_expecting(type, value)
 {
-	return __Result_Err(A2(__Json_Failure, 'Expecting ' + type, _Json_wrap(value)));
+	return __Result_Err(__Json_Failure('Expecting ' + type, _Json_wrap(value)));
 }
 
 
@@ -428,35 +424,38 @@ function _Json_listEquality(aDecoders, bDecoders)
 
 // ENCODE
 
-var _Json_encode = F2(function(indentLevel, value)
+var _Json_encode = function(indentLevel, value)
 {
 	return JSON.stringify(_Json_unwrap(value), null, indentLevel) + '';
-});
+};
 
-function _Json_wrap(value) { return { $: __0_JSON, a: value }; }
-function _Json_unwrap(value) { return value.a; }
+function _Json_wrap__DEBUG(value) { return { $: __0_JSON, a: value }; }
+function _Json_unwrap__DEBUG(value) { return value.a; }
 
-function _Json_wrap__PROD(value) { return value; }
-function _Json_unwrap__PROD(value) { return value; }
+function _Json_wrap(value) { return value; }
+function _Json_unwrap(value) { return value; }
 
 function _Json_emptyArray() { return []; }
 function _Json_emptyObject() { return {}; }
 
-var _Json_addField = F3(function(key, value, object)
+var _Json_addField = function(key, value, object)
 {
 	object[key] = _Json_unwrap(value);
 	return object;
-});
+};
 
 function _Json_addEntry(func)
 {
-	return F2(function(entry, array)
+	return function(entry, array)
 	{
 		array.push(_Json_unwrap(func(entry)));
 		return array;
-	});
+	};
 }
 
 var _Json_encodeNull = _Json_wrap(null);
 
-export { _Json_run, _Json_wrap };
+export {
+	_Json_run,
+	_Json_wrap,
+};

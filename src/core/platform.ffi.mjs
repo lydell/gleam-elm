@@ -10,8 +10,10 @@ import Result exposing (isOk)
 
 */
 
-import { F2, F3, F4, F5, F6, F7, F8, F9, A2, A3, A4, A5, A6, A7, A8, A9 } from '../elm.ffi.mjs';
-import { _Json_run as __Json_run, _Json_wrap as __Json_wrap } from '../json/json.ffi.mjs';
+import {
+	_Json_run as __Json_run,
+	_Json_wrap as __Json_wrap,
+} from '../json/json.ffi.mjs';
 
 var __2_SELF = 0;
 var __2_LEAF = 1;
@@ -22,37 +24,33 @@ var __2_MAP = 3;
 // PROGRAMS
 
 
-var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
+var _Platform_worker = function(impl) { return function(args)
 {
 	return _Platform_initialize(
-		flagDecoder,
 		args,
-		impl.__$init,
-		impl.__$update,
-		impl.__$subscriptions,
+		impl.init,
+		impl.update,
+		impl.subscriptions,
 		function() { return function() {} }
 	);
-});
+}};
 
 
 
 // INITIALIZE A PROGRAM
 
 
-function _Platform_initialize(flagDecoder, args, init, update, subscriptions, stepperBuilder)
+function _Platform_initialize(args, init, update, subscriptions, stepperBuilder)
 {
-	var result = A2(__Json_run, flagDecoder, __Json_wrap(args ? args['flags'] : undefined));
-	// __Result_isOk(result) || __Debug_crash(2 /**__DEBUG/, __Json_errorToString(result.a) /**/);
 	var managers = {};
-	// var initPair = init(result.a);
-	var initPair = init(1338);
+	var initPair = init(__Json_wrap(args ? args['flags'] : undefined));
 	var model = initPair.a;
 	var stepper = stepperBuilder(sendToApp, model);
 	var ports = _Platform_setupEffects(managers, sendToApp);
 
 	function sendToApp(msg, viewMetadata)
 	{
-		var pair = A2(update, msg, model);
+		var pair = update(msg, model);
 		stepper(model = pair.a, viewMetadata);
 		_Platform_enqueueEffects(managers, pair.b, subscriptions(model));
 	}
@@ -135,22 +133,22 @@ function _Platform_instantiateManager(info, sendToApp)
 
 	function loop(state)
 	{
-		return A2(__Scheduler_andThen, loop, __Scheduler_receive(function(msg)
+		return __Scheduler_andThen(loop, __Scheduler_receive(function(msg)
 		{
 			var value = msg.a;
 
 			if (msg.$ === __2_SELF)
 			{
-				return A3(onSelfMsg, router, value, state);
+				return onSelfMsg(router, value, state);
 			}
 
 			return cmdMap && subMap
-				? A4(onEffects, router, value.__cmds, value.__subs, state)
-				: A3(onEffects, router, cmdMap ? value.__cmds : value.__subs, state);
+				? onEffects(router, value.__cmds, value.__subs, state)
+				: onEffects(router, cmdMap ? value.__cmds : value.__subs, state);
 		}));
 	}
 
-	return router.__selfProcess = __Scheduler_rawSpawn(A2(__Scheduler_andThen, loop, info.__init));
+	return router.__selfProcess = __Scheduler_rawSpawn(__Scheduler_andThen(loop, info.__init));
 }
 
 
@@ -158,23 +156,23 @@ function _Platform_instantiateManager(info, sendToApp)
 // ROUTING
 
 
-var _Platform_sendToApp = F2(function(router, msg)
+var _Platform_sendToApp = function(router, msg)
 {
 	return __Scheduler_binding(function(callback)
 	{
 		router.__sendToApp(msg);
 		callback(__Scheduler_succeed(__Utils_Tuple0));
 	});
-});
+};
 
 
-var _Platform_sendToSelf = F2(function(router, msg)
+var _Platform_sendToSelf = function(router, msg)
 {
-	return A2(__Scheduler_send, router.__selfProcess, {
+	return __Scheduler_send(router.__selfProcess, {
 		$: __2_SELF,
 		a: msg
 	});
-});
+};
 
 
 
@@ -203,14 +201,14 @@ function _Platform_batch(list)
 }
 
 
-var _Platform_map = F2(function(tagger, bag)
+var _Platform_map = function(tagger, bag)
 {
 	return {
 		$: __2_MAP,
 		__func: tagger,
 		__bag: bag
 	}
-});
+};
 
 
 
@@ -320,7 +318,7 @@ function _Platform_toEffect(isCmd, home, taggers, value)
 		? _Platform_effectManagers[home].__cmdMap
 		: _Platform_effectManagers[home].__subMap;
 
-	return A2(map, applyTaggers, value)
+	return map(applyTaggers, value)
 }
 
 
@@ -365,7 +363,7 @@ function _Platform_outgoingPort(name, converter)
 }
 
 
-var _Platform_outgoingPortMap = F2(function(tagger, value) { return value; });
+var _Platform_outgoingPortMap = function(tagger, value) { return value; };
 
 
 function _Platform_setupOutgoingPort(name)
@@ -378,7 +376,7 @@ function _Platform_setupOutgoingPort(name)
 	var init = __Process_sleep(0);
 
 	_Platform_effectManagers[name].__init = init;
-	_Platform_effectManagers[name].__onEffects = F3(function(router, cmdList, state)
+	_Platform_effectManagers[name].__onEffects = function(router, cmdList, state)
 	{
 		for ( ; cmdList.b; cmdList = cmdList.b) // WHILE_CONS
 		{
@@ -391,7 +389,7 @@ function _Platform_setupOutgoingPort(name)
 			}
 		}
 		return init;
-	});
+	};
 
 	// PUBLIC API
 
@@ -435,13 +433,13 @@ function _Platform_incomingPort(name, converter)
 }
 
 
-var _Platform_incomingPortMap = F2(function(tagger, finalTagger)
+var _Platform_incomingPortMap = function(tagger, finalTagger)
 {
 	return function(value)
 	{
 		return tagger(finalTagger(value));
 	};
-});
+};
 
 
 function _Platform_setupIncomingPort(name, sendToApp)
@@ -454,17 +452,17 @@ function _Platform_setupIncomingPort(name, sendToApp)
 	var init = __Scheduler_succeed(null);
 
 	_Platform_effectManagers[name].__init = init;
-	_Platform_effectManagers[name].__onEffects = F3(function(router, subList, state)
+	_Platform_effectManagers[name].__onEffects = function(router, subList, state)
 	{
 		subs = subList;
 		return init;
-	});
+	};
 
 	// PUBLIC API
 
 	function send(incomingValue)
 	{
-		var result = A2(__Json_run, converter, __Json_wrap(incomingValue));
+		var result = __Json_run(converter, __Json_wrap(incomingValue));
 
 		__Result_isOk(result) || __Debug_crash(4, name, result.a);
 
@@ -528,4 +526,7 @@ function _Platform_mergeExportsDebug(moduleName, obj, exports)
 	}
 }
 
-export { _Platform_batch, _Platform_initialize };
+export {
+	_Platform_batch,
+	_Platform_initialize,
+};
