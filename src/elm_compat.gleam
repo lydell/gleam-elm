@@ -40,7 +40,9 @@ pub fn element_program() {
   browser.element(
     browser.Element(
       init: fn(_) { #(0, cmd.none()) },
-      view: fn(model) { virtual_dom.text(int.to_string(model)) },
+      view: fn(model) {
+        virtual_dom.node("button", [], [virtual_dom.text(int.to_string(model))])
+      },
       update: fn(msg, model) {
         case msg {
           Nil -> #(model + 1, cmd.none())
