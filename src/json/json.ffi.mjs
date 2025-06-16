@@ -463,7 +463,11 @@ function _Json_addEntry(func)
 var _Json_encodeNull = _Json_wrap(null);
 
 export {
+	_Json_map1 as _Json_map,
+	_Json_map2,
 	_Json_run,
 	_Json_runHelp,
+	_Json_succeed,
+	_Json_unwrap,
 	_Json_wrap,
 };

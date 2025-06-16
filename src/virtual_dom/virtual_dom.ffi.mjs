@@ -17,6 +17,13 @@ import {
 	NonEmpty,
 	Ok,
 } from '../gleam.mjs';
+import {
+	_Json_map as __Json_map,
+	_Json_map2 as __Json_map2,
+	_Json_runHelp as __Json_runHelp,
+	_Json_unwrap as __Json_unwrap,
+	_Json_wrap as __Json_wrap,
+} from '../json/json.ffi.mjs';
 
 var __2_TEXT = 0;
 var __2_NODE = 1;
@@ -327,7 +334,10 @@ var _VirtualDom_on = function(key, handler)
 	return {
 		$: 'a__1_EVENT',
 		__key: key,
-		__value: handler
+		__value: {
+			$: handler[0],
+			a: handler[1][0]
+		}
 	};
 };
 var _VirtualDom_style = function(key, value)
@@ -436,7 +446,7 @@ var _VirtualDom_mapAttribute = function(func, attr)
 
 function _VirtualDom_mapHandler(func, handler)
 {
-	var tag = __VirtualDom_toHandlerInt(handler);
+	var tag = handler.$;
 
 	// 0 = Normal
 	// 1 = MayStopPropagation
@@ -905,7 +915,7 @@ function _VirtualDom_applyEvents(domNode, eventNode, events)
 		oldCallback = _VirtualDom_makeCallback(eventNode, newHandler);
 		domNode.addEventListener(key, oldCallback,
 			_VirtualDom_passiveSupported
-			&& { passive: __VirtualDom_toHandlerInt(newHandler) < 2 }
+			&& { passive: newHandler.$ < 2 }
 		);
 		allCallbacks[key] = oldCallback;
 	}
@@ -967,7 +977,7 @@ function _VirtualDom_makeCallback(initialEventNode, initialHandler)
 			return;
 		}
 
-		var tag = __VirtualDom_toHandlerInt(handler);
+		var tag = handler.$;
 
 		// 0 = Normal
 		// 1 = MayStopPropagation
@@ -2124,6 +2134,7 @@ export {
 	_VirtualDom_keyedNodeNS,
 	_VirtualDom_node,
 	_VirtualDom_nodeNS,
+	_VirtualDom_on,
 	_VirtualDom_passiveSupported,
 	_VirtualDom_set_divertHrefToApp,
 	_VirtualDom_set_doc,

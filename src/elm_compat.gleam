@@ -5,6 +5,7 @@ import gleam/dynamic
 import gleam/int
 import gleam/io
 import gleam/string
+import json/decode
 import virtual_dom/virtual_dom
 
 @external(javascript, "./elm_compat.ffi.mjs", "getText")
@@ -41,7 +42,11 @@ pub fn element_program() {
     browser.Element(
       init: fn(_) { #(0, cmd.none()) },
       view: fn(model) {
-        virtual_dom.node("button", [], [virtual_dom.text(int.to_string(model))])
+        virtual_dom.node(
+          "button",
+          [virtual_dom.on("click", virtual_dom.Normal(decode.succeed(Nil)))],
+          [virtual_dom.text(int.to_string(model))],
+        )
       },
       update: fn(msg, model) {
         case msg {

@@ -25,12 +25,25 @@ pub type Handler(msg) {
   Normal(Decoder(msg))
   MayStopPropagation(Decoder(#(msg, Bool)))
   MayPreventDefault(Decoder(#(msg, Bool)))
-  Custom(Decoder(CustomHandler))
+  Custom(Decoder(CustomHandler(msg)))
 }
 
-pub type CustomHandler {
-  CustomHandler(message: msg, stopPropagation: Bool, preventDefault: Bool)
+pub type CustomHandler(msg) {
+  CustomHandler(message: msg, stop_propagation: Bool, prevent_default: Bool)
+}
+
+pub fn on(event: String, handler: Handler(msg)) -> Attribute(msg) {
+  on_external(event, #(to_handler_tuple(handler), handler))
 }
 
 @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_on")
-pub fn on(event: String, handler: Handler) -> Node(msg)
+fn on_external(event: String, handler: #(Int, Handler(msg))) -> Attribute(msg)
+
+fn to_handler_tuple(handler: Handler(msg)) -> Int {
+  case handler {
+    Normal(_) -> 0
+    MayStopPropagation(_) -> 1
+    MayPreventDefault(_) -> 2
+    Custom(_) -> 3
+  }
+}
