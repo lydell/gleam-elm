@@ -329,15 +329,19 @@ var _VirtualDom_lazy8 = function(func, a, b, c, d, e, f, g, h)
 // FACTS
 
 
+var _VirtualDom_on_gleam = function(key, tuple)
+{
+	return _VirtualDom_on(key, {
+		$: tuple[0],
+		a: tuple[1][0]
+	});
+};
 var _VirtualDom_on = function(key, handler)
 {
 	return {
 		$: 'a__1_EVENT',
 		__key: key,
-		__value: {
-			$: handler[0],
-			a: handler[1][0]
-		}
+		__value: handler
 	};
 };
 var _VirtualDom_style = function(key, value)
@@ -471,7 +475,7 @@ function _VirtualDom_mapHandler(func, handler)
 
 var _VirtualDom_mapEventTuple = function(func, tuple)
 {
-	return [func(tuple.a), tuple.b];
+	return [func(tuple[0]), tuple[1]];
 };
 
 var _VirtualDom_mapEventRecord = function(func, record)
@@ -2134,7 +2138,7 @@ export {
 	_VirtualDom_keyedNodeNS,
 	_VirtualDom_node,
 	_VirtualDom_nodeNS,
-	_VirtualDom_on,
+	_VirtualDom_on_gleam,
 	_VirtualDom_passiveSupported,
 	_VirtualDom_set_divertHrefToApp,
 	_VirtualDom_set_doc,

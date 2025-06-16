@@ -36,7 +36,7 @@ pub fn on(event: String, handler: Handler(msg)) -> Attribute(msg) {
   on_external(event, #(to_handler_tuple(handler), handler))
 }
 
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_on")
+@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_on_gleam")
 fn on_external(event: String, handler: #(Int, Handler(msg))) -> Attribute(msg)
 
 fn to_handler_tuple(handler: Handler(msg)) -> Int {
