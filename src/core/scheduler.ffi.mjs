@@ -102,7 +102,7 @@ var _Scheduler_send = function(proc, msg)
 {
 	return _Scheduler_binding(function(callback) {
 		_Scheduler_rawSend(proc, msg);
-		callback(_Scheduler_succeed(__Utils_Tuple0));
+		callback(_Scheduler_succeed(undefined));
 	});
 };
 
@@ -117,7 +117,7 @@ function _Scheduler_kill(proc)
 
 		proc.__root = null;
 
-		callback(_Scheduler_succeed(__Utils_Tuple0));
+		callback(_Scheduler_succeed(undefined));
 	});
 }
 
