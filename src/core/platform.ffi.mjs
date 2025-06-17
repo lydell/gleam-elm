@@ -17,6 +17,15 @@ import {
 import {
 	_Json_wrap as __Json_wrap,
 } from '../json/json.ffi.mjs';
+import {
+	_Scheduler_andThen as __Scheduler_andThen,
+	_Scheduler_binding as __Scheduler_binding,
+	_Scheduler_rawSend as __Scheduler_rawSend,
+	_Scheduler_rawSpawn as __Scheduler_rawSpawn,
+	_Scheduler_receive as __Scheduler_receive,
+	_Scheduler_send as __Scheduler_send,
+	_Scheduler_succeed as __Scheduler_succeed,
+} from './scheduler.ffi.mjs';
 
 var __2_SELF = 0;
 var __2_LEAF = 1;

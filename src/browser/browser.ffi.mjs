@@ -34,6 +34,13 @@ import {
 	_Platform_initialize as __Platform_initialize,
 } from '../core/platform.ffi.mjs';
 import {
+	_Scheduler_binding as __Scheduler_binding,
+	_Scheduler_fail as __Scheduler_fail,
+	_Scheduler_rawSpawn as __Scheduler_rawSpawn,
+	_Scheduler_spawn as __Scheduler_spawn,
+	_Scheduler_succeed as __Scheduler_succeed,
+} from '../core/scheduler.ffi.mjs';
+import {
 	_VirtualDom_applyPatches as __VirtualDom_applyPatches,
 	_VirtualDom_diff as __VirtualDom_diff,
 	_VirtualDom_doc as __VirtualDom_doc,

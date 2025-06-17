@@ -4,6 +4,13 @@ import Elm.Kernel.Utils exposing (Tuple0)
 
 */
 
+var __1_SUCCEED = 0;
+var __1_FAIL = 1;
+var __1_BINDING = 2;
+var __1_AND_THEN = 3;
+var __1_ON_ERROR = 4;
+var __1_RECEIVE = 5;
+
 
 // TASKS
 
@@ -32,23 +39,23 @@ function _Scheduler_binding(callback)
 	};
 }
 
-var _Scheduler_andThen = F2(function(callback, task)
+var _Scheduler_andThen = function(callback, task)
 {
 	return {
 		$: __1_AND_THEN,
 		__callback: callback,
 		__task: task
 	};
-});
+};
 
-var _Scheduler_onError = F2(function(callback, task)
+var _Scheduler_onError = function(callback, task)
 {
 	return {
 		$: __1_ON_ERROR,
 		__callback: callback,
 		__task: task
 	};
-});
+};
 
 function _Scheduler_receive(callback)
 {
@@ -91,13 +98,13 @@ function _Scheduler_rawSend(proc, msg)
 	_Scheduler_enqueue(proc);
 }
 
-var _Scheduler_send = F2(function(proc, msg)
+var _Scheduler_send = function(proc, msg)
 {
 	return _Scheduler_binding(function(callback) {
 		_Scheduler_rawSend(proc, msg);
 		callback(_Scheduler_succeed(__Utils_Tuple0));
 	});
-});
+};
 
 function _Scheduler_kill(proc)
 {
@@ -193,3 +200,15 @@ function _Scheduler_step(proc)
 		}
 	}
 }
+
+export {
+	_Scheduler_andThen,
+	_Scheduler_binding,
+	_Scheduler_fail,
+	_Scheduler_rawSend,
+	_Scheduler_rawSpawn,
+	_Scheduler_receive,
+	_Scheduler_send,
+	_Scheduler_spawn,
+	_Scheduler_succeed,
+};
