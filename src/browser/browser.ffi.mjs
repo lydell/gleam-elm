@@ -51,6 +51,12 @@ import {
 } from '../virtual_dom/virtual_dom.ffi.mjs';
 
 
+var __Basics_never = function()
+{
+	throw new Error('__Basics_never was called.');
+};
+
+
 // ELEMENT
 
 
