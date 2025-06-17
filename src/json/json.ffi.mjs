@@ -16,6 +16,9 @@ import {
 	NonEmpty,
 	Ok,
 } from '../gleam.mjs';
+import {
+	reverse as __List_reverse,
+} from "../../gleam_stdlib/gleam/list.mjs";
 
 var __1_SUCCEED = 0;
 var __1_FAIL = 1;
