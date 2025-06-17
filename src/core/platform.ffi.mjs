@@ -18,6 +18,9 @@ import {
 	_Json_wrap as __Json_wrap,
 } from '../json/json.ffi.mjs';
 import {
+	_Process_sleep as __Process_sleep,
+} from './process.ffi.mjs';
+import {
 	_Scheduler_andThen as __Scheduler_andThen,
 	_Scheduler_binding as __Scheduler_binding,
 	_Scheduler_rawSend as __Scheduler_rawSend,
