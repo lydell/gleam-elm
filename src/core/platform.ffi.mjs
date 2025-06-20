@@ -15,6 +15,9 @@ import {
 	NonEmpty,
 } from '../gleam.mjs';
 import {
+	manager as __Task_manager,
+} from '../core/task.mjs';
+import {
 	_Json_wrap as __Json_wrap,
 } from '../json/json.ffi.mjs';
 import {
@@ -97,7 +100,9 @@ function _Platform_registerPreload(url)
 // EFFECT MANAGERS
 
 
-var _Platform_effectManagers = {};
+var _Platform_effectManagers = {
+	Task: __Task_manager()
+};
 
 
 function _Platform_setupEffects(managers, sendToApp)
@@ -194,16 +199,14 @@ var _Platform_sendToSelf = function(router, msg)
 // BAGS
 
 
-function _Platform_leaf(home)
+function _Platform_leaf(home, value)
 {
-	return function(value)
-	{
+	// Double indentation to avoid diff with original code.
 		return {
 			$: __2_LEAF,
 			__home: home,
 			__value: value
 		};
-	};
 }
 
 
@@ -536,5 +539,9 @@ function _Platform_mergeExportsDebug(moduleName, obj, exports)
 
 export {
 	_Platform_batch,
+	_Platform_createManager,
 	_Platform_initialize,
+	_Platform_leaf,
+	_Platform_sendToApp,
+	_Platform_sendToSelf,
 };

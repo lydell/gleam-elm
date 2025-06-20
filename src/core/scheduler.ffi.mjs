@@ -11,6 +11,8 @@ var __1_AND_THEN = 3;
 var __1_ON_ERROR = 4;
 var __1_RECEIVE = 5;
 
+var __2_PROCESS = 0;
+
 
 // TASKS
 
@@ -205,6 +207,7 @@ export {
 	_Scheduler_andThen,
 	_Scheduler_binding,
 	_Scheduler_fail,
+	_Scheduler_onError,
 	_Scheduler_rawSend,
 	_Scheduler_rawSpawn,
 	_Scheduler_receive,

@@ -34,6 +34,9 @@ import {
 	_Platform_initialize as __Platform_initialize,
 } from '../core/platform.ffi.mjs';
 import {
+	perform as __Task_perform,
+} from '../core/task.mjs';
+import {
 	_Scheduler_binding as __Scheduler_binding,
 	_Scheduler_fail as __Scheduler_fail,
 	_Scheduler_rawSpawn as __Scheduler_rawSpawn,
