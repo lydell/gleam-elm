@@ -43,6 +43,7 @@ pub type Manager
 /// In Gleam, we need to call it ourselves instead.
 @external(javascript, "./platform.ffi.mjs", "_Platform_createManager")
 pub fn create_manager(
+  // TODO: Type annotations?
   init: a,
   on_effects: b,
   on_self_msg: c,
