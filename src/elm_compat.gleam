@@ -3,6 +3,7 @@ import core/platform/cmd
 import core/platform/sub
 import core/task
 import gleam/dynamic
+import gleam/function
 import gleam/int
 import gleam/io
 import gleam/string
@@ -52,7 +53,7 @@ pub fn element_program() {
       update: fn(msg, model) {
         case msg {
           Nil -> #(model + 1, case model {
-            2 -> task.perform(fn(_) { Nil }, task.succeed(Nil))
+            2 -> task.perform(function.identity, task.succeed(Nil))
             _ -> cmd.none()
           })
         }
