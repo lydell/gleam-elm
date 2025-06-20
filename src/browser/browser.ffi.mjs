@@ -72,6 +72,7 @@ var _Browser_element = __Debugger_element || function(impl) { return function(ar
 		impl.init,
 		impl.update,
 		impl.subscriptions,
+		impl.effect_managers,
 		function(sendToApp, initialModel) {
 			var view = impl.view;
 			/**__PROD*/
@@ -107,6 +108,7 @@ var _Browser_document = __Debugger_document || function(impl) { return function(
 		impl.init,
 		impl.update,
 		impl.subscriptions,
+		impl.effect_managers,
 		function(sendToApp, initialModel) {
 			var divertHrefToApp = impl.setup && impl.setup(sendToApp)
 			var view = impl.view;

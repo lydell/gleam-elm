@@ -56,8 +56,10 @@ type MySub(msg) {
   Every(Float, fn(Posix) -> msg)
 }
 
+const module_name = "Time"
+
 fn subscription(value: a) -> Sub(msg) {
-  platform.leaf_sub("Time", value)
+  platform.leaf_sub(module_name, value)
 }
 
 fn sub_map(f: fn(a) -> b, my_sub: MySub(a)) -> MySub(b) {
@@ -179,6 +181,9 @@ fn on_self_msg(
 @external(javascript, "./time.ffi.mjs", "_Time_setInterval")
 fn set_interval(duration: Float, task: Task(Never, Nil)) -> Task(x, Never)
 
-pub fn manager() -> platform.Manager {
-  platform.create_manager(init(), on_effects, on_self_msg, 0, sub_map)
+pub fn manager() -> #(String, platform.Manager) {
+  #(
+    module_name,
+    platform.create_manager(init(), on_effects, on_self_msg, 0, sub_map),
+  )
 }

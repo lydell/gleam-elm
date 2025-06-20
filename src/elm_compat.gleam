@@ -65,6 +65,7 @@ pub fn element_program() {
           _ -> sub.none()
         }
       },
+      effect_managers: [task.manager(), time.manager()],
     ),
   )
 }

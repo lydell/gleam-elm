@@ -201,8 +201,10 @@ type MyCmd(msg) {
   Perform(Task(Never, msg))
 }
 
+const module_name = "Task"
+
 fn command(value: a) -> Cmd(msg) {
-  platform.leaf_cmd("Task", value)
+  platform.leaf_cmd(module_name, value)
 }
 
 /// Like I was saying in the [`Task`](#Task) documentation, just having a
@@ -308,6 +310,9 @@ fn spawn_cmd(
 @external(javascript, "./scheduler.ffi.mjs", "_Scheduler_spawn")
 fn spawn(task: Task(x, a)) -> Task(x, a)
 
-pub fn manager() -> platform.Manager {
-  platform.create_manager(init(), on_effects, on_self_msg, cmd_map, 0)
+pub fn manager() -> #(String, platform.Manager) {
+  #(
+    module_name,
+    platform.create_manager(init(), on_effects, on_self_msg, cmd_map, 0),
+  )
 }

@@ -15,9 +15,6 @@ import {
 	NonEmpty,
 } from '../gleam.mjs';
 import {
-	manager as __Task_manager,
-} from '../core/task.mjs';
-import {
 	_Json_wrap as __Json_wrap,
 } from '../json/json.ffi.mjs';
 import {
@@ -32,9 +29,6 @@ import {
 	_Scheduler_send as __Scheduler_send,
 	_Scheduler_succeed as __Scheduler_succeed,
 } from './scheduler.ffi.mjs';
-import {
-	manager as __Time_manager,
-} from '../time/time.mjs';
 
 var __2_SELF = 0;
 var __2_LEAF = 1;
@@ -52,6 +46,7 @@ var _Platform_worker = function(impl) { return function(args)
 		impl.init,
 		impl.update,
 		impl.subscriptions,
+		impl.effect_managers,
 		function() { return function() {} }
 	);
 }};
@@ -61,8 +56,14 @@ var _Platform_worker = function(impl) { return function(args)
 // INITIALIZE A PROGRAM
 
 
-function _Platform_initialize(args, init, update, subscriptions, stepperBuilder)
+function _Platform_initialize(args, init, update, subscriptions, effectManagers, stepperBuilder)
 {
+	// TODO: This leaks effect managers between apps.
+	for (var [moduleName, manager] of effectManagers)
+	{
+		_Platform_effectManagers[moduleName] = manager;
+	}
+
 	var managers = {};
 	var initPair = init(__Json_wrap(args ? args['flags'] : undefined));
 	var model = initPair[0];
@@ -103,10 +104,7 @@ function _Platform_registerPreload(url)
 // EFFECT MANAGERS
 
 
-var _Platform_effectManagers = {
-	Task: __Task_manager(),
-	Time: __Time_manager()
-};
+var _Platform_effectManagers = {};
 
 
 function _Platform_setupEffects(managers, sendToApp)

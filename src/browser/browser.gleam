@@ -10,6 +10,7 @@ pub type Element(model, msg) {
     view: fn(model) -> Html(msg),
     update: fn(msg, model) -> #(model, Cmd(msg)),
     subscriptions: fn(model) -> Sub(msg),
+    effect_managers: List(#(String, platform.Manager)),
   )
 }
 
