@@ -23,7 +23,7 @@ import {
 	_Json_runHelp as __Json_runHelp,
 	_Json_unwrap as __Json_unwrap,
 	_Json_wrap as __Json_wrap,
-} from '../json/json.ffi.mjs';
+} from './json.ffi.mjs';
 
 var __2_TEXT = 0;
 var __2_NODE = 1;

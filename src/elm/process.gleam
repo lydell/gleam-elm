@@ -34,8 +34,8 @@
 //// the Elm community will be supportive of being more ambitious, even if it takes
 //// longer. That’s kind of what Elm is all about.
 
-import core/platform
-import core/task.{type Task}
+import elm/platform
+import elm/task.{type Task}
 
 /// A light-weight process that runs concurrently. You can use `spawn` to
 /// get a bunch of different tasks running in different processes. The Elm runtime

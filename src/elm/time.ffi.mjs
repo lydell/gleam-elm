@@ -10,7 +10,7 @@ import {
 	_Scheduler_binding as __Scheduler_binding,
 	_Scheduler_rawSpawn,
 	_Scheduler_succeed as __Scheduler_succeed,
-} from '../core/scheduler.ffi.mjs';
+} from './scheduler.ffi.mjs';
 
 
 function _Time_now(millisToPosix)

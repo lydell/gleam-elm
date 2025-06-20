@@ -1,15 +1,15 @@
-import browser/browser
-import core/platform/cmd
-import core/platform/sub
-import core/task
+import elm/browser
+import elm/json/decode
+import elm/platform/cmd
+import elm/platform/sub
+import elm/task
+import elm/time
+import elm/virtual_dom
 import gleam/dynamic
 import gleam/function
 import gleam/int
 import gleam/io
 import gleam/string
-import json/decode
-import time/time
-import virtual_dom/virtual_dom
 
 @external(javascript, "./elm_compat.ffi.mjs", "getText")
 fn get_text() -> string

@@ -16,7 +16,7 @@ import {
 } from '../gleam.mjs';
 import {
 	_Json_wrap as __Json_wrap,
-} from '../json/json.ffi.mjs';
+} from './json.ffi.mjs';
 import {
 	_Process_sleep as __Process_sleep,
 } from './process.ffi.mjs';

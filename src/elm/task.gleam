@@ -15,8 +15,8 @@
 
 // TODO: Convert example code to Gleam
 
-import core/platform
-import core/platform/cmd.{type Cmd}
+import elm/platform
+import elm/platform/cmd.{type Cmd}
 import gleam/list
 
 /// Here are some common tasks:

@@ -1,5 +1,5 @@
-import core/platform.{type Program}
-import json/decode.{type Decoder}
+import elm/json/decode.{type Decoder}
+import elm/platform.{type Program}
 
 pub type Node(msg)
 

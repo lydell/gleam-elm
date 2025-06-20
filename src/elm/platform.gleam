@@ -1,5 +1,5 @@
-import core/platform/cmd.{type Cmd}
-import core/platform/sub.{type Sub}
+import elm/platform/cmd.{type Cmd}
+import elm/platform/sub.{type Sub}
 
 pub type Program(model, msg)
 

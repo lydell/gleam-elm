@@ -29,20 +29,20 @@ import {
 } from "../../gleam_stdlib/gleam/option.mjs";
 import {
 	_Json_runHelp as __Json_runHelp,
-} from '../json/json.ffi.mjs';
+} from './json.ffi.mjs';
 import {
 	_Platform_initialize as __Platform_initialize,
-} from '../core/platform.ffi.mjs';
+} from './platform.ffi.mjs';
 import {
 	perform as __Task_perform,
-} from '../core/task.mjs';
+} from './task.mjs';
 import {
 	_Scheduler_binding as __Scheduler_binding,
 	_Scheduler_fail as __Scheduler_fail,
 	_Scheduler_rawSpawn as __Scheduler_rawSpawn,
 	_Scheduler_spawn as __Scheduler_spawn,
 	_Scheduler_succeed as __Scheduler_succeed,
-} from '../core/scheduler.ffi.mjs';
+} from './scheduler.ffi.mjs';
 import {
 	_VirtualDom_applyPatches as __VirtualDom_applyPatches,
 	_VirtualDom_diff as __VirtualDom_diff,
@@ -51,7 +51,7 @@ import {
 	_VirtualDom_passiveSupported as __VirtualDom_passiveSupported,
 	_VirtualDom_set_divertHrefToApp,
 	_VirtualDom_virtualize,
-} from '../virtual_dom/virtual_dom.ffi.mjs';
+} from './virtual_dom.ffi.mjs';
 
 
 var __Basics_never = function()

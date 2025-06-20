@@ -1,9 +1,9 @@
 // SUBSCRIPTIONS
 
-import core/platform
-import core/platform/sub.{type Sub}
-import core/process
-import core/task.{type Task}
+import elm/platform
+import elm/platform/sub.{type Sub}
+import elm/process
+import elm/task.{type Task}
 import gleam/dict
 import gleam/list
 

@@ -1,8 +1,8 @@
-import core/platform.{type Program}
-import core/platform/cmd.{type Cmd}
-import core/platform/sub.{type Sub}
+import elm/html.{type Html}
+import elm/platform.{type Program}
+import elm/platform/cmd.{type Cmd}
+import elm/platform/sub.{type Sub}
 import gleam/dynamic
-import html/html.{type Html}
 
 pub type Element(model, msg) {
   Element(
