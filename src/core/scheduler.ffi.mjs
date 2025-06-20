@@ -207,6 +207,7 @@ export {
 	_Scheduler_andThen,
 	_Scheduler_binding,
 	_Scheduler_fail,
+	_Scheduler_kill,
 	_Scheduler_onError,
 	_Scheduler_rawSend,
 	_Scheduler_rawSpawn,

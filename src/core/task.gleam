@@ -202,7 +202,7 @@ type MyCmd(msg) {
 }
 
 fn command(value: a) -> Cmd(msg) {
-  platform.leaf("Task", value)
+  platform.leaf_cmd("Task", value)
 }
 
 /// Like I was saying in the [`Task`](#Task) documentation, just having a

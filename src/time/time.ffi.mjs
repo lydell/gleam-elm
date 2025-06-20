@@ -6,6 +6,12 @@ import Elm.Kernel.Scheduler exposing (binding, succeed)
 
 */
 
+import {
+	_Scheduler_binding as __Scheduler_binding,
+	_Scheduler_rawSpawn,
+	_Scheduler_succeed as __Scheduler_succeed,
+} from '../core/scheduler.ffi.mjs';
+
 
 function _Time_now(millisToPosix)
 {
@@ -15,21 +21,21 @@ function _Time_now(millisToPosix)
 	});
 }
 
-var _Time_setInterval = F2(function(interval, task)
+var _Time_setInterval = function(interval, task)
 {
 	return __Scheduler_binding(function(callback)
 	{
 		var id = setInterval(function() { _Scheduler_rawSpawn(task); }, interval);
 		return function() { clearInterval(id); };
 	});
-});
+};
 
 function _Time_here()
 {
 	return __Scheduler_binding(function(callback)
 	{
 		callback(__Scheduler_succeed(
-			A2(__Time_customZone, -(new Date().getTimezoneOffset()), __List_Nil)
+			__Time_customZone(-(new Date().getTimezoneOffset()), __List_Nil)
 		));
 	});
 }
@@ -50,3 +56,8 @@ function _Time_getZoneName()
 		callback(__Scheduler_succeed(name));
 	});
 }
+
+export {
+	_Time_now,
+	_Time_setInterval,
+};

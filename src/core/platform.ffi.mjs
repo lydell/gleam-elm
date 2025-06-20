@@ -32,6 +32,9 @@ import {
 	_Scheduler_send as __Scheduler_send,
 	_Scheduler_succeed as __Scheduler_succeed,
 } from './scheduler.ffi.mjs';
+import {
+	manager as __Time_manager,
+} from '../time/time.mjs';
 
 var __2_SELF = 0;
 var __2_LEAF = 1;
@@ -101,7 +104,8 @@ function _Platform_registerPreload(url)
 
 
 var _Platform_effectManagers = {
-	Task: __Task_manager()
+	Task: __Task_manager(),
+	Time: __Time_manager()
 };
 
 

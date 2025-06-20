@@ -1,4 +1,5 @@
 import core/platform/cmd.{type Cmd}
+import core/platform/sub.{type Sub}
 
 pub type Program(model, msg)
 
@@ -51,6 +52,10 @@ pub fn create_manager(
 
 /// In Elm, effect modules define `command = MyCmd` at the top, which then automatically defines
 /// a function that takes `MyCmd` and returns a `Cmd msg`. The `command` function is defined as
-/// `_Platform_leaf('NameOfTheEffectModule')`.
+/// `_Platform_leaf('NameOfTheEffectModule')`. Same thing for `subscription = MySub`.
 @external(javascript, "./platform.ffi.mjs", "_Platform_leaf")
-pub fn leaf(home: String, value: a) -> Cmd(msg)
+pub fn leaf_cmd(home: String, value: a) -> Cmd(msg)
+
+/// Like `leaf_cmd` but for `subscription = MySub`.
+@external(javascript, "./platform.ffi.mjs", "_Platform_leaf")
+pub fn leaf_sub(home: String, value: a) -> Sub(msg)

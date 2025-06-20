@@ -8,6 +8,7 @@ import gleam/int
 import gleam/io
 import gleam/string
 import json/decode
+import time/time
 import virtual_dom/virtual_dom
 
 @external(javascript, "./elm_compat.ffi.mjs", "getText")
@@ -58,7 +59,12 @@ pub fn element_program() {
           })
         }
       },
-      subscriptions: fn(_) { sub.none() },
+      subscriptions: fn(model) {
+        case model {
+          6 | 7 | 8 | 9 -> time.every(1000.0, fn(_) { Nil })
+          _ -> sub.none()
+        }
+      },
     ),
   )
 }
