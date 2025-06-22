@@ -82,7 +82,11 @@ pub fn leaf_cmd(home: String, value: a) -> Cmd(msg)
 pub fn leaf_sub(home: String, value: a) -> Sub(msg)
 
 @external(javascript, "./platform.ffi.mjs", "_Platform_incomingPort")
-pub fn incoming_port(name: String, decoder: Decoder(a)) -> Manager
+fn incoming_port_raw(name: String, decoder: Decoder(a)) -> RawManager
+
+pub fn incoming_port(name: String, decoder: Decoder(a)) -> Manager {
+  Manager(name, incoming_port_raw(name, decoder))
+}
 
 @external(javascript, "./platform.ffi.mjs", "_Platform_outgoingPort")
 fn outgoing_port_raw(name: String, encoder: fn(a) -> encode.Value) -> RawManager

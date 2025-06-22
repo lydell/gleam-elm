@@ -19,6 +19,7 @@
         app.ports.onCount.subscribe(count => {
             console.log("onCount port", count);
         });
+        app.ports.onJsMessage.send("yo yo");
     </script>
 </body>
 </html>

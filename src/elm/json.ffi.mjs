@@ -63,7 +63,11 @@ function _Json_fail(msg)
 
 function _Json_decodePrim(decoder)
 {
+	return function()
+	{
+	// Wrong indentation to avoid diff.
 	return { $: __1_PRIM, __decoder: decoder };
+	}
 }
 
 var _Json_decodeInt = _Json_decodePrim(function(value) {
@@ -466,6 +470,7 @@ function _Json_addEntry(func)
 var _Json_encodeNull = _Json_wrap(null);
 
 export {
+	_Json_decodeString,
 	_Json_map1 as _Json_map,
 	_Json_map2,
 	_Json_run,

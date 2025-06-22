@@ -1,10 +1,9 @@
 import elm/browser
 import elm/json/decode
-
 import elm/json/encode
 import elm/platform
 import elm/platform/cmd.{type Cmd}
-import elm/platform/sub
+import elm/platform/sub.{type Sub}
 import elm/task
 import elm/time
 import elm/virtual_dom
@@ -53,6 +52,19 @@ fn on_count_manager() -> platform.Manager {
   platform.outgoing_port(on_count_name, encode.int)
 }
 
+const on_js_message_name = "onJsMessage"
+
+fn on_js_message() -> Sub(a) {
+  platform.leaf_sub(on_js_message_name, fn(js_message) {
+    echo js_message
+    Nil
+  })
+}
+
+fn on_count_message_manager() -> platform.Manager {
+  platform.incoming_port(on_js_message_name, decode.string())
+}
+
 pub fn element_program() {
   browser.element(
     browser.Element(
@@ -75,10 +87,15 @@ pub fn element_program() {
       subscriptions: fn(model) {
         case model {
           6 | 7 | 8 | 9 -> time.every(1000.0, fn(_) { Nil })
-          _ -> sub.none()
+          _ -> on_js_message()
         }
       },
-      effect_managers: [task.manager(), time.manager(), on_count_manager()],
+      effect_managers: [
+        task.manager(),
+        time.manager(),
+        on_count_manager(),
+        on_count_message_manager(),
+      ],
     ),
   )
 }

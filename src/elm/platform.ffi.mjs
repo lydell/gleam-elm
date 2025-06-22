@@ -448,13 +448,18 @@ function _Platform_setupOutgoingPort(name)
 
 function _Platform_incomingPort(name, converter)
 {
-	_Platform_checkPortName(name);
-	_Platform_effectManagers[name] = {
+	// _Platform_checkPortName(name);
+	// _Platform_effectManagers[name] = {
+	// 	__subMap: _Platform_incomingPortMap,
+	// 	__converter: converter,
+	// 	__portSetup: _Platform_setupIncomingPort
+	// };
+	// return _Platform_leaf(name);
+	return {
 		__subMap: _Platform_incomingPortMap,
 		__converter: converter,
 		__portSetup: _Platform_setupIncomingPort
 	};
-	return _Platform_leaf(name);
 }
 
 
