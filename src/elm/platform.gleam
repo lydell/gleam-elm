@@ -44,6 +44,14 @@ pub opaque type Manager {
   Manager(home: String, raw_manager: RawManager)
 }
 
+pub opaque type IncomingPort(a) {
+  IncomingPort(home: String, raw_manager: RawManager)
+}
+
+pub opaque type OutgoingPort(a) {
+  OutgoingPort(home: String, raw_manager: RawManager)
+}
+
 /// In Elm, this function is called implicitly by defining the parameters of this function as top-level
 /// values in an `effect module`.
 /// In Gleam, we need to call it ourselves instead.
@@ -84,13 +92,43 @@ pub fn leaf_sub(home: String, value: a) -> Sub(msg)
 @external(javascript, "./platform.ffi.mjs", "_Platform_incomingPort")
 fn incoming_port_raw(name: String, decoder: Decoder(a)) -> RawManager
 
-pub fn incoming_port(name: String, decoder: Decoder(a)) -> Manager {
-  Manager(name, incoming_port_raw(name, decoder))
+pub fn incoming_port(name: String, decoder: Decoder(a)) -> IncomingPort(a) {
+  IncomingPort(name, incoming_port_raw(name, decoder))
+}
+
+pub fn subscribe_incoming_port(
+  port: IncomingPort(a),
+  to_msg: fn(a) -> b,
+) -> Sub(msg) {
+  case port {
+    IncomingPort(home, _) -> leaf_sub(home, to_msg)
+  }
+}
+
+pub fn incoming_port_to_effect_manager(port: IncomingPort(a)) -> Manager {
+  case port {
+    IncomingPort(home, raw_manager) -> Manager(home, raw_manager)
+  }
 }
 
 @external(javascript, "./platform.ffi.mjs", "_Platform_outgoingPort")
 fn outgoing_port_raw(name: String, encoder: fn(a) -> encode.Value) -> RawManager
 
-pub fn outgoing_port(name: String, encoder: fn(a) -> encode.Value) -> Manager {
-  Manager(name, outgoing_port_raw(name, encoder))
+pub fn outgoing_port(
+  name: String,
+  encoder: fn(a) -> encode.Value,
+) -> OutgoingPort(a) {
+  OutgoingPort(name, outgoing_port_raw(name, encoder))
+}
+
+pub fn call_outgoing_port(port: OutgoingPort(a), value: a) -> Cmd(msg) {
+  case port {
+    OutgoingPort(home, _) -> leaf_cmd(home, value)
+  }
+}
+
+pub fn outgoing_port_to_effect_manager(port: OutgoingPort(a)) -> Manager {
+  case port {
+    OutgoingPort(home, raw_manager) -> Manager(home, raw_manager)
+  }
 }

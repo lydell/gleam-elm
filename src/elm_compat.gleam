@@ -2,8 +2,7 @@ import elm/browser
 import elm/json/decode
 import elm/json/encode
 import elm/platform
-import elm/platform/cmd.{type Cmd}
-import elm/platform/sub.{type Sub}
+import elm/platform/cmd
 import elm/task
 import elm/time
 import elm/virtual_dom
@@ -42,27 +41,12 @@ pub fn html_program() {
   )
 }
 
-const on_count_name = "onCount"
-
-fn on_count(count: Int) -> Cmd(a) {
-  platform.leaf_cmd(on_count_name, count)
+fn port_on_count() -> platform.OutgoingPort(Int) {
+  platform.outgoing_port("onCount", encode.int)
 }
 
-fn on_count_manager() -> platform.Manager {
-  platform.outgoing_port(on_count_name, encode.int)
-}
-
-const on_js_message_name = "onJsMessage"
-
-fn on_js_message() -> Sub(a) {
-  platform.leaf_sub(on_js_message_name, fn(js_message) {
-    echo js_message
-    Nil
-  })
-}
-
-fn on_count_message_manager() -> platform.Manager {
-  platform.incoming_port(on_js_message_name, decode.string())
+fn port_on_js_message() -> platform.IncomingPort(String) {
+  platform.incoming_port("onJsMessage", decode.string())
 }
 
 pub fn element_program() {
@@ -81,21 +65,28 @@ pub fn element_program() {
         case msg {
           Nil -> #(model + 1, case model {
             2 -> task.perform(function.identity, task.succeed(Nil))
-            _ -> on_count(model + 1)
+            _ -> platform.call_outgoing_port(port_on_count(), model + 1)
           })
         }
       },
       subscriptions: fn(model) {
         case model {
           6 | 7 | 8 | 9 -> time.every(1000.0, fn(_) { Nil })
-          _ -> on_js_message()
+          _ ->
+            platform.subscribe_incoming_port(
+              port_on_js_message(),
+              fn(js_message) {
+                echo js_message
+                Nil
+              },
+            )
         }
       },
       effect_managers: [
         task.manager(),
         time.manager(),
-        on_count_manager(),
-        on_count_message_manager(),
+        platform.outgoing_port_to_effect_manager(port_on_count()),
+        platform.incoming_port_to_effect_manager(port_on_js_message()),
       ],
     ),
   )
