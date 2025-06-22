@@ -6,7 +6,7 @@ pub type Node(msg)
 pub type Attribute(msg)
 
 @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_init")
-pub fn init(node: Node(msg)) -> Program(Nil, Nil)
+pub fn init(node: Node(msg)) -> Program(Nil, Nil, Nil)
 
 @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_attribute")
 pub fn attribute(key: String, value: String) -> Attribute(msg)

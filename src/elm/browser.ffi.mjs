@@ -68,6 +68,7 @@ var __Debugger_element;
 var _Browser_element = __Debugger_element || function(impl) { return function(args)
 {
 	return __Platform_initialize(
+		impl.flags_decoder,
 		args,
 		impl.init,
 		impl.update,
@@ -104,6 +105,7 @@ var __Debugger_document;
 var _Browser_document = __Debugger_document || function(impl) { return function(args)
 {
 	return __Platform_initialize(
+		impl.flags_decoder,
 		args,
 		impl.init,
 		impl.update,

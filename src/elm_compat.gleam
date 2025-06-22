@@ -68,6 +68,7 @@ fn on_count_message_manager() -> platform.Manager {
 pub fn element_program() {
   browser.element(
     browser.Element(
+      flags_decoder: decode.succeed(Nil),
       init: fn(_) { #(0, cmd.none()) },
       view: fn(model) {
         virtual_dom.node(

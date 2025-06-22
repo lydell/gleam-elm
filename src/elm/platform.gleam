@@ -3,7 +3,7 @@ import elm/json/encode
 import elm/platform/cmd.{type Cmd}
 import elm/platform/sub.{type Sub}
 
-pub type Program(model, msg)
+pub type Program(flags, model, msg)
 
 // TASKS and PROCESSES
 

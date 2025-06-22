@@ -1,12 +1,13 @@
 import elm/html.{type Html}
-import elm/json/encode
+import elm/json/decode.{type Decoder}
 import elm/platform.{type Program}
 import elm/platform/cmd.{type Cmd}
 import elm/platform/sub.{type Sub}
 
-pub type Element(model, msg) {
+pub type Element(flags, model, msg) {
   Element(
-    init: fn(encode.Value) -> #(model, Cmd(msg)),
+    flags_decoder: Decoder(flags),
+    init: fn(flags) -> #(model, Cmd(msg)),
     view: fn(model) -> Html(msg),
     update: fn(msg, model) -> #(model, Cmd(msg)),
     subscriptions: fn(model) -> Sub(msg),
@@ -15,4 +16,4 @@ pub type Element(model, msg) {
 }
 
 @external(javascript, "./browser.ffi.mjs", "_Browser_element")
-pub fn element(impl: Element(model, msg)) -> Program(model, msg)
+pub fn element(impl: Element(flags, model, msg)) -> Program(flags, model, msg)

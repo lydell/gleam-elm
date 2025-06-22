@@ -13,10 +13,12 @@ import Result exposing (isOk)
 import {
 	Empty,
 	NonEmpty,
+	Ok,
 } from '../gleam.mjs';
 import {
-	_Json_wrap as __Json_wrap,
+	_Json_run as __Json_run,
 	_Json_unwrap as __Json_unwrap,
+	_Json_wrap as __Json_wrap,
 } from './json.ffi.mjs';
 import {
 	_Process_sleep as __Process_sleep,
@@ -43,6 +45,7 @@ var __2_MAP = 3;
 var _Platform_worker = function(impl) { return function(args)
 {
 	return _Platform_initialize(
+		impl.flags_decoder,
 		args,
 		impl.init,
 		impl.update,
@@ -57,7 +60,7 @@ var _Platform_worker = function(impl) { return function(args)
 // INITIALIZE A PROGRAM
 
 
-function _Platform_initialize(args, init, update, subscriptions, effectManagers, stepperBuilder)
+function _Platform_initialize(flagDecoder, args, init, update, subscriptions, effectManagers, stepperBuilder)
 {
 	// TODO: This leaks effect managers between apps.
 	for (var manager of effectManagers)
@@ -65,8 +68,10 @@ function _Platform_initialize(args, init, update, subscriptions, effectManagers,
 		_Platform_effectManagers[manager.home] = manager.raw_manager;
 	}
 
+	var result = __Json_run(flagDecoder, __Json_wrap(args ? args['flags'] : undefined));
+	result instanceof Ok || __Debug_crash(2 /**__DEBUG/, __Json_errorToString(result.a) /**/);
 	var managers = {};
-	var initPair = init(__Json_wrap(args ? args['flags'] : undefined));
+	var initPair = init(result[0]);
 	var model = initPair[0];
 	var stepper = stepperBuilder(sendToApp, model);
 	var ports = _Platform_setupEffects(managers, sendToApp);
