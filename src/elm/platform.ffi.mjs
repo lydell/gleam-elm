@@ -16,6 +16,7 @@ import {
 } from '../gleam.mjs';
 import {
 	_Json_wrap as __Json_wrap,
+	_Json_unwrap as __Json_unwrap,
 } from './json.ffi.mjs';
 import {
 	_Process_sleep as __Process_sleep,
@@ -59,9 +60,9 @@ var _Platform_worker = function(impl) { return function(args)
 function _Platform_initialize(args, init, update, subscriptions, effectManagers, stepperBuilder)
 {
 	// TODO: This leaks effect managers between apps.
-	for (var [moduleName, manager] of effectManagers)
+	for (var manager of effectManagers)
 	{
-		_Platform_effectManagers[moduleName] = manager;
+		_Platform_effectManagers[manager.home] = manager.raw_manager;
 	}
 
 	var managers = {};
@@ -307,9 +308,9 @@ function _Platform_gatherEffects(isCmd, bag, effectsDict, taggers)
 			return;
 
 		case __2_NODE:
-			for (var list = bag.__bags; list.b; list = list.b) // WHILE_CONS
+			for (var subBag of bag.__bags)
 			{
-				_Platform_gatherEffects(isCmd, list.a, effectsDict, taggers);
+				_Platform_gatherEffects(isCmd, subBag, effectsDict, taggers);
 			}
 			return;
 
@@ -373,13 +374,18 @@ function _Platform_checkPortName(name)
 
 function _Platform_outgoingPort(name, converter)
 {
-	_Platform_checkPortName(name);
-	_Platform_effectManagers[name] = {
+	// _Platform_checkPortName(name);
+	// _Platform_effectManagers[name] = {
+	// 	__cmdMap: _Platform_outgoingPortMap,
+	// 	__converter: converter,
+	// 	__portSetup: _Platform_setupOutgoingPort
+	// };
+	// return _Platform_leaf(name);
+	return {
 		__cmdMap: _Platform_outgoingPortMap,
 		__converter: converter,
 		__portSetup: _Platform_setupOutgoingPort
 	};
-	return _Platform_leaf(name);
 }
 
 
@@ -397,11 +403,11 @@ function _Platform_setupOutgoingPort(name)
 	_Platform_effectManagers[name].__init = init;
 	_Platform_effectManagers[name].__onEffects = function(router, cmdList, state)
 	{
-		for ( ; cmdList.b; cmdList = cmdList.b) // WHILE_CONS
+		for (var cmd of cmdList)
 		{
 			// grab a separate reference to subs in case unsubscribe is called
 			var currentSubs = subs;
-			var value = __Json_unwrap(cmdList.a);
+			var value = __Json_unwrap(cmd);
 			for (var i = 0; i < currentSubs.length; i++)
 			{
 				currentSubs[i](value);
@@ -480,9 +486,9 @@ function _Platform_setupIncomingPort(name, sendToApp)
 
 	function send(incomingValue)
 	{
-		for (var temp = subs; temp.b; temp = temp.b) // WHILE_CONS
+		for (var temp of subs)
 		{
-			sendToApp(temp.a(__Json_wrap(incomingValue)));
+			sendToApp(temp(__Json_wrap(incomingValue)));
 		}
 	}
 
@@ -542,8 +548,10 @@ function _Platform_mergeExportsDebug(moduleName, obj, exports)
 export {
 	_Platform_batch,
 	_Platform_createManager,
+	_Platform_incomingPort,
 	_Platform_initialize,
 	_Platform_leaf,
+	_Platform_outgoingPort,
 	_Platform_sendToApp,
 	_Platform_sendToSelf,
 };

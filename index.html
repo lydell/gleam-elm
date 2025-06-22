@@ -15,7 +15,10 @@
         console.log("Adding 2 and 3:", add(2, 3));
         init(1337)();
         html_program()({ node: html_program_main });
-        element_program()({ node: element_program_main });
+        const app = element_program()({ node: element_program_main });
+        app.ports.onCount.subscribe(count => {
+            console.log("onCount port", count);
+        });
     </script>
 </body>
 </html>

@@ -315,9 +315,9 @@ function _Json_runHelp(decoder, value)
 
 		case __1_ONE_OF:
 			var errors = new Empty;
-			for (var temp = decoder.__decoders; temp.b; temp = temp.b) // WHILE_CONS
+			for (var temp of decoder.__decoders)
 			{
-				var result = _Json_runHelp(temp.a, value);
+				var result = _Json_runHelp(temp, value);
 				if (result instanceof Ok)
 				{
 					return result;

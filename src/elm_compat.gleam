@@ -1,6 +1,9 @@
 import elm/browser
 import elm/json/decode
-import elm/platform/cmd
+
+import elm/json/encode
+import elm/platform
+import elm/platform/cmd.{type Cmd}
 import elm/platform/sub
 import elm/task
 import elm/time
@@ -40,6 +43,16 @@ pub fn html_program() {
   )
 }
 
+const on_count_name = "onCount"
+
+fn on_count(count: Int) -> Cmd(a) {
+  platform.leaf_cmd(on_count_name, count)
+}
+
+fn on_count_manager() -> platform.Manager {
+  platform.outgoing_port(on_count_name, encode.int)
+}
+
 pub fn element_program() {
   browser.element(
     browser.Element(
@@ -55,7 +68,7 @@ pub fn element_program() {
         case msg {
           Nil -> #(model + 1, case model {
             2 -> task.perform(function.identity, task.succeed(Nil))
-            _ -> cmd.none()
+            _ -> on_count(model + 1)
           })
         }
       },
@@ -65,7 +78,7 @@ pub fn element_program() {
           _ -> sub.none()
         }
       },
-      effect_managers: [task.manager(), time.manager()],
+      effect_managers: [task.manager(), time.manager(), on_count_manager()],
     ),
   )
 }

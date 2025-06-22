@@ -1,16 +1,16 @@
 import elm/html.{type Html}
+import elm/json/encode
 import elm/platform.{type Program}
 import elm/platform/cmd.{type Cmd}
 import elm/platform/sub.{type Sub}
-import gleam/dynamic
 
 pub type Element(model, msg) {
   Element(
-    init: fn(dynamic.Dynamic) -> #(model, Cmd(msg)),
+    init: fn(encode.Value) -> #(model, Cmd(msg)),
     view: fn(model) -> Html(msg),
     update: fn(msg, model) -> #(model, Cmd(msg)),
     subscriptions: fn(model) -> Sub(msg),
-    effect_managers: List(#(String, platform.Manager)),
+    effect_managers: List(platform.Manager),
   )
 }
 

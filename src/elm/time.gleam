@@ -181,9 +181,13 @@ fn on_self_msg(
 @external(javascript, "./time.ffi.mjs", "_Time_setInterval")
 fn set_interval(duration: Float, task: Task(Never, Nil)) -> Task(x, Never)
 
-pub fn manager() -> #(String, platform.Manager) {
-  #(
+pub fn manager() -> platform.Manager {
+  platform.create_manager(
     module_name,
-    platform.create_manager(init(), on_effects, on_self_msg, 0, sub_map),
+    init(),
+    on_effects,
+    on_self_msg,
+    0,
+    sub_map,
   )
 }

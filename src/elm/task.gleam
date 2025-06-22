@@ -310,9 +310,13 @@ fn spawn_cmd(
 @external(javascript, "./scheduler.ffi.mjs", "_Scheduler_spawn")
 fn spawn(task: Task(x, a)) -> Task(x, a)
 
-pub fn manager() -> #(String, platform.Manager) {
-  #(
+pub fn manager() -> platform.Manager {
+  platform.create_manager(
     module_name,
-    platform.create_manager(init(), on_effects, on_self_msg, cmd_map, 0),
+    init(),
+    on_effects,
+    on_self_msg,
+    cmd_map,
+    0,
   )
 }
