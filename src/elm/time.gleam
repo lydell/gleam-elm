@@ -1,5 +1,6 @@
 // SUBSCRIPTIONS
 
+import elm/basics.{type Never}
 import elm/platform
 import elm/platform/sub.{type Sub}
 import elm/process
@@ -79,12 +80,6 @@ type Processes =
 
 type Taggers(msg) =
   dict.Dict(Float, List(fn(Posix) -> msg))
-
-// TODO: Is there discussion about Never in Gleam?
-// Should I define Basics?
-pub type Never {
-  Never(Never)
-}
 
 fn init() -> Task(Never, State(msg)) {
   task.succeed(State(dict.new(), dict.new()))

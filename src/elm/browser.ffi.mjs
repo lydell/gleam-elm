@@ -28,6 +28,9 @@ import {
 	Some,
 } from "../../gleam_stdlib/gleam/option.mjs";
 import {
+	never as __Basics_never,
+} from './basics.mjs';
+import {
 	_Json_runHelp as __Json_runHelp,
 } from './json.ffi.mjs';
 import {
@@ -52,12 +55,6 @@ import {
 	_VirtualDom_set_divertHrefToApp,
 	_VirtualDom_virtualize,
 } from './virtual_dom.ffi.mjs';
-
-
-var __Basics_never = function()
-{
-	throw new Error('__Basics_never was called.');
-};
 
 
 // ELEMENT

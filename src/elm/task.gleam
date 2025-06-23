@@ -13,8 +13,7 @@
 //// # Errors
 //// @docs onError, mapError
 
-// TODO: Convert example code to Gleam
-
+import elm/basics.{type Never}
 import elm/platform
 import elm/platform/cmd.{type Cmd}
 import gleam/list
@@ -190,12 +189,6 @@ pub fn map_error(task: Task(x, a), convert: fn(x) -> y) -> Task(y, a) {
 }
 
 // COMMANDS
-
-// TODO: Is there discussion about Never in Gleam?
-// Should I define Basics?
-pub type Never {
-  Never(Never)
-}
 
 type MyCmd(msg) {
   Perform(Task(Never, msg))
