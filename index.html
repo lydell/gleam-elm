@@ -10,12 +10,11 @@
     <hr>
     <div id="element_program_main"></div>
     <script type="module">
-        import { main, add, init, html_program, element_program } from "./build/dev/javascript/elm_compat/elm_compat.mjs";
-        main();
-        console.log("Adding 2 and 3:", add(2, 3));
-        init(1337)();
+        import { html_program, program } from "./build/dev/javascript/elm_compat/elm_compat.mjs";
+
         html_program()({ node: html_program_main });
-        const app = element_program()({ node: element_program_main });
+
+        const app = program()();
         app.ports.onCount.subscribe(count => {
             console.log("onCount port", count);
         });

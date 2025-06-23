@@ -6,30 +6,8 @@ import elm/platform/cmd
 import elm/task
 import elm/time
 import elm/virtual_dom
-import gleam/dynamic
 import gleam/function
 import gleam/int
-import gleam/io
-import gleam/string
-
-@external(javascript, "./elm_compat.ffi.mjs", "getText")
-fn get_text() -> string
-
-pub fn main() -> Nil {
-  io.println("Hello from elm_compat! " <> get_text())
-}
-
-pub fn add(x: Int, y: Int) -> Int {
-  x + y
-}
-
-pub fn init(arg: dynamic.Dynamic) {
-  fn() {
-    io.println(
-      "Initializing Elm compatibility module...: " <> string.inspect(arg),
-    )
-  }
-}
 
 pub fn html_program() {
   virtual_dom.init(
@@ -49,7 +27,7 @@ fn port_on_js_message() -> platform.IncomingPort(String) {
   platform.incoming_port("onJsMessage", decode.string())
 }
 
-pub fn element_program() {
+pub fn program() {
   browser.application(
     browser.Application(
       flags_decoder: decode.succeed(Nil),
