@@ -182,7 +182,6 @@ pub fn manager() -> platform.Manager {
     init(),
     on_effects,
     on_self_msg,
-    0,
-    sub_map,
+    platform.OnlySub(sub_map),
   )
 }

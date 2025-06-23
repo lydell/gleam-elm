@@ -309,7 +309,6 @@ pub fn manager() -> platform.Manager {
     init(),
     on_effects,
     on_self_msg,
-    cmd_map,
-    0,
+    platform.OnlyCmd(cmd_map),
   )
 }

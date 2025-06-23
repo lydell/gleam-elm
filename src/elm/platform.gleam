@@ -1,3 +1,4 @@
+import elm/basics.{type Never}
 import elm/json/decode.{type Decoder}
 import elm/json/encode
 import elm/platform/cmd.{type Cmd}
@@ -57,26 +58,42 @@ pub opaque type IncomingPort(a) {
 /// In Gleam, we need to call it ourselves instead.
 @external(javascript, "./platform.ffi.mjs", "_Platform_createManager")
 fn create_manager_raw(
-  // TODO: Type annotations?
-  init: a,
-  on_effects: b,
-  on_self_msg: c,
-  cmd_map: d,
-  sub_map: e,
+  init: Task(Never, state),
+  on_effects: fn(Router(app_msg, self_msg), List(bag), state) ->
+    Task(Never, state),
+  on_self_msg: fn(Router(app_msg, self_msg), self_msg, state) ->
+    Task(Never, state),
+  cmd_map: cmd_map,
+  sub_map: sub_map,
 ) -> RawManager
+
+pub type BagMap(cmd_a, cmd_b, cmd_a_, cmd_b_, sub_a, sub_b, sub_a_, sub_b_) {
+  OnlyCmd(cmd_map: fn(fn(cmd_a) -> cmd_b, cmd_a_) -> cmd_b_)
+  OnlySub(sub_map: fn(fn(sub_a) -> sub_b, sub_a_) -> sub_b_)
+  BothCmdAndSub(
+    cmd_map: fn(fn(cmd_a) -> cmd_b, cmd_a_) -> cmd_b_,
+    sub_map: fn(fn(sub_a) -> sub_b, sub_a_) -> sub_b_,
+  )
+}
 
 pub fn create_manager(
   home: String,
-  init: a,
-  on_effects: b,
-  on_self_msg: c,
-  cmd_map: d,
-  sub_map: e,
+  init: Task(Never, state),
+  on_effects: fn(Router(app_msg, self_msg), List(bag), state) ->
+    Task(Never, state),
+  on_self_msg: fn(Router(app_msg, self_msg), self_msg, state) ->
+    Task(Never, state),
+  bag_map: BagMap(cmd_a, cmd_b, cmd_a_, cmd_b_, sub_a, sub_b, sub_a_, sub_b_),
 ) -> Manager {
-  Manager(
-    home,
-    create_manager_raw(init, on_effects, on_self_msg, cmd_map, sub_map),
-  )
+  let manager_raw = case bag_map {
+    OnlyCmd(cmd_map) ->
+      create_manager_raw(init, on_effects, on_self_msg, cmd_map, 0)
+    OnlySub(sub_map) ->
+      create_manager_raw(init, on_effects, on_self_msg, 0, sub_map)
+    BothCmdAndSub(cmd_map, sub_map) ->
+      create_manager_raw(init, on_effects, on_self_msg, cmd_map, sub_map)
+  }
+  Manager(home, manager_raw)
 }
 
 /// In Elm, effect modules define `command = MyCmd` at the top, which then automatically defines
