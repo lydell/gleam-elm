@@ -13,7 +13,7 @@ pub type Element(flags, model, msg) {
     view: fn(model) -> Html(msg),
     update: fn(msg, model) -> #(model, Cmd(msg)),
     subscriptions: fn(model) -> Sub(msg),
-    effect_managers: List(platform.Manager),
+    effect_managers: List(platform.EffectManager),
   )
 }
 
@@ -33,7 +33,7 @@ pub type Application(flags, model, msg) {
     subscriptions: fn(model) -> Sub(msg),
     on_url_request: fn(UrlRequest) -> msg,
     on_url_change: fn(Url) -> msg,
-    effect_managers: List(platform.Manager),
+    effect_managers: List(platform.EffectManager),
   )
 }
 

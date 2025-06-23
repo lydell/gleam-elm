@@ -69,7 +69,7 @@ function _Platform_initialize(flagDecoder, args, init, update, subscriptions, ef
 	for (var manager of effectManagers)
 	{
 		_Platform_checkPortName(manager.home);
-		_Platform_effectManagers[manager.home] = manager.raw_manager;
+		_Platform_effectManagers[manager.home] = manager.raw_effect_manager;
 	}
 
 	var result = __Json_run(flagDecoder, __Json_wrap(args ? args['flags'] : undefined));

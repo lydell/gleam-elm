@@ -84,8 +84,8 @@ pub fn element_program() {
       on_url_request: fn(_) { Nil },
       on_url_change: fn(_) { Nil },
       effect_managers: [
-        task.manager(),
-        time.manager(),
+        task.effect_manager(),
+        time.effect_manager(),
         platform.outgoing_port_to_effect_manager(port_on_count),
         platform.incoming_port_to_effect_manager(port_on_js_message),
       ],
