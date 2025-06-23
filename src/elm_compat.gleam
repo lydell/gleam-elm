@@ -65,7 +65,7 @@ pub fn element_program() {
         case msg {
           Nil -> #(model + 1, case model {
             2 -> task.perform(function.identity, task.succeed(Nil))
-            _ -> platform.call_outgoing_port(port_on_count(), model + 1)
+            _ -> platform.call_outgoing_port(port_on_count, model + 1)
           })
         }
       },
@@ -73,20 +73,17 @@ pub fn element_program() {
         case model {
           6 | 7 | 8 | 9 -> time.every(1000.0, fn(_) { Nil })
           _ ->
-            platform.subscribe_incoming_port(
-              port_on_js_message(),
-              fn(js_message) {
-                echo js_message
-                Nil
-              },
-            )
+            platform.subscribe_incoming_port(port_on_js_message, fn(js_message) {
+              echo js_message
+              Nil
+            })
         }
       },
       effect_managers: [
         task.manager(),
         time.manager(),
-        platform.outgoing_port_to_effect_manager(port_on_count()),
-        platform.incoming_port_to_effect_manager(port_on_js_message()),
+        platform.outgoing_port_to_effect_manager(port_on_count),
+        platform.incoming_port_to_effect_manager(port_on_js_message),
       ],
     ),
   )

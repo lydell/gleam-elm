@@ -44,12 +44,12 @@ pub opaque type Manager {
   Manager(home: String, raw_manager: RawManager)
 }
 
-pub opaque type IncomingPort(a) {
-  IncomingPort(home: String, raw_manager: RawManager)
-}
-
 pub opaque type OutgoingPort(a) {
   OutgoingPort(home: String, raw_manager: RawManager)
+}
+
+pub opaque type IncomingPort(a) {
+  IncomingPort(home: String, raw_manager: RawManager)
 }
 
 /// In Elm, this function is called implicitly by defining the parameters of this function as top-level
@@ -89,31 +89,33 @@ pub fn leaf_cmd(home: String, value: a) -> Cmd(msg)
 @external(javascript, "./platform.ffi.mjs", "_Platform_leaf")
 pub fn leaf_sub(home: String, value: a) -> Sub(msg)
 
-@external(javascript, "./platform.ffi.mjs", "_Platform_incomingPort")
-fn incoming_port_raw(name: String, decoder: Decoder(a)) -> RawManager
-
-pub fn incoming_port(name: String, decoder: Decoder(a)) -> IncomingPort(a) {
-  IncomingPort(name, incoming_port_raw(name, decoder))
-}
-
-pub fn subscribe_incoming_port(
-  port: IncomingPort(a),
-  to_msg: fn(a) -> b,
-) -> Sub(msg) {
-  case port {
-    IncomingPort(home, _) -> leaf_sub(home, to_msg)
-  }
-}
-
-pub fn incoming_port_to_effect_manager(port: IncomingPort(a)) -> Manager {
-  case port {
-    IncomingPort(home, raw_manager) -> Manager(home, raw_manager)
-  }
-}
-
 @external(javascript, "./platform.ffi.mjs", "_Platform_outgoingPort")
 fn outgoing_port_raw(name: String, encoder: fn(a) -> encode.Value) -> RawManager
 
+/// Defines an outgoing port.
+///
+/// Elm:
+///
+///     -- Definition:
+///     port myPortName : SomeType -> Cmd msg
+///
+///     -- Call:
+///     myPortName value
+///
+///     -- Setup: automatic/implicit
+///
+/// Gleam:
+///
+///     // Definition:
+///     fn port_my_port_name() {
+///         platform.outgoing_port("myPortName", encodeSomeType)
+///     }
+///
+///     // Call:
+///     platform.call_outgoing_port(port_my_port_name, value)
+///
+///     // Setup:
+///     platform.outgoing_port_to_effect_manager(port_my_port_name)
 pub fn outgoing_port(
   name: String,
   encoder: fn(a) -> encode.Value,
@@ -121,14 +123,72 @@ pub fn outgoing_port(
   OutgoingPort(name, outgoing_port_raw(name, encoder))
 }
 
-pub fn call_outgoing_port(port: OutgoingPort(a), value: a) -> Cmd(msg) {
-  case port {
+/// Call an outgoing port. In Elm, this would just be a regular function call.
+/// In Gleam, you need this helper function to do it. See `outgoing_port` for
+/// more details.
+pub fn call_outgoing_port(port: fn() -> OutgoingPort(a), value: a) -> Cmd(msg) {
+  case port() {
     OutgoingPort(home, _) -> leaf_cmd(home, value)
   }
 }
 
-pub fn outgoing_port_to_effect_manager(port: OutgoingPort(a)) -> Manager {
-  case port {
+/// A port is powered by an effect manager. You need to pass the effect manager
+/// when initializing the app. This function extracts the effect manager from a port.
+/// See `outgoing_port` for more details.
+pub fn outgoing_port_to_effect_manager(port: fn() -> OutgoingPort(a)) -> Manager {
+  case port() {
     OutgoingPort(home, raw_manager) -> Manager(home, raw_manager)
+  }
+}
+
+@external(javascript, "./platform.ffi.mjs", "_Platform_incomingPort")
+fn incoming_port_raw(name: String, decoder: Decoder(a)) -> RawManager
+
+/// Defines an incoming port.
+///
+/// Elm:
+///
+///     -- Definition:
+///     port myPortName : (SomeType -> msg) -> Sub msg
+///
+///     -- Subscribe:
+///     myPortName SomeMsgConstructor
+///
+///     -- Setup: automatic/implicit
+///
+/// Gleam:
+///
+///     // Definition:
+///     fn port_my_port_name() {
+///         platform.incoming_port("myPortName", decodeSomeType)
+///     }
+///
+///     // Call:
+///     platform.call_incoming_port(port_my_port_name, SomeMsgConstructor)
+///
+///     // Setup:
+///     platform.incoming_port_to_effect_manager(port_my_port_name)
+pub fn incoming_port(name: String, decoder: Decoder(a)) -> IncomingPort(a) {
+  IncomingPort(name, incoming_port_raw(name, decoder))
+}
+
+/// Subscribe to an incoming port. In Elm, this would just be a regular function call.
+/// In Gleam, you need this helper function to do it. See `incoming_port` for
+/// more details.
+pub fn subscribe_incoming_port(
+  port: fn() -> IncomingPort(a),
+  to_msg: fn(a) -> msg,
+) -> Sub(msg) {
+  case port() {
+    IncomingPort(home, _) -> leaf_sub(home, to_msg)
+  }
+}
+
+/// A port is powered by an effect manager. You need to pass the effect manager
+/// when initializing the app. This function extracts the effect manager from a port.
+/// See `incoming_port` for more details.
+pub fn incoming_port_to_effect_manager(port: fn() -> IncomingPort(a)) -> Manager {
+  case port() {
+    IncomingPort(home, raw_manager) -> Manager(home, raw_manager)
   }
 }

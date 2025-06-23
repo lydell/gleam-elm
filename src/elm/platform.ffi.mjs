@@ -65,6 +65,7 @@ function _Platform_initialize(flagDecoder, args, init, update, subscriptions, ef
 	// TODO: This leaks effect managers between apps.
 	for (var manager of effectManagers)
 	{
+		_Platform_checkPortName(manager.home);
 		_Platform_effectManagers[manager.home] = manager.raw_manager;
 	}
 
@@ -379,13 +380,6 @@ function _Platform_checkPortName(name)
 
 function _Platform_outgoingPort(name, converter)
 {
-	// _Platform_checkPortName(name);
-	// _Platform_effectManagers[name] = {
-	// 	__cmdMap: _Platform_outgoingPortMap,
-	// 	__converter: converter,
-	// 	__portSetup: _Platform_setupOutgoingPort
-	// };
-	// return _Platform_leaf(name);
 	return {
 		__cmdMap: _Platform_outgoingPortMap,
 		__converter: converter,
@@ -453,13 +447,6 @@ function _Platform_setupOutgoingPort(name)
 
 function _Platform_incomingPort(name, converter)
 {
-	// _Platform_checkPortName(name);
-	// _Platform_effectManagers[name] = {
-	// 	__subMap: _Platform_incomingPortMap,
-	// 	__converter: converter,
-	// 	__portSetup: _Platform_setupIncomingPort
-	// };
-	// return _Platform_leaf(name);
 	return {
 		__subMap: _Platform_incomingPortMap,
 		__converter: converter,
