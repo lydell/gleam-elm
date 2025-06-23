@@ -40,15 +40,18 @@ import {
 	_Platform_initialize as __Platform_initialize,
 } from './platform.ffi.mjs';
 import {
-	perform as __Task_perform,
-} from './task.mjs';
-import {
 	_Scheduler_binding as __Scheduler_binding,
 	_Scheduler_fail as __Scheduler_fail,
 	_Scheduler_rawSpawn as __Scheduler_rawSpawn,
 	_Scheduler_spawn as __Scheduler_spawn,
 	_Scheduler_succeed as __Scheduler_succeed,
 } from './scheduler.ffi.mjs';
+import {
+	perform as __Task_perform,
+} from './task.mjs';
+import {
+	from_string as __Url_fromString,
+} from './url.mjs';
 import {
 	_VirtualDom_applyPatches as __VirtualDom_applyPatches,
 	_VirtualDom_diff as __VirtualDom_diff,
@@ -123,7 +126,7 @@ var _Browser_document = __Debugger_document || function(impl) { return function(
 			{
 				_VirtualDom_set_divertHrefToApp(divertHrefToApp);
 				var doc = view(model);
-				var nextNode = __VirtualDom_node('body')(new Empty)(doc.body);
+				var nextNode = __VirtualDom_node('body', new Empty, doc.body);
 				var patches = __VirtualDom_diff(currNode, nextNode);
 				bodyNode = __VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
@@ -295,13 +298,15 @@ function _Browser_application(impl)
 				}
 			}};
 		},
+		flags_decoder: impl.flags_decoder,
 		init: function(flags)
 		{
 			return impl.init(flags, _Browser_getUrl(), key);
 		},
 		view: impl.view,
 		update: impl.update,
-		subscriptions: impl.subscriptions
+		subscriptions: impl.subscriptions,
+		effect_managers: impl.effect_managers
 	});
 }
 

@@ -50,16 +50,18 @@ fn port_on_js_message() -> platform.IncomingPort(String) {
 }
 
 pub fn element_program() {
-  browser.element(
-    browser.Element(
+  browser.application(
+    browser.Application(
       flags_decoder: decode.succeed(Nil),
-      init: fn(_) { #(0, cmd.none()) },
+      init: fn(_, _, _) { #(0, cmd.none()) },
       view: fn(model) {
-        virtual_dom.node(
-          "button",
-          [virtual_dom.on("click", virtual_dom.Normal(decode.succeed(Nil)))],
-          [virtual_dom.text(int.to_string(model))],
-        )
+        browser.Document(title: "Gleam Elm application", body: [
+          virtual_dom.node(
+            "button",
+            [virtual_dom.on("click", virtual_dom.Normal(decode.succeed(Nil)))],
+            [virtual_dom.text(int.to_string(model))],
+          ),
+        ])
       },
       update: fn(msg, model) {
         case msg {
@@ -79,6 +81,8 @@ pub fn element_program() {
             })
         }
       },
+      on_url_request: fn(_) { Nil },
+      on_url_change: fn(_) { Nil },
       effect_managers: [
         task.manager(),
         time.manager(),
