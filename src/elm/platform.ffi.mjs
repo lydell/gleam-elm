@@ -381,7 +381,7 @@ function _Platform_checkPortName(name)
 // OUTGOING PORTS
 
 
-function _Platform_outgoingPort(name, converter)
+function _Platform_outgoingPort(converter)
 {
 	return {
 		__cmdMap: _Platform_outgoingPortMap,
@@ -448,7 +448,7 @@ function _Platform_setupOutgoingPort(name)
 // INCOMING PORTS
 
 
-function _Platform_incomingPort(name, converter)
+function _Platform_incomingPort(converter)
 {
 	return {
 		__subMap: _Platform_incomingPortMap,

@@ -107,10 +107,7 @@ pub fn leaf_cmd(home: String, value: a) -> Cmd(msg)
 pub fn leaf_sub(home: String, value: a) -> Sub(msg)
 
 @external(javascript, "./platform.ffi.mjs", "_Platform_outgoingPort")
-fn outgoing_port_raw(
-  name: String,
-  encoder: fn(a) -> encode.Value,
-) -> RawEffectManager
+fn outgoing_port_raw(encoder: fn(a) -> encode.Value) -> RawEffectManager
 
 /// Defines an outgoing port.
 ///
@@ -140,7 +137,7 @@ pub fn outgoing_port(
   name: String,
   encoder: fn(a) -> encode.Value,
 ) -> OutgoingPort(a) {
-  OutgoingPort(name, outgoing_port_raw(name, encoder))
+  OutgoingPort(name, outgoing_port_raw(encoder))
 }
 
 /// Call an outgoing port. In Elm, this would just be a regular function call.
@@ -165,7 +162,7 @@ pub fn outgoing_port_to_effect_manager(
 }
 
 @external(javascript, "./platform.ffi.mjs", "_Platform_incomingPort")
-fn incoming_port_raw(name: String, decoder: Decoder(a)) -> RawEffectManager
+fn incoming_port_raw(decoder: Decoder(a)) -> RawEffectManager
 
 /// Defines an incoming port.
 ///
@@ -192,7 +189,7 @@ fn incoming_port_raw(name: String, decoder: Decoder(a)) -> RawEffectManager
 ///     // Setup:
 ///     platform.incoming_port_to_effect_manager(port_my_port_name)
 pub fn incoming_port(name: String, decoder: Decoder(a)) -> IncomingPort(a) {
-  IncomingPort(name, incoming_port_raw(name, decoder))
+  IncomingPort(name, incoming_port_raw(decoder))
 }
 
 /// Subscribe to an incoming port. In Elm, this would just be a regular function call.
