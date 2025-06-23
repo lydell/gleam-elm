@@ -467,6 +467,7 @@ var _Platform_incomingPortMap = function(tagger, finalTagger)
 function _Platform_setupIncomingPort(name, sendToApp)
 {
 	var subs = new Empty;
+	var converter = _Platform_effectManagers[name].__converter;
 
 	// CREATE MANAGER
 
@@ -483,9 +484,12 @@ function _Platform_setupIncomingPort(name, sendToApp)
 
 	function send(incomingValue)
 	{
+		var result = __Json_run(converter, __Json_wrap(incomingValue));
+		result instanceof Ok || __Debug_crash(4, name, result.a);
+		var value = result[0];
 		for (var temp of subs)
 		{
-			sendToApp(temp(__Json_wrap(incomingValue)));
+			sendToApp(temp(value));
 		}
 	}
 
