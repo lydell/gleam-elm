@@ -31,6 +31,9 @@ import {
 	never as __Basics_never,
 } from './basics.mjs';
 import {
+	_Debug_crash as __Debug_crash,
+} from './debug.ffi.mjs';
+import {
 	_Json_runHelp as __Json_runHelp,
 } from './json.ffi.mjs';
 import {

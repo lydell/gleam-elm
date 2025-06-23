@@ -16,6 +16,9 @@ import {
 	Ok,
 } from '../gleam.mjs';
 import {
+	_Debug_crash as __Debug_crash,
+} from './debug.ffi.mjs';
+import {
 	_Json_run as __Json_run,
 	_Json_unwrap as __Json_unwrap,
 	_Json_wrap as __Json_wrap,
