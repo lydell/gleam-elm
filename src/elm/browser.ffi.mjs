@@ -282,12 +282,12 @@ function _Browser_application(impl)
 					event.preventDefault();
 					var href = domNode.href;
 					var curr = _Browser_getUrl();
-					var next = __Url_fromString(href).a;
+					var next = __Url_fromString(href)[0];
 					sendToApp(onUrlRequest(
 						(next
 							&& curr.protocol === next.protocol
 							&& curr.host === next.host
-							&& curr.port_.a === next.port_.a
+							&& curr.port_[0] === next.port_[0]
 						)
 							? __Browser_Internal(next)
 							: __Browser_External(href)
@@ -307,7 +307,7 @@ function _Browser_application(impl)
 
 function _Browser_getUrl()
 {
-	return __Url_fromString(__VirtualDom_doc.location.href).a || __Debug_crash(1);
+	return __Url_fromString(__VirtualDom_doc.location.href)[0] || __Debug_crash(1);
 }
 
 var _Browser_go = function(key, n)
@@ -356,7 +356,7 @@ var _Browser_on = function(node, eventName, sendToSelf)
 var _Browser_decodeEvent = function(decoder, event)
 {
 	var result = __Json_runHelp(decoder, event);
-	return result instanceof Ok ? new Some(result.a) : new None;
+	return result instanceof Ok ? new Some(result[0]) : new None;
 };
 
 

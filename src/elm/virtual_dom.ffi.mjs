@@ -578,7 +578,7 @@ function _VirtualDom_render(vNode, eventNode)
 
 	for (var kids = vNode.__kids, i = 0; i < kids.length; i++)
 	{
-		_VirtualDom_appendChild(domNode, _VirtualDom_render(tag === __2_NODE ? kids[i] : kids[i].b, eventNode));
+		_VirtualDom_appendChild(domNode, _VirtualDom_render(tag === __2_NODE ? kids[i] : kids[i][1], eventNode));
 	}
 
 	_VirtualDom_storeDomNode(vNode, domNode);
@@ -988,12 +988,12 @@ function _VirtualDom_makeCallback(initialEventNode, initialHandler)
 		// 2 = MayPreventDefault
 		// 3 = Custom
 
-		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.message;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.stopPropagation;
+		var value = result[0];
+		var message = !tag ? value : tag < 3 ? value[0] : value.message;
+		var stopPropagation = tag == 1 ? value[1] : tag == 3 && value.stopPropagation;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.preventDefault) && event.preventDefault(),
+			(tag == 2 ? value[1] : tag == 3 && value.preventDefault) && event.preventDefault(),
 			eventNode
 		);
 		currentEventNode(message, stopPropagation); // stopPropagation implies isSync
@@ -1208,7 +1208,7 @@ function _VirtualDom_quickVisit(x, y, eventNode)
 			_VirtualDom_lazyUpdateEvents(domNode, eventNode);
 			for (var xKids = x.__kids, yKids = y.__kids, i = 0; i < yKids.length; i++)
 			{
-				_VirtualDom_quickVisit(xKids[i].b, yKids[i].b, eventNode);
+				_VirtualDom_quickVisit(xKids[i][1], yKids[i][1], eventNode);
 			}
 			return domNode;
 
@@ -1299,7 +1299,7 @@ function _VirtualDom_removeVisit(x, shouldRemoveFromDom)
 		case __2_KEYED_NODE:
 			for (var kids = x.__kids, i = 0; i < kids.length; i++)
 			{
-				_VirtualDom_removeVisit(kids[i].b, false);
+				_VirtualDom_removeVisit(kids[i][1], false);
 			}
 			return;
 
@@ -1374,7 +1374,7 @@ function _VirtualDom_diffNodes(domNode, x, y, eventNode, diffKids)
 		for (var current = null, kids = y.__kids, i = kids.length - 1, j = domNode.childNodes.length - 1; i >= 0; i--)
 		{
 			var kid = kids[i];
-			var vNode = y.$ === __2_KEYED_NODE ? kid.b : kid;
+			var vNode = y.$ === __2_KEYED_NODE ? kid[1] : kid;
 
 			// `child` is going to be one of:
 			// - For text nodes: A new text node that isn’t inserted into the DOM.
@@ -2113,7 +2113,7 @@ function _VirtualDom_dekey(keyedNode)
 	var kids = new Array(len);
 	for (var i = 0; i < len; i++)
 	{
-		kids[i] = keyedKids[i].b;
+		kids[i] = keyedKids[i][1];
 	}
 
 	return Object.defineProperty({

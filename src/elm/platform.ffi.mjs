@@ -73,7 +73,7 @@ function _Platform_initialize(flagDecoder, args, init, update, subscriptions, ef
 	}
 
 	var result = __Json_run(flagDecoder, __Json_wrap(args ? args['flags'] : undefined));
-	result instanceof Ok || __Debug_crash(2 /**__DEBUG/, __Json_errorToString(result.a) /**/);
+	result instanceof Ok || __Debug_crash(2 /**__DEBUG/, __Json_errorToString(result[0]) /**/);
 	var managers = {};
 	var initPair = init(result[0]);
 	var model = initPair[0];
@@ -488,7 +488,7 @@ function _Platform_setupIncomingPort(name, sendToApp)
 	function send(incomingValue)
 	{
 		var result = __Json_run(converter, __Json_wrap(incomingValue));
-		result instanceof Ok || __Debug_crash(4, name, result.a);
+		result instanceof Ok || __Debug_crash(4, name, result[0]);
 		var value = result[0];
 		for (var temp of subs)
 		{
