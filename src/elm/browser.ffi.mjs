@@ -264,8 +264,8 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.onUrlChange;
-	var onUrlRequest = impl.onUrlRequest;
+	var onUrlChange = impl.on_url_change;
+	var onUrlRequest = impl.on_url_request;
 	var key = function() { key.__sendToApp(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
