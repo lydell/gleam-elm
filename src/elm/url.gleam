@@ -187,7 +187,6 @@ fn chomp_before_path(
 pub fn to_string(url: Url) -> String {
   let http = case url.protocol {
     Http -> "http://"
-
     Https -> "https://"
   }
   add_port(url.port_, http <> url.host)
@@ -214,3 +213,67 @@ fn add_prefixed(
     Some(segment) -> starter <> prefix <> segment
   }
 }
+
+// PERCENT ENCODING
+
+/// **Use [Url.Builder](Url-Builder) instead!** Functions like `absolute`,
+/// `relative`, and `crossOrigin` already do this automatically! `percentEncode`
+/// is only available so that extremely custom cases are possible, if needed.
+///
+/// Percent-encoding is how [the official URI spec][uri] “escapes” special
+/// characters. You can still represent a `?` even though it is reserved for
+/// queries.
+///
+/// This function exists in case you want to do something extra custom. Here are
+/// some examples:
+///
+///     -- standard ASCII encoding
+///     percentEncode "hat"   == "hat"
+///     percentEncode "to be" == "to%20be"
+///     percentEncode "99%"   == "99%25"
+///
+///     -- non-standard, but widely accepted, UTF-8 encoding
+///     percentEncode "$" == "%24"
+///     percentEncode "¢" == "%C2%A2"
+///     percentEncode "€" == "%E2%82%AC"
+///
+/// This is the same behavior as JavaScript's [`encodeURIComponent`][js] function,
+/// and the rules are described in more detail officially [here][s2] and with some
+/// notes about Unicode [here][wiki].
+///
+/// [js]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
+/// [uri]: https://tools.ietf.org/html/rfc3986
+/// [s2]: https://tools.ietf.org/html/rfc3986#section-2.1
+/// [wiki]: https://en.wikipedia.org/wiki/Percent-encoding
+@external(javascript, "./url.ffi.mjs", "_Url_percentEncode")
+pub fn percent_encode(str: String) -> String
+
+/// **Use [Url.Parser](Url-Parser) instead!** It will decode query
+/// parameters appropriately already! `percentDecode` is only available so that
+/// extremely custom cases are possible, if needed.
+///
+/// Check out the `percentEncode` function to learn about percent-encoding.
+/// This function does the opposite! Here are the reverse examples:
+///
+///     -- ASCII
+///     percentDecode "hat"       == Just "hat"
+///     percentDecode "to%20be"   == Just "to be"
+///     percentDecode "99%25"     == Just "99%"
+///
+///     -- UTF-8
+///     percentDecode "%24"       == Just "$"
+///     percentDecode "%C2%A2"    == Just "¢"
+///     percentDecode "%E2%82%AC" == Just "€"
+///
+/// Why is it a `Maybe` though? Well, these strings come from strangers on the
+/// internet as a bunch of bits and may have encoding problems. For example:
+///
+///     percentDecode "%"   == Nothing  -- not followed by two hex digits
+///     percentDecode "%XY" == Nothing  -- not followed by two HEX digits
+///     percentDecode "%C2" == Nothing  -- half of the "¢" encoding "%C2%A2"
+///
+/// This is the same behavior as JavaScript's [`decodeURIComponent`][js] function.
+///
+/// [js]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent
+@external(javascript, "./url.ffi.mjs", "_Url_percentDecode")
+pub fn percent_decode(str: String) -> Option(String)

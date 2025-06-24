@@ -20,3 +20,8 @@ function _Url_percentDecode(string)
 		return __Maybe_Nothing;
 	}
 }
+
+export {
+	_Url_percentDecode,
+	_Url_percentEncode,
+};
