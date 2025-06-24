@@ -116,7 +116,68 @@ pub fn map2(
   })
 }
 
-// TODO: map3, map4, map5
+///
+pub fn map3(
+  func: fn(a, b, c) -> result,
+  task_a: Task(x, a),
+  task_b: Task(x, b),
+  task_c: Task(x, c),
+) -> Task(x, result) {
+  task_a
+  |> and_then(fn(a) {
+    task_b
+    |> and_then(fn(b) {
+      task_c
+      |> and_then(fn(c) { succeed(func(a, b, c)) })
+    })
+  })
+}
+
+///
+pub fn map4(
+  func: fn(a, b, c, d) -> result,
+  task_a: Task(x, a),
+  task_b: Task(x, b),
+  task_c: Task(x, c),
+  task_d: Task(x, d),
+) -> Task(x, result) {
+  task_a
+  |> and_then(fn(a) {
+    task_b
+    |> and_then(fn(b) {
+      task_c
+      |> and_then(fn(c) {
+        task_d
+        |> and_then(fn(d) { succeed(func(a, b, c, d)) })
+      })
+    })
+  })
+}
+
+///
+pub fn map5(
+  func: fn(a, b, c, d, e) -> result,
+  task_a: Task(x, a),
+  task_b: Task(x, b),
+  task_c: Task(x, c),
+  task_d: Task(x, d),
+  task_e: Task(x, e),
+) -> Task(x, result) {
+  task_a
+  |> and_then(fn(a) {
+    task_b
+    |> and_then(fn(b) {
+      task_c
+      |> and_then(fn(c) {
+        task_d
+        |> and_then(fn(d) {
+          task_e
+          |> and_then(fn(e) { succeed(func(a, b, c, d, e)) })
+        })
+      })
+    })
+  })
+}
 
 /// Start with a list of tasks, and turn them into a single task that returns a
 /// list. The tasks will be run in order one-by-one and if any task fails the whole
