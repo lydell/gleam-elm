@@ -182,3 +182,35 @@ fn chomp_before_path(
       }
   }
 }
+
+/// Turn a [`Url`](#Url) into a `String`.
+pub fn to_string(url: Url) -> String {
+  let http = case url.protocol {
+    Http -> "http://"
+
+    Https -> "https://"
+  }
+  add_port(url.port_, http <> url.host)
+  <> url.path
+  |> add_prefixed("?", url.query)
+  |> add_prefixed("#", url.fragment)
+}
+
+fn add_port(maybe_port: Option(Int), starter: String) -> String {
+  case maybe_port {
+    None -> starter
+    Some(port_) -> starter <> ":" <> int.to_string(port_)
+  }
+}
+
+fn add_prefixed(
+  starter: String,
+  prefix: String,
+  maybe_segment: Option(String),
+) -> String {
+  case maybe_segment {
+    None -> starter
+
+    Some(segment) -> starter <> prefix <> segment
+  }
+}
