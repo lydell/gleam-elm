@@ -725,14 +725,14 @@ pub fn span(n: Int) -> Attribute(msg) {
 
 // INTERNAL
 
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_attribute")
+@external(javascript, "../virtual_dom.ffi.mjs", "_VirtualDom_attribute")
 fn attribute_raw(key: String, value: String) -> Attribute(msg)
 
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_property")
+@external(javascript, "../virtual_dom.ffi.mjs", "_VirtualDom_property")
 fn property_raw(key: String, value: encode.Value) -> Attribute(msg)
 
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_noJavaScriptOrHtmlUri")
+@external(javascript, "../virtual_dom.ffi.mjs", "_VirtualDom_noJavaScriptOrHtmlUri")
 fn no_java_script_or_html_uri(key: String) -> String
 
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_noJavaScriptUri")
+@external(javascript, "../virtual_dom.ffi.mjs", "_VirtualDom_noJavaScriptUri")
 fn no_java_script_uri(key: String) -> String

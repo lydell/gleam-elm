@@ -1,4 +1,7 @@
 import elm/browser
+import elm/html
+import elm/html/attributes
+import elm/html/events
 import elm/json/decode
 import elm/json/encode
 import elm/platform
@@ -11,11 +14,7 @@ import gleam/int
 
 pub fn html_program() {
   virtual_dom.init(
-    virtual_dom.node(
-      "a",
-      [virtual_dom.attribute("href", "https://elm-lang.org/")],
-      [virtual_dom.text("Elm!")],
-    ),
+    html.a([attributes.href("https://elm-lang.org/")], [html.text("Elm!")]),
   )
 }
 
@@ -34,11 +33,7 @@ pub fn program() {
       init: fn(_, _, _) { #(0, cmd.none()) },
       view: fn(model) {
         browser.Document(title: "Gleam Elm application", body: [
-          virtual_dom.node(
-            "button",
-            [virtual_dom.on("click", virtual_dom.Normal(decode.succeed(Nil)))],
-            [virtual_dom.text(int.to_string(model))],
-          ),
+          html.button([events.on_click(Nil)], [html.text(int.to_string(model))]),
         ])
       },
       update: fn(msg, model) {
