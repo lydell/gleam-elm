@@ -470,7 +470,13 @@ function _Json_addEntry(func)
 var _Json_encodeNull = _Json_wrap(null);
 
 export {
+	_Json_decodeBool,
+	_Json_decodeField,
+	_Json_decodeFloat,
+	_Json_decodeIndex,
+	_Json_decodeInt,
 	_Json_decodeString,
+	_Json_fail,
 	_Json_map1 as _Json_map,
 	_Json_map2,
 	_Json_run,
