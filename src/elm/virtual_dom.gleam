@@ -56,9 +56,6 @@ fn node_raw(
   children: List(Node(msg)),
 ) -> Node(msg)
 
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_noScript")
-fn no_script(tag: String) -> String
-
 /// Create a namespaced DOM node. For example, an SVG `<path>` node could be
 /// defined like this:
 ///
@@ -165,12 +162,6 @@ pub fn property(key: String, value: encode.Value) -> Attribute(msg) {
 @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_property")
 fn property_raw(key: String, value: encode.Value) -> Attribute(msg)
 
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_noInnerHtmlOrFormAction")
-fn no_inner_html_or_form_action(key: String) -> String
-
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_noJavaScriptOrHtmlJson")
-fn no_java_script_or_html_json(value: encode.Value) -> encode.Value
-
 /// Create an attribute. This uses JavaScript’s `setAttribute` function
 /// behind the scenes.
 ///
@@ -186,12 +177,6 @@ pub fn attribute(key: String, value: String) -> Attribute(msg) {
 
 @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_attribute")
 pub fn attribute_raw(key: String, value: String) -> Attribute(msg)
-
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_noOnOrFormAction")
-fn no_on_or_form_action(key: String) -> String
-
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_noJavaScriptOrHtmlUri")
-fn no_java_script_or_html_uri(key: String) -> String
 
 /// Would you believe that there is another way to do this?! This uses
 /// JavaScript's `setAttributeNS` function behind the scenes. It is doing pretty
@@ -392,6 +377,21 @@ fn to_handler_tuple(handler: Handler(msg)) -> Int {
     Custom(_) -> 3
   }
 }
+
+@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_noScript")
+fn no_script(tag: String) -> String
+
+@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_noInnerHtmlOrFormAction")
+fn no_inner_html_or_form_action(key: String) -> String
+
+@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_noJavaScriptOrHtmlJson")
+fn no_java_script_or_html_json(value: encode.Value) -> encode.Value
+
+@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_noJavaScriptOrHtmlUri")
+fn no_java_script_or_html_uri(key: String) -> String
+
+@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_noOnOrFormAction")
+fn no_on_or_form_action(key: String) -> String
 
 // GLEAM EXTENSION
 
