@@ -6,6 +6,27 @@ import elm/platform/cmd.{type Cmd}
 import elm/platform/sub.{type Sub}
 import elm/url.{type Url}
 
+pub type Sandbox(model, msg) {
+  Sandbox(
+    init: model,
+    view: fn(model) -> Html(msg),
+    update: fn(msg, model) -> model,
+  )
+}
+
+pub fn sandbox(impl: Sandbox(model, msg)) -> Program(Nil, model, msg) {
+  element(
+    Element(
+      flags_decoder: decode.succeed(Nil),
+      init: fn(_) { #(impl.init, cmd.none()) },
+      view: impl.view,
+      update: fn(msg, model) { #(impl.update(msg, model), cmd.none()) },
+      subscriptions: fn(_) { sub.none() },
+      effect_managers: [],
+    ),
+  )
+}
+
 pub type Element(flags, model, msg) {
   Element(
     flags_decoder: Decoder(flags),
