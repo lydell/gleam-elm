@@ -14,6 +14,9 @@ pub fn attribute(key: String, value: String) -> Attribute(msg)
 @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_text")
 pub fn text(text: String) -> Node(msg)
 
+@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_map")
+pub fn map(tagger: fn(a) -> msg, node: Node(a)) -> Node(msg)
+
 @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_node")
 pub fn node(
   tag: String,

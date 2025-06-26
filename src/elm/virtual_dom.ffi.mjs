@@ -2136,6 +2136,7 @@ export {
 	_VirtualDom_init,
 	_VirtualDom_keyedNode,
 	_VirtualDom_keyedNodeNS,
+	_VirtualDom_map,
 	_VirtualDom_node,
 	_VirtualDom_nodeNS,
 	_VirtualDom_on_gleam,
