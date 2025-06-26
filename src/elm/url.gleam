@@ -106,7 +106,7 @@ fn chomp_after_protocol(protocol: Protocol, str: String) -> Option(Url) {
     _ ->
       case string.split_once(str, on: "#") {
         Error(Nil) -> chomp_before_fragment(protocol, None, str)
-        Ok(#(left, right)) -> chomp_before_fragment(protocol, Some(left), right)
+        Ok(#(left, right)) -> chomp_before_fragment(protocol, Some(right), left)
       }
   }
 }
@@ -123,7 +123,7 @@ fn chomp_before_fragment(
         Error(Nil) -> chomp_before_query(protocol, None, frag, str)
 
         Ok(#(left, right)) ->
-          chomp_before_query(protocol, Some(left), frag, right)
+          chomp_before_query(protocol, Some(right), frag, left)
       }
   }
 }
@@ -141,7 +141,7 @@ fn chomp_before_query(
         Error(Nil) -> chomp_before_path(protocol, "/", params, frag, str)
 
         Ok(#(left, right)) ->
-          chomp_before_path(protocol, left, params, frag, right)
+          chomp_before_path(protocol, "/" <> right, params, frag, left)
       }
   }
 }
