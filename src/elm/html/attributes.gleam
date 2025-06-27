@@ -331,9 +331,9 @@ pub fn kind(value: String) {
 
 // TODO: maybe reintroduce once there's a better way to disambiguate imports
 /// Specifies a user-readable title of the text `track`.
-pub fn label(value: String) {
-  attribute_raw("label", value)
-}
+// pub fn label(value: String) {
+//   attribute_raw("label", value)
+// }
 
 /// A two letter language code indicating the language of the `track` text data.
 pub fn srclang(value: String) {
@@ -719,9 +719,9 @@ pub fn manifest(value: String) {
 
 // TODO: maybe reintroduce once there's a better way to disambiguate imports
 /// The number of columns a `col` or `colgroup` should span.
-pub fn span(n: Int) -> Attribute(msg) {
-  attribute_raw("span", int.to_string(n))
-}
+// pub fn span(n: Int) -> Attribute(msg) {
+//   attribute_raw("span", int.to_string(n))
+// }
 
 // INTERNAL
 
