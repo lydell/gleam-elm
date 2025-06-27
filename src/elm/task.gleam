@@ -211,7 +211,7 @@ pub fn and_then(task: Task(x, a), f: fn(a) -> Task(x, b)) -> Task(x, b) {
 }
 
 @external(javascript, "./Scheduler.ffi.mjs", "_Scheduler_andThen")
-pub fn and_then_raw(f: fn(a) -> Task(x, b), task: Task(x, a)) -> Task(x, b)
+fn and_then_raw(f: fn(a) -> Task(x, b), task: Task(x, a)) -> Task(x, b)
 
 // ERRORS
 
@@ -230,7 +230,7 @@ pub fn on_error(task: Task(x, a), f: fn(x) -> Task(y, a)) -> Task(y, a) {
 }
 
 @external(javascript, "./scheduler.ffi.mjs", "_Scheduler_onError")
-pub fn on_error_raw(f: fn(x) -> Task(y, a), task: Task(x, a)) -> Task(y, a)
+fn on_error_raw(f: fn(x) -> Task(y, a), task: Task(x, a)) -> Task(y, a)
 
 /// Transform the error value. This can be useful if you need a bunch of error
 /// types to match up.

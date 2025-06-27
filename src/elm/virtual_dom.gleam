@@ -72,7 +72,7 @@ pub fn node_ns(
 }
 
 @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_nodeNS")
-pub fn node_ns_raw(
+fn node_ns_raw(
   namespace: String,
   tag: String,
   attributes: List(Attribute(msg)),
@@ -176,7 +176,7 @@ pub fn attribute(key: String, value: String) -> Attribute(msg) {
 }
 
 @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_attribute")
-pub fn attribute_raw(key: String, value: String) -> Attribute(msg)
+fn attribute_raw(key: String, value: String) -> Attribute(msg)
 
 /// Would you believe that there is another way to do this?! This uses
 /// JavaScript's `setAttributeNS` function behind the scenes. It is doing pretty
@@ -200,7 +200,7 @@ pub fn attribute_ns(
 }
 
 @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_attributeNS")
-pub fn attribute_ns_raw(
+fn attribute_ns_raw(
   namespace: String,
   key: String,
   value: String,

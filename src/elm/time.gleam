@@ -23,7 +23,7 @@ pub fn now() -> Task(x, Posix) {
 }
 
 @external(javascript, "./time.ffi.mjs", "_Time_now")
-pub fn now_raw(millis_to_posix: fn(Int) -> Posix) -> Task(x, Posix)
+fn now_raw(millis_to_posix: fn(Int) -> Posix) -> Task(x, Posix)
 
 /// Turn a `Posix` time into the number of milliseconds since 1970 January 1
 /// at 00:00:00 UTC. It was a Thursday.
