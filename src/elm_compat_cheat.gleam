@@ -12,10 +12,10 @@ import elm/virtual_dom
 import gleam/function
 import gleam/int
 
-pub fn html_program() {
+pub fn html_program(args) {
   virtual_dom.init(
     html.a([attributes.href("https://elm-lang.org/")], [html.text("Elm!")]),
-  )
+  )(args)
 }
 
 fn port_on_count() -> platform.OutgoingPort(Int) {
@@ -26,7 +26,7 @@ fn port_on_js_message() -> platform.IncomingPort(String) {
   platform.incoming_port("onJsMessage", decode.string())
 }
 
-pub fn program() {
+pub fn program(args) {
   browser.application(
     flags_decoder: decode.succeed(Nil),
     init: fn(_, _, _) { #(0, cmd.none()) },
@@ -61,5 +61,5 @@ pub fn program() {
       platform.outgoing_port_to_effect_manager(port_on_count),
       platform.incoming_port_to_effect_manager(port_on_js_message),
     ],
-  )
+  )(args)
 }
