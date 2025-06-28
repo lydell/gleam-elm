@@ -588,7 +588,7 @@ function _Browser_load(url)
 }
 
 export {
-	_Browser_element,
-	_Browser_document,
 	_Browser_application,
+	_Browser_document,
+	_Browser_element,
 };

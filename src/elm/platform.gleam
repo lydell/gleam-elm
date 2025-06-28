@@ -39,9 +39,11 @@ pub type App(flags, model, msg)
 
 pub type Worker(flags, model, msg) {
   Worker(
+    flags_decoder: Decoder(flags),
     init: fn(flags) -> #(model, Cmd(msg)),
     update: fn(msg, model) -> #(model, Cmd(msg)),
     subscriptions: fn(model) -> Sub(msg),
+    effect_managers: List(EffectManager),
   )
 }
 
