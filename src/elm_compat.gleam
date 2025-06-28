@@ -7,7 +7,6 @@ import elm/platform
 import elm/platform/cmd
 import elm/platform/sub
 import elm/time
-import elm/virtual_dom
 import gleam/int
 
 fn view(model: Model) {
@@ -51,7 +50,10 @@ fn update(msg: Msg, model: Model) -> #(Model, cmd.Cmd(Msg)) {
 }
 
 fn subscriptions(model: Model) {
-  time.every(1000.0, fn(_) { TimePassed })
+  case model.time_counter < 5 {
+    True -> time.every(1000.0, fn(_) { TimePassed })
+    False -> sub.none()
+  }
 }
 
 pub fn main() {
