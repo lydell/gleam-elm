@@ -364,6 +364,7 @@ fn spawn_cmd(
 @external(javascript, "./scheduler.ffi.mjs", "_Scheduler_spawn")
 fn spawn(task: Task(x, a)) -> Task(x, a)
 
+/// This is needed if you use `task.perform` or `task.attempt`.
 pub fn effect_manager() -> platform.EffectManager {
   platform.create_effect_manager(
     module_name,

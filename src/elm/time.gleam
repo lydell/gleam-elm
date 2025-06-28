@@ -176,6 +176,7 @@ fn on_self_msg(
 @external(javascript, "./time.ffi.mjs", "_Time_setInterval")
 fn set_interval(duration: Float, task: Task(Never, Nil)) -> Task(x, Never)
 
+/// This is needed if you use `time.every`.
 pub fn effect_manager() -> platform.EffectManager {
   platform.create_effect_manager(
     module_name,
