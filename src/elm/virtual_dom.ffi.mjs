@@ -243,7 +243,7 @@ function _VirtualDom_custom(factList, model, render, diff)
 // MAP
 
 
-var _VirtualDom_map = function(tagger, node)
+var _VirtualDom_map = function(node, tagger)
 {
 	return {
 		$: __2_TAGGER,
@@ -441,7 +441,7 @@ function _VirtualDom_noJavaScriptOrHtmlJson(value)
 // MAP FACTS
 
 
-var _VirtualDom_mapAttribute = function(func, attr)
+var _VirtualDom_mapAttribute = function(attr, func)
 {
 	return (attr.$ === 'a__1_EVENT')
 		? _VirtualDom_on(attr.__key, _VirtualDom_mapHandler(func, attr.__value))
@@ -461,7 +461,7 @@ function _VirtualDom_mapHandler(func, handler)
 		$: handler.$,
 		a:
 			!tag
-				? __Json_map(func, handler.a)
+				? __Json_map(handler.a, func)
 				:
 			__Json_map2(
 				tag < 3

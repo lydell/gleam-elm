@@ -115,7 +115,7 @@ pub fn index(index: Int, decoder: Decoder(a)) -> Decoder(a)
 ///         , map Just decoder
 ///         ]
 @external(javascript, "../json.ffi.mjs", "_Json_map")
-pub fn map(tagger: fn(a) -> value, decoder: Decoder(a)) -> Decoder(value)
+pub fn map(decoder: Decoder(a), tagger: fn(a) -> value) -> Decoder(value)
 
 // RUN DECODERS (TODO)
 
@@ -138,3 +138,30 @@ pub fn succeed(value: a) -> Decoder(a)
 /// See the [`andThen`](#andThen) docs for an example.
 @external(javascript, "../json.ffi.mjs", "_Json_fail")
 pub fn fail(message: String) -> Decoder(a)
+
+/// Create decoders that depend on previous results. If you are creating
+/// versioned data, you might do something like this:
+/// 
+///     info : Decoder Info
+///     info =
+///       field "version" int
+///         |> andThen infoHelp
+/// 
+///     infoHelp : Int -> Decoder Info
+///     infoHelp version =
+///       case version of
+///         4 ->
+///           infoDecoder4
+/// 
+///         3 ->
+///           infoDecoder3
+/// 
+///         _ ->
+///           fail <|
+///             "Trying to decode info, but version "
+///            ++ toString version ++ " is not supported."
+///
+///    -- infoDecoder4 : Decoder Info
+///    -- infoDecoder3 : Decoder Info
+@external(javascript, "../json.ffi.mjs", "_Json_andThen")
+pub fn and_then(decoder: Decoder(a), f: fn(a) -> Decoder(b)) -> Decoder(b)

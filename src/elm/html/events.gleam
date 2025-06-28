@@ -88,7 +88,7 @@ pub fn on_mouse_out(msg: msg) {
 pub fn on_input(tagger: fn(String) -> msg) -> Attribute(msg) {
   stop_propagation_on(
     "input",
-    decode.map(always_stop, decode.map(tagger, target_value())),
+    decode.map(decode.map(target_value(), tagger), always_stop),
   )
 }
 
@@ -102,7 +102,7 @@ fn always_stop(x: a) -> #(a, Bool) {
 ///
 /// Check out [`targetChecked`](#targetChecked) for more details on how this works.
 pub fn on_check(tagger: fn(Bool) -> msg) -> Attribute(msg) {
-  on("change", decode.map(tagger, target_checked()))
+  on("change", decode.map(target_checked(), tagger))
 }
 
 /// Detect a [submit](https://developer.mozilla.org/en-US/docs/Web/Events/submit)
@@ -112,7 +112,7 @@ pub fn on_check(tagger: fn(Bool) -> msg) -> Attribute(msg) {
 pub fn on_submit(msg: msg) -> Attribute(msg) {
   prevent_default_on(
     "submit",
-    decode.map(always_prevent_default, decode.succeed(msg)),
+    decode.map(decode.succeed(msg), always_prevent_default),
   )
 }
 

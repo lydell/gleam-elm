@@ -160,8 +160,8 @@ pub fn attribute(key: String, value: String) -> Attribute(msg) {
 }
 
 /// Transform the messages produced by an `Attribute`.
-pub fn map(tagger: fn(a) -> msg, attribute: Attribute(a)) -> Attribute(msg) {
-  virtual_dom.map_attribute(tagger, attribute)
+pub fn map(attribute: Attribute(a), tagger: fn(a) -> msg) -> Attribute(msg) {
+  virtual_dom.map_attribute(attribute, tagger)
 }
 
 // GLOBAL ATTRIBUTES

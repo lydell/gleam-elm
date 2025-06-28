@@ -107,7 +107,7 @@ pub fn text(text: String) -> Node(msg)
 /// So now all the events produced by `button` will be transformed to be of type
 /// `Msg` so they can be handled by your update function!
 @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_map")
-pub fn map(tagger: fn(a) -> msg, node: Node(a)) -> Node(msg)
+pub fn map(node: Node(a), tagger: fn(a) -> msg) -> Node(msg)
 
 // ATTRIBUTES
 
@@ -209,8 +209,8 @@ fn attribute_ns_raw(
 /// Transform the messages produced by a `Attribute`.
 @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_mapAttribute")
 pub fn map_attribute(
-  tagger: fn(a) -> b,
   attribute: Attribute(a),
+  tagger: fn(a) -> b,
 ) -> Attribute(b)
 
 // EVENTS

@@ -146,7 +146,7 @@ function _Json_mapMany(f, decoders)
 	};
 }
 
-var _Json_andThen = function(callback, decoder)
+var _Json_andThen = function(decoder, callback)
 {
 	return {
 		$: __1_AND_THEN,
@@ -166,7 +166,7 @@ function _Json_oneOf(decoders)
 
 // DECODING OBJECTS
 
-var _Json_map1 = function(f, d1)
+var _Json_map1 = function(d1, f)
 {
 	return _Json_mapMany(f, [d1]);
 };
@@ -470,6 +470,7 @@ function _Json_addEntry(func)
 var _Json_encodeNull = _Json_wrap(null);
 
 export {
+	_Json_andThen,
 	_Json_decodeBool,
 	_Json_decodeField,
 	_Json_decodeFloat,

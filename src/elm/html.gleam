@@ -131,8 +131,8 @@ pub fn text(text: String) -> Html(msg) {
 /// you run into all sorts of friction if you try to use it like one. I definitely
 /// recommend against going down that path! Instead, make the simplest function
 /// possible and repeat.
-pub fn map(tagger: fn(a) -> msg, element: Html(a)) -> Html(msg) {
-  virtual_dom.map(tagger, element)
+pub fn map(element: Html(a), tagger: fn(a) -> msg) -> Html(msg) {
+  virtual_dom.map(element, tagger)
 }
 
 // SECTIONS
