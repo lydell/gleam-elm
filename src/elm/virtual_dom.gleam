@@ -293,35 +293,73 @@ pub type CustomHandler(msg) {
 @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy")
 pub fn lazy(func: fn(a) -> Node(msg), a: a) -> Node(msg)
 
-// TODO: Finish lazy2 to lazy8
-
 /// Same as `lazy` but checks on two arguments.
-// @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy2")
-// pub fn lazy2((a -> b -> Node msg) -> a -> b) -> Node msg
+@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy2")
+pub fn lazy2(func: fn(a, b) -> Node(msg), a: a, b: b) -> Node(msg)
 
 /// Same as `lazy` but checks on three arguments.
-// @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy3")
-// pub fn lazy3((a -> b -> c -> Node msg) -> a -> b -> c) -> Node msg
+@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy3")
+pub fn lazy3(func: fn(a, b, c) -> Node(msg), a: a, b: b, c: c) -> Node(msg)
 
 /// Same as `lazy` but checks on four arguments.
-// @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy4")
-// pub fn lazy4((a -> b -> c -> d -> Node msg) -> a -> b -> c -> d) -> Node msg
+@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy4")
+pub fn lazy4(
+  func: fn(a, b, c, d) -> Node(msg),
+  a: a,
+  b: b,
+  c: c,
+  d: d,
+) -> Node(msg)
 
 /// Same as `lazy` but checks on five arguments.
-// @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy5")
-// pub fn lazy5((a -> b -> c -> d -> e -> Node msg) -> a -> b -> c -> d -> e) -> Node msg
+@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy5")
+pub fn lazy5(
+  func: fn(a, b, c, d, e) -> Node(msg),
+  a: a,
+  b: b,
+  c: c,
+  d: d,
+  e: e,
+) -> Node(msg)
 
 /// Same as `lazy` but checks on six arguments.
-// @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy6")
-// pub fn lazy6((a -> b -> c -> d -> e -> f -> Node msg) -> a -> b -> c -> d -> e -> f) -> Node msg
+@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy6")
+pub fn lazy6(
+  func: fn(a, b, c, d, e, f) -> Node(msg),
+  a: a,
+  b: b,
+  c: c,
+  d: d,
+  e: e,
+  f: f,
+) -> Node(msg)
 
 /// Same as `lazy` but checks on seven arguments.
-// @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy7")
-// pub fn lazy7((a -> b -> c -> d -> e -> f -> g -> Node msg) -> a -> b -> c -> d -> e -> f -> g) -> Node msg
+@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy7")
+pub fn lazy7(
+  func: fn(a, b, c, d, e, f, g) -> Node(msg),
+  a: a,
+  b: b,
+  c: c,
+  d: d,
+  e: e,
+  f: f,
+  g: g,
+) -> Node(msg)
 
 /// Same as `lazy` but checks on eight arguments.
-// @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy8")
-// pub fn lazy8((a -> b -> c -> d -> e -> f -> g -> h -> Node msg) -> a -> b -> c -> d -> e -> f -> g -> h) -> Node msg
+@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy8")
+pub fn lazy8(
+  func: fn(a, b, c, d, e, f, g, h) -> Node(msg),
+  a: a,
+  b: b,
+  c: c,
+  d: d,
+  e: e,
+  f: f,
+  g: g,
+  h: h,
+) -> Node(msg)
 
 // KEYED NODES
 
