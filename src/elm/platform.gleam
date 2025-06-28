@@ -1,19 +1,73 @@
+//// # Programs
+//// @docs Program, worker
+////
+//// # Platform Internals
+////
+//// ## Tasks and Processes
+//// @docs Task, ProcessId
+////
+//// ## Effect Manager Helpers
+////
+//// An extremely tiny portion of library authors should ever write effect managers.
+//// Fundamentally, Elm needs maybe 10 of them total. I get that people are smart,
+//// curious, etc. but that is not a substitute for a legitimate reason to make an
+//// effect manager. Do you have an *organic need* this fills? Or are you just
+//// curious? Public discussions of your explorations should be framed accordingly.
+////
+//// @docs Router, sendToApp, sendToSelf
+
 import elm/basics.{type Never}
 import elm/json/decode.{type Decoder}
 import elm/json/encode
 import elm/platform/cmd.{type Cmd}
 import elm/platform/sub.{type Sub}
 
+// PROGRAMS
+
+/// A `Program` describes an Elm program! How does it react to input? Does it
+/// show anything on screen? Etc.
 pub type Program(flags, model, msg) =
   fn(Args) -> App(flags, model, msg)
 
+/// Initializing a `Program` takes a configuration object (that is sometimes optional)
+/// where you can provide flags and a DOM node (depending on the program type).
 pub type Args
 
+/// An `App` is a an object that might have a `ports` property with all ports you
+/// have registered effect managers for.
 pub type App(flags, model, msg)
 
-// TASKS and PROCESSES
+pub type Worker(flags, model, msg) {
+  Worker(
+    init: fn(flags) -> #(model, Cmd(msg)),
+    update: fn(msg, model) -> #(model, Cmd(msg)),
+    subscriptions: fn(model) -> Sub(msg),
+  )
+}
 
-// TODO: Opposite order of type params to match Gleam Result?
+/// Create a [headless][] program with no user interface.
+///
+/// This is great if you want to use Elm as the &ldquo;brain&rdquo; for something
+/// else. For example, you could send messages out ports to modify the DOM, but do
+/// all the complex logic in Elm.
+///
+/// [headless]: https://en.wikipedia.org/wiki/Headless_software
+///
+/// Initializing a headless program from JavaScript looks like this:
+///
+/// ```javascript
+/// var app = Elm.MyThing.init();
+/// ```
+///
+/// If you _do_ want to control the user interface in Elm, the [`Browser`][browser]
+/// module has a few ways to create that kind of `Program` instead!
+///
+/// [headless]: https://en.wikipedia.org/wiki/Headless_software
+/// [browser]: /packages/elm/browser/latest/Browser
+@external(javascript, "./platform.ffi.mjs", "_Platform_worker")
+pub fn worker(impl: Worker(flags, model, msg)) -> Program(flags, model, msg)
+
+// TASKS and PROCESSES
 
 /// Head over to the documentation for the [`Task`](Task) module for more
 /// information on this. It is only defined here because it is a platform

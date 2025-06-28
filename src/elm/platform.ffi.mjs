@@ -558,4 +558,5 @@ export {
 	_Platform_outgoingPort,
 	_Platform_sendToApp,
 	_Platform_sendToSelf,
+	_Platform_worker,
 };
