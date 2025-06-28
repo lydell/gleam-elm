@@ -8,7 +8,7 @@
 <body>
     <script type="module" id="node">
         import {main} from "./build/dev/javascript/elm_compat/elm_compat.mjs";
-        const app = main()({ node });
+        const app = main({ node });
         app.ports.windowAlert.subscribe(message => {
             window.alert(message)
         })

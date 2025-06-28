@@ -56,7 +56,7 @@ fn subscriptions(model: Model) {
   }
 }
 
-pub fn main() {
+pub fn main(args) {
   browser.element(
     browser.Element(
       init: init,
@@ -69,5 +69,5 @@ pub fn main() {
         platform.outgoing_port_to_effect_manager(window_alert),
       ],
     ),
-  )
+  )(args)
 }
