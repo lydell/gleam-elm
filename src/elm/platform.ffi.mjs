@@ -45,15 +45,15 @@ var __2_MAP = 3;
 // PROGRAMS
 
 
-var _Platform_worker = function(impl) { return function(args)
+var _Platform_worker = function(flagDecoder, init, update, subscriptions, effectManagers) { return function(args)
 {
 	return _Platform_initialize(
-		impl.flags_decoder,
+		flagDecoder,
 		args,
-		impl.init,
-		impl.update,
-		impl.subscriptions,
-		impl.effect_managers,
+		init,
+		update,
+		subscriptions,
+		effectManagers,
 		function() { return function() {} }
 	);
 }};

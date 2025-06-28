@@ -31,14 +31,6 @@ import elm/url.{type Url}
 
 // SANDBOX
 
-pub type Sandbox(model, msg) {
-  Sandbox(
-    init: model,
-    view: fn(model) -> Html(msg),
-    update: fn(msg, model) -> model,
-  )
-}
-
 /// Create a “sandboxed” program that cannot communicate with the outside
 /// world.
 ///
@@ -55,31 +47,22 @@ pub type Sandbox(model, msg) {
 ///
 /// [tea]: https://guide.elm-lang.org/architecture/
 /// [guide]: https://guide.elm-lang.org/
-pub fn sandbox(impl: Sandbox(model, msg)) -> Program(Nil, model, msg) {
+pub fn sandbox(
+  init init: model,
+  view view: fn(model) -> Html(msg),
+  update update: fn(msg, model) -> model,
+) -> Program(Nil, model, msg) {
   element(
-    Element(
-      flags_decoder: decode.succeed(Nil),
-      init: fn(_) { #(impl.init, cmd.none()) },
-      view: impl.view,
-      update: fn(msg, model) { #(impl.update(msg, model), cmd.none()) },
-      subscriptions: fn(_) { sub.none() },
-      effect_managers: [],
-    ),
+    flags_decoder: decode.succeed(Nil),
+    init: fn(_) { #(init, cmd.none()) },
+    view: view,
+    update: fn(msg, model) { #(update(msg, model), cmd.none()) },
+    subscriptions: fn(_) { sub.none() },
+    effect_managers: [],
   )
 }
 
 // ELEMENT
-
-pub type Element(flags, model, msg) {
-  Element(
-    flags_decoder: Decoder(flags),
-    init: fn(flags) -> #(model, Cmd(msg)),
-    view: fn(model) -> Html(msg),
-    update: fn(msg, model) -> #(model, Cmd(msg)),
-    subscriptions: fn(model) -> Sub(msg),
-    effect_managers: List(platform.EffectManager),
-  )
-}
 
 /// Create an HTML element managed by Elm. The resulting elements are easy to
 /// embed in larger JavaScript projects, and lots of companies that use Elm
@@ -102,27 +85,27 @@ pub type Element(flags, model, msg) {
 /// [fx]: https://guide.elm-lang.org/effects/
 /// [interop]: https://guide.elm-lang.org/interop/
 @external(javascript, "./browser.ffi.mjs", "_Browser_element")
-pub fn element(impl: Element(flags, model, msg)) -> Program(flags, model, msg)
+pub fn element(
+  flags_decoder flags_decoder: Decoder(flags),
+  init init: fn(flags) -> #(model, Cmd(msg)),
+  view view: fn(model) -> Html(msg),
+  update update: fn(msg, model) -> #(model, Cmd(msg)),
+  subscriptions subscriptions: fn(model) -> Sub(msg),
+  effect_managers effect_managers: List(platform.EffectManager),
+) -> Program(flags, model, msg)
 
 // DOCUMENT
-
-/// Note that the `Document` type is something else.
-pub type DocumentImplementation(flags, model, msg) {
-  DocumentImplementation(
-    flags_decoder: Decoder(flags),
-    init: fn(flags) -> #(model, Cmd(msg)),
-    view: fn(model) -> Document(msg),
-    update: fn(msg, model) -> #(model, Cmd(msg)),
-    subscriptions: fn(model) -> Sub(msg),
-    effect_managers: List(platform.EffectManager),
-  )
-}
 
 /// Create an HTML document managed by Elm. This expands upon what `element`
 /// can do in that `view` now gives you control over the `<title>` and `<body>`.
 @external(javascript, "./browser.ffi.mjs", "_Browser_document")
 pub fn document(
-  impl: DocumentImplementation(flags, model, msg),
+  flags_decoder flags_decoder: Decoder(flags),
+  init init: fn(flags) -> #(model, Cmd(msg)),
+  view view: fn(model) -> Document(msg),
+  update update: fn(msg, model) -> #(model, Cmd(msg)),
+  subscriptions subscriptions: fn(model) -> Sub(msg),
+  effect_managers effect_managers: List(platform.EffectManager),
 ) -> Program(flags, model, msg)
 
 /// This data specifies the `<title>` and all of the nodes that should go in
@@ -156,19 +139,6 @@ pub type Document(msg) {
 }
 
 // APPLICATION
-
-pub type Application(flags, model, msg) {
-  Application(
-    flags_decoder: Decoder(flags),
-    init: fn(flags, Url, navigation.Key) -> #(model, Cmd(msg)),
-    view: fn(model) -> Document(msg),
-    update: fn(msg, model) -> #(model, Cmd(msg)),
-    subscriptions: fn(model) -> Sub(msg),
-    on_url_request: fn(UrlRequest) -> msg,
-    on_url_change: fn(Url) -> msg,
-    effect_managers: List(platform.EffectManager),
-  )
-}
 
 /// Create an application that manages [`Url`][url] changes.
 ///
@@ -206,7 +176,14 @@ pub type Application(flags, model, msg) {
 /// [this]: https://github.com/elm/browser/blob/1.0.2/notes/navigation-in-elements.md
 @external(javascript, "./browser.ffi.mjs", "_Browser_application")
 pub fn application(
-  impl: Application(flags, model, msg),
+  flags_decoder flags_decoder: Decoder(flags),
+  init init: fn(flags, Url, navigation.Key) -> #(model, Cmd(msg)),
+  view view: fn(model) -> Document(msg),
+  update update: fn(msg, model) -> #(model, Cmd(msg)),
+  subscriptions subscriptions: fn(model) -> Sub(msg),
+  on_url_request on_url_request: fn(UrlRequest) -> msg,
+  on_url_change on_url_change: fn(Url) -> msg,
+  effect_managers effect_managers: List(platform.EffectManager),
 ) -> Program(flags, model, msg)
 
 /// All links in an [`application`](#application) create a `UrlRequest`. So

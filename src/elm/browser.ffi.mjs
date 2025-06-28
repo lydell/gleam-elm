@@ -68,17 +68,16 @@ import {
 
 var __Debugger_element;
 
-var _Browser_element = __Debugger_element || function(impl) { return function(args)
+var _Browser_element = __Debugger_element || function(flagDecoder, init, view, update, subscriptions, effectManagers) { return function(args)
 {
 	return __Platform_initialize(
-		impl.flags_decoder,
+		flagDecoder,
 		args,
-		impl.init,
-		impl.update,
-		impl.subscriptions,
-		impl.effect_managers,
+		init,
+		update,
+		subscriptions,
+		effectManagers,
 		function(sendToApp, initialModel) {
-			var view = impl.view;
 			/**__PROD*/
 			var domNode = args['node'];
 			//*/
@@ -105,18 +104,23 @@ var _Browser_element = __Debugger_element || function(impl) { return function(ar
 
 var __Debugger_document;
 
-var _Browser_document = __Debugger_document || function(impl) { return function(args)
+var _Browser_document = __Debugger_document || function(flagDecoder, init, view, update, subscriptions, effectManagers) { return function(args)
 {
+	var setup;
+	if (flagDecoder.setup)
+	{
+		setup = flagDecoder.setup;
+		flagDecoder = flagDecoder.flagDecoder;
+	}
 	return __Platform_initialize(
-		impl.flags_decoder,
+		flagDecoder,
 		args,
-		impl.init,
-		impl.update,
-		impl.subscriptions,
-		impl.effect_managers,
+		init,
+		update,
+		subscriptions,
+		effectManagers,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.setup && impl.setup(sendToApp)
-			var view = impl.view;
+			var divertHrefToApp = setup && setup(sendToApp)
 			var title = __VirtualDom_doc.title;
 			var bodyNode = __VirtualDom_doc.body;
 			_VirtualDom_set_divertHrefToApp(divertHrefToApp);
@@ -265,10 +269,8 @@ function _Browser_makeAnimator(model, draw)
 // APPLICATION
 
 
-function _Browser_application(impl)
+function _Browser_application(flagDecoder, init, view, update, subscriptions, onUrlRequest, onUrlChange, effectManagers)
 {
-	var onUrlChange = impl.on_url_change;
-	var onUrlRequest = impl.on_url_request;
 	var key = function() { key.__sendToApp(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
@@ -298,16 +300,17 @@ function _Browser_application(impl)
 				}
 			}};
 		},
-		flags_decoder: impl.flags_decoder,
-		init: function(flags)
-		{
-			return impl.init(flags, _Browser_getUrl(), key);
+		flagDecoder: flagDecoder,
 		},
-		view: impl.view,
-		update: impl.update,
-		subscriptions: impl.subscriptions,
-		effect_managers: impl.effect_managers
-	});
+		function(flags)
+		{
+			return init(flags, _Browser_getUrl(), key);
+		},
+		view,
+		update,
+		subscriptions,
+		effectManagers
+	);
 }
 
 function _Browser_getUrl()

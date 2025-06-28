@@ -37,16 +37,6 @@ pub type Args
 /// have registered effect managers for.
 pub type App(flags, model, msg)
 
-pub type Worker(flags, model, msg) {
-  Worker(
-    flags_decoder: Decoder(flags),
-    init: fn(flags) -> #(model, Cmd(msg)),
-    update: fn(msg, model) -> #(model, Cmd(msg)),
-    subscriptions: fn(model) -> Sub(msg),
-    effect_managers: List(EffectManager),
-  )
-}
-
 /// Create a [headless][] program with no user interface.
 ///
 /// This is great if you want to use Elm as the &ldquo;brain&rdquo; for something
@@ -67,7 +57,13 @@ pub type Worker(flags, model, msg) {
 /// [headless]: https://en.wikipedia.org/wiki/Headless_software
 /// [browser]: /packages/elm/browser/latest/Browser
 @external(javascript, "./platform.ffi.mjs", "_Platform_worker")
-pub fn worker(impl: Worker(flags, model, msg)) -> Program(flags, model, msg)
+pub fn worker(
+  flags_decoder flags_decoder: Decoder(flags),
+  init init: fn(flags) -> #(model, Cmd(msg)),
+  update update: fn(msg, model) -> #(model, Cmd(msg)),
+  subscriptions subscriptions: fn(model) -> Sub(msg),
+  effect_managers effect_managers: List(EffectManager),
+) -> Program(flags, model, msg)
 
 // TASKS and PROCESSES
 

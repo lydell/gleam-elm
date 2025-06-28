@@ -58,16 +58,14 @@ fn subscriptions(model: Model) {
 
 pub fn main(args) {
   browser.element(
-    browser.Element(
-      init: init,
-      view: view,
-      update: update,
-      flags_decoder: decode.succeed(Nil),
-      subscriptions: subscriptions,
-      effect_managers: [
-        time.effect_manager(),
-        platform.outgoing_port_to_effect_manager(window_alert),
-      ],
-    ),
+    init: init,
+    view: view,
+    update: update,
+    flags_decoder: decode.succeed(Nil),
+    subscriptions: subscriptions,
+    effect_managers: [
+      time.effect_manager(),
+      platform.outgoing_port_to_effect_manager(window_alert),
+    ],
   )(args)
 }
