@@ -1,4 +1,5 @@
 import elm/browser
+import elm/debugger
 import elm/html
 import elm/html/attributes
 import elm/html/events
@@ -27,7 +28,7 @@ fn port_on_js_message() -> platform.IncomingPort(String) {
 }
 
 pub fn program(args) {
-  browser.application(
+  debugger.application(
     flags_decoder: decode.succeed(Nil),
     init: fn(_, _, _) { #(0, cmd.none()) },
     view: fn(model) {

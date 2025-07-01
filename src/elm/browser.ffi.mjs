@@ -267,9 +267,16 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(flagDecoder, init, view, update, subscriptions, onUrlRequest, onUrlChange, effectManagers)
 {
+	var documentFunction = _Browser_document;
+	if (flagDecoder.documentFunction)
+	{
+		documentFunction = flagDecoder.documentFunction;
+		flagDecoder = flagDecoder.flagDecoder;
+	}
+
 	var key = function() { key.__sendToApp(onUrlChange(_Browser_getUrl())); };
 
-	return _Browser_document({
+	return documentFunction({
 		setup: function(sendToApp)
 		{
 			key.__sendToApp = sendToApp;

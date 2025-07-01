@@ -1,9 +1,11 @@
-import elm/browser.{type Document}
+import elm/browser.{type Document, type UrlRequest}
+import elm/browser/navigation
 import elm/html.{type Html}
 import elm/json/decode.{type Decoder}
 import elm/platform.{type Program}
 import elm/platform/cmd.{type Cmd}
 import elm/platform/sub.{type Sub}
+import elm/url.{type Url}
 
 pub fn sandbox(
   init init: model,
@@ -39,4 +41,15 @@ pub fn document(
   subscriptions subscriptions: fn(model) -> Sub(msg),
   effect_managers effect_managers: List(platform.EffectManager),
 ) -> Program(flags, model, msg)
-// TODO: application
+
+@external(javascript, "./debugger.ffi.mjs", "_Debugger_application")
+pub fn application(
+  flags_decoder flags_decoder: Decoder(flags),
+  init init: fn(flags, Url, navigation.Key) -> #(model, Cmd(msg)),
+  view view: fn(model) -> Document(msg),
+  update update: fn(msg, model) -> #(model, Cmd(msg)),
+  subscriptions subscriptions: fn(model) -> Sub(msg),
+  on_url_request on_url_request: fn(UrlRequest) -> msg,
+  on_url_change on_url_change: fn(Url) -> msg,
+  effect_managers effect_managers: List(platform.EffectManager),
+) -> Program(flags, model, msg)

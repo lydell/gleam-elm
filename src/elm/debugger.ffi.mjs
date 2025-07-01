@@ -21,6 +21,7 @@ import Array exposing (foldr)
 */
 
 import {
+	_Browser_application,
 	_Browser_makeAnimator,
 } from './browser.ffi.mjs';
 import {
@@ -200,6 +201,23 @@ var _Debugger_document = function(flagDecoder, init, view, update, subscriptions
 		}
 	);
 }};
+
+function _Debugger_application(flagDecoder, init, view, update, subscriptions, onUrlRequest, onUrlChange, effectManagers)
+{
+	return _Browser_application(
+		{
+			documentFunction: _Debugger_document,
+			flagDecoder: flagDecoder,
+		},
+		init,
+		view,
+		update,
+		subscriptions,
+		onUrlRequest,
+		onUrlChange,
+		effectManagers,
+	);
+}
 
 
 function _Debugger_popout()
@@ -610,6 +628,7 @@ var _Debugger_mostEvents = [
 var _Debugger_allEvents = _Debugger_mostEvents.concat('wheel', 'scroll');
 
 export {
+	_Debugger_application,
 	_Debugger_document,
 	_Debugger_element,
 	_Debugger_isOpen,
