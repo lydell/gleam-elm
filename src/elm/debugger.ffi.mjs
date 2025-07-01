@@ -21,6 +21,14 @@ import Array exposing (foldr)
 */
 
 import {
+	Empty,
+	NonEmpty,
+} from '../gleam.mjs';
+import {
+	append as __Utils_ap,
+	map as __List_map,
+} from '../../gleam_stdlib/gleam/list.mjs';
+import {
 	_Browser_application,
 	_Browser_makeAnimator,
 } from './browser.ffi.mjs';
@@ -168,10 +176,10 @@ var _Debugger_document = function(flagDecoder, init, view, update, subscriptions
 			{
 				_VirtualDom_set_divertHrefToApp(divertHrefToApp);
 				var doc = view(__Main_getUserModel(model));
-				var nextNode = __VirtualDom_node('body')(__List_Nil)(
+				var nextNode = __VirtualDom_node('body', new Empty,
 					__Utils_ap(
-						__List_map(function(node) { return __VirtualDom_map(node, function(msg) { return new UserMsg(msg) }) }, doc.body),
-						__List_Cons(__Main_cornerView(model), __List_Nil)
+						__List_map(doc.body, function(node) { return __VirtualDom_map(node, function(msg) { return new UserMsg(msg) }) }),
+						new NonEmpty(__Main_cornerView(model), new Empty)
 					)
 				);
 				var patches = __VirtualDom_diff(currNode, nextNode);

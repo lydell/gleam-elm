@@ -26,7 +26,7 @@ import {
 import {
 	None,
 	Some,
-} from "../../gleam_stdlib/gleam/option.mjs";
+} from '../../gleam_stdlib/gleam/option.mjs';
 import {
 	never as __Basics_never,
 } from './basics.mjs';
