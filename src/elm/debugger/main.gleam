@@ -1,6 +1,7 @@
 import elm/basics.{type Never}
 import elm/debugger/history.{type History}
 import elm/debugger/overlay
+import elm/html.{type Html}
 import elm/platform/cmd.{type Cmd}
 import elm/platform/sub.{type Sub}
 import elm/task.{type Task}
@@ -53,11 +54,6 @@ pub type State(model, msg) {
   Paused(Int, model, model, msg, History(model, msg))
 }
 
-/// TODO: Only make public to ffi, not to end users.
-pub fn to_blocker_type(model: Model(model, msg)) -> overlay.BlockerType {
-  overlay.to_blocker_type(is_paused(model.state))
-}
-
 fn get_latest_model(state: State(model, msg)) -> model {
   case state {
     Running(model) -> model
@@ -78,6 +74,12 @@ fn is_paused(state: State(model, msg)) -> Bool {
     Paused(_, _, _, _, _) -> True
   }
 }
+
+@external(javascript, "../debugger.ffi.mjs", "_Debugger_isOpen")
+fn is_open(popout: Popout) -> Bool
+
+@external(javascript, "../debugger.ffi.mjs", "_Debugger_open")
+fn open(popout: Popout) -> Task(Never, Nil)
 
 fn cached_history(model: Model(model, msg)) -> History(model, msg) {
   case model.state {
@@ -115,16 +117,15 @@ pub type Msg(msg) {
   UserMsg(msg)
   // | TweakExpandoMsg Expando.Msg
   // | TweakExpandoModel Expando.Msg
-  // | Resume
+  Resume
   // | Jump Int
   // | SliderJump Int
-  // | Open
+  Open
   // | Up
   // | Down
   // | Import
   // | Export
   // | Upload String
-  // | OverlayMsg Overlay.Msg
   // --
   // | SwapLayout
   // | DragStart
@@ -174,6 +175,21 @@ pub fn wrap_update(
           )
         }
       }
+      Resume ->
+        case model.state {
+          Running(_) -> #(model, cmd.none())
+
+          Paused(_, _, user_model, user_msg, _) -> #(
+            Model(
+              ..model,
+              state: Running(user_model),
+              //   , expandoMsg: Expando.merge user_msg model.expandoMsg
+            //   , expandoModel: Expando.merge user_model model.expandoModel
+            ),
+            scroll(model.popout),
+          )
+        }
+      Open -> #(model, task.perform(fn(_) { NoOp }, open(model.popout)))
     }
   }
 }
@@ -186,3 +202,19 @@ fn scroll(popout: Popout) -> Cmd(Msg(msg)) {
 
 @external(javascript, "../debugger.ffi.mjs", "_Debugger_scroll")
 fn scroll_raw(popout: Popout) -> Task(Never, Nil)
+
+// CORNER VIEW
+
+pub fn corner_view(model: Model(model, msg)) -> Html(Msg(msg)) {
+  overlay.view(
+    overlay.Config(resume: Resume, open: Open),
+    is_paused(model.state),
+    is_open(model.popout),
+    history.size(model.history),
+  )
+}
+
+/// TODO: Only make public to ffi, not to end users.
+pub fn to_blocker_type(model: Model(model, msg)) -> overlay.BlockerType {
+  overlay.to_blocker_type(is_paused(model.state))
+}

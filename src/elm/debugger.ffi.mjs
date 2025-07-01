@@ -24,6 +24,7 @@ import {
 	_Browser_makeAnimator,
 } from './browser.ffi.mjs';
 import {
+	corner_view as __Main_cornerView,
 	get_user_model as __Main_getUserModel,
 	to_blocker_type as __Main_toBlockerType,
 	UserMsg,
@@ -38,6 +39,10 @@ import {
 import {
 	_Platform_initialize as __Platform_initialize,
 } from './platform.ffi.mjs';
+import {
+	_Scheduler_binding as __Scheduler_binding,
+	_Scheduler_succeed as __Scheduler_succeed,
+} from './scheduler.ffi.mjs';
 import {
 	_VirtualDom_applyPatches as __VirtualDom_applyPatches,
 	_VirtualDom_diff as __VirtualDom_diff,
@@ -204,7 +209,7 @@ function _Debugger_open(popout)
 	return __Scheduler_binding(function(callback)
 	{
 		_Debugger_openWindow(popout);
-		callback(__Scheduler_succeed(__Utils_Tuple0));
+		callback(__Scheduler_succeed(undefined));
 	});
 }
 
@@ -261,7 +266,7 @@ function _Debugger_scroll(popout)
 				msgs.scrollTop = 0;
 			}
 		}
-		callback(__Scheduler_succeed(__Utils_Tuple0));
+		callback(__Scheduler_succeed(undefined));
 	});
 }
 
@@ -278,7 +283,7 @@ var _Debugger_scrollTo = function(id, popout)
 				msg.scrollIntoView(false);
 			}
 		}
-		callback(__Scheduler_succeed(__Utils_Tuple0));
+		callback(__Scheduler_succeed(undefined));
 	});
 };
 
@@ -323,7 +328,7 @@ var _Debugger_download = function(historyLength, json)
 		var fileName = 'history-' + historyLength + '.txt';
 		var jsonString = JSON.stringify(json);
 		var mime = 'text/plain;charset=utf-8';
-		var done = __Scheduler_succeed(__Utils_Tuple0);
+		var done = __Scheduler_succeed(undefined);
 
 		// for IE10+
 		if (navigator.msSaveBlob)
@@ -500,7 +505,7 @@ var _Debugger_initCons = function initConsHelp(value, list)
 var _Debugger_initKeyValueCons = function(key, value, list)
 {
 	return __List_Cons(
-		__Utils_Tuple2(_Debugger_init(key), _Debugger_init(value)),
+		[_Debugger_init(key), _Debugger_init(value)],
 		list
 	);
 };
@@ -595,5 +600,7 @@ var _Debugger_allEvents = _Debugger_mostEvents.concat('wheel', 'scroll');
 
 export {
 	_Debugger_element,
+	_Debugger_isOpen,
+	_Debugger_open,
 	_Debugger_scroll,
 };

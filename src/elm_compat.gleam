@@ -6,6 +6,7 @@ import elm/json/encode
 import elm/platform
 import elm/platform/cmd
 import elm/platform/sub
+import elm/task
 import elm/time
 import gleam/int
 
@@ -64,6 +65,8 @@ pub fn main(args) {
     flags_decoder: decode.succeed(Nil),
     subscriptions: subscriptions,
     effect_managers: [
+      // TODO: Currently you have to manually add `task.effect_manager()` if you use the debugger.
+      task.effect_manager(),
       time.effect_manager(),
       platform.outgoing_port_to_effect_manager(window_alert),
     ],
