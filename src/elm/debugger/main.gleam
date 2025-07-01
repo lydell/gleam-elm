@@ -225,7 +225,6 @@ pub fn corner_view(model: Model(model, msg)) -> Html(Msg(msg)) {
   )
 }
 
-/// TODO: Only make public to ffi, not to end users.
 pub fn to_blocker_type(model: Model(model, msg)) -> overlay.BlockerType {
   overlay.to_blocker_type(is_paused(model.state))
 }
