@@ -610,6 +610,7 @@ var _Debugger_mostEvents = [
 var _Debugger_allEvents = _Debugger_mostEvents.concat('wheel', 'scroll');
 
 export {
+	_Debugger_document,
 	_Debugger_element,
 	_Debugger_isOpen,
 	_Debugger_open,
