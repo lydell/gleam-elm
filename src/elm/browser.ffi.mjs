@@ -66,9 +66,7 @@ import {
 // ELEMENT
 
 
-var __Debugger_element;
-
-var _Browser_element = __Debugger_element || function(flagDecoder, init, view, update, subscriptions, effectManagers) { return function(args)
+var _Browser_element = function(flagDecoder, init, view, update, subscriptions, effectManagers) { return function(args)
 {
 	return __Platform_initialize(
 		flagDecoder,
@@ -102,9 +100,7 @@ var _Browser_element = __Debugger_element || function(flagDecoder, init, view, u
 // DOCUMENT
 
 
-var __Debugger_document;
-
-var _Browser_document = __Debugger_document || function(flagDecoder, init, view, update, subscriptions, effectManagers) { return function(args)
+var _Browser_document = function(flagDecoder, init, view, update, subscriptions, effectManagers) { return function(args)
 {
 	var setup;
 	if (flagDecoder.setup)
