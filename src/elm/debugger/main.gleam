@@ -1,10 +1,21 @@
 import elm/basics.{type Never}
 import elm/debugger/history.{type History}
 import elm/debugger/overlay
-import elm/html.{type Html}
+import elm/html.{type Html, node, text}
+import elm/html/attributes.{style}
 import elm/platform/cmd.{type Cmd}
 import elm/platform/sub.{type Sub}
 import elm/task.{type Task}
+import gleam/list
+import gleam/option.{None, Some}
+
+// CONSTANTS
+
+const minimum_panel_size: Int = 150
+
+pub const initial_window_width: Int = 900
+
+pub const initial_window_height: Int = 420
 
 // SUBSCRIPTIONS
 
@@ -217,4 +228,45 @@ pub fn corner_view(model: Model(model, msg)) -> Html(Msg(msg)) {
 /// TODO: Only make public to ffi, not to end users.
 pub fn to_blocker_type(model: Model(model, msg)) -> overlay.BlockerType {
   overlay.to_blocker_type(is_paused(model.state))
+}
+
+// BIG DEBUG VIEW
+
+pub fn popout_view(model: Model(model, msg)) -> Html(Msg(msg)) {
+  let maybe_index = case model.state {
+    Running(_) -> None
+    Paused(index, _, _, _, _) -> Some(index)
+  }
+
+  let history_to_render = cached_history(model)
+  node(
+    "body",
+    list.append(
+      // to_drag_listeners(model.layout)
+      [],
+      [
+        style("margin", "0"),
+        style("padding", "0"),
+        style("width", "100%"),
+        style("height", "100%"),
+        style("font-family", "monospace"),
+        style("display", "flex"),
+        style("background-color", "white"),
+        style("flex-direction", to_flex_direction(model.layout)),
+      ],
+    ),
+    [
+      text("TODO: Actual debugger UI"),
+      // viewHistory maybe_index history_to_render model.layout
+    // , viewDragZone model.layout
+    // , viewExpando model.expandoMsg model.expandoModel model.layout
+    ],
+  )
+}
+
+fn to_flex_direction(layout: Layout) -> String {
+  case layout {
+    Horizontal(_, _, _) -> "row"
+    Vertical(_, _, _) -> "column-reverse"
+  }
 }

@@ -26,6 +26,10 @@ import {
 import {
 	corner_view as __Main_cornerView,
 	get_user_model as __Main_getUserModel,
+	initial_window_height as __Main_initialWindowHeight,
+	initial_window_width as __Main_initialWindowWidth,
+	NoOp,
+	popout_view as __Main_popoutView,
 	to_blocker_type as __Main_toBlockerType,
 	UserMsg,
 	wrap_init as __Main_wrapInit,
@@ -50,6 +54,7 @@ import {
 	_VirtualDom_map as __VirtualDom_map,
 	_VirtualDom_node as __VirtualDom_node,
 	_VirtualDom_set_divertHrefToApp,
+	_VirtualDom_set_doc,
 	_VirtualDom_virtualize as __VirtualDom_virtualize,
 } from './virtual_dom.ffi.mjs';
 
@@ -117,13 +122,13 @@ var _Debugger_element = function(flagDecoder, init, view, update, subscriptions,
 
 				// view popout
 
-				__VirtualDom_doc = model.popout.__doc; // SWITCH TO POPOUT DOC
+				_VirtualDom_set_doc(model.popout.__doc); // SWITCH TO POPOUT DOC
 				currPopout || (currPopout = __VirtualDom_virtualize(model.popout.__doc.body));
 				var nextPopout = __Main_popoutView(model);
 				var popoutPatches = __VirtualDom_diff(currPopout, nextPopout);
 				__VirtualDom_applyPatches(model.popout.__doc.body, currPopout, popoutPatches, sendToApp);
 				currPopout = nextPopout;
-				__VirtualDom_doc = document; // SWITCH BACK TO NORMAL DOC
+				_VirtualDom_set_doc(document); // SWITCH BACK TO NORMAL DOC
 			});
 		}
 	);
@@ -235,13 +240,13 @@ function _Debugger_openWindow(popout)
 	window.addEventListener('unload', close);
 	debuggerWindow.addEventListener('unload', function() {
 		popout.__doc = undefined;
-		popout.__sendToApp(__Main_NoOp);
+		popout.__sendToApp(new NoOp);
 		window.removeEventListener('unload', close);
 	});
 
 	function close() {
 		popout.__doc = undefined;
-		popout.__sendToApp(__Main_NoOp);
+		popout.__sendToApp(new NoOp);
 		debuggerWindow.close();
 	}
 
