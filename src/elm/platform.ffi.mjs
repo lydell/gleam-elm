@@ -231,7 +231,7 @@ function _Platform_batch(list)
 }
 
 
-var _Platform_map = function(tagger, bag)
+var _Platform_map = function(bag, tagger)
 {
 	return {
 		$: __2_MAP,
@@ -555,6 +555,7 @@ export {
 	_Platform_incomingPort,
 	_Platform_initialize,
 	_Platform_leaf,
+	_Platform_map,
 	_Platform_outgoingPort,
 	_Platform_sendToApp,
 	_Platform_sendToSelf,
