@@ -135,18 +135,24 @@ var _Debugger_element = function(flagDecoder, init, view, update, subscriptions,
 }};
 
 
-var _Debugger_document = function(impl, flagDecoder, debugMetadata, args)
+var _Debugger_document = function(flagDecoder, init, view, update, subscriptions, effectManagers) { return function(args)
 {
+	var setup;
+	if (flagDecoder.setup)
+	{
+		setup = flagDecoder.setup;
+		flagDecoder = flagDecoder.flagDecoder;
+	}
 	return __Platform_initialize(
 		flagDecoder,
 		args,
-		__Main_wrapInit(__Json_wrap(debugMetadata), _Debugger_popout(), impl.init),
-		__Main_wrapUpdate(impl.update),
-		__Main_wrapSubs(impl.subscriptions),
+		__Main_wrapInit(_Debugger_popout(), init),
+		__Main_wrapUpdate(update),
+		__Main_wrapSubs(subscriptions),
+		effectManagers,
 		function(sendToApp, initialModel)
 		{
-			var divertHrefToApp = impl.setup && impl.setup(function(x) { return sendToApp(new UserMsg(x)); });
-			var view = impl.view;
+			var divertHrefToApp = setup && setup(function(x) { return sendToApp(new UserMsg(x)); });
 			var title = __VirtualDom_doc.title;
 			var bodyNode = __VirtualDom_doc.body;
 			_VirtualDom_set_divertHrefToApp(divertHrefToApp);
@@ -183,17 +189,17 @@ var _Debugger_document = function(impl, flagDecoder, debugMetadata, args)
 
 				if (!model.popout.__doc) { currPopout = undefined; return; }
 
-				__VirtualDom_doc = model.popout.__doc; // SWITCH TO POPOUT DOC
+				_VirtualDom_set_doc(model.popout.__doc); // SWITCH TO POPOUT DOC
 				currPopout || (currPopout = __VirtualDom_virtualize(model.popout.__doc.body));
 				var nextPopout = __Main_popoutView(model);
 				var popoutPatches = __VirtualDom_diff(currPopout, nextPopout);
 				__VirtualDom_applyPatches(model.popout.__doc.body, currPopout, popoutPatches, sendToApp);
 				currPopout = nextPopout;
-				__VirtualDom_doc = document; // SWITCH BACK TO NORMAL DOC
+				_VirtualDom_set_doc(document); // SWITCH BACK TO NORMAL DOC
 			});
 		}
 	);
-};
+}};
 
 
 function _Debugger_popout()
