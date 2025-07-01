@@ -590,4 +590,5 @@ export {
 	_Browser_application,
 	_Browser_document,
 	_Browser_element,
+	_Browser_makeAnimator,
 };

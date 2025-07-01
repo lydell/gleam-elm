@@ -20,6 +20,33 @@ import Array exposing (foldr)
 
 */
 
+import {
+	_Browser_makeAnimator,
+} from './browser.ffi.mjs';
+import {
+	get_user_model as __Main_getUserModel,
+	to_blocker_type as __Main_toBlockerType,
+	UserMsg,
+	wrap_init as __Main_wrapInit,
+	wrap_subs as __Main_wrapSubs,
+	wrap_update as __Main_wrapUpdate,
+} from './debugger/main.mjs';
+import {
+	BlockMost as __Overlay_BlockMost,
+	BlockNone as __Overlay_BlockNone,
+} from './debugger/overlay.mjs';
+import {
+	_Platform_initialize as __Platform_initialize,
+} from './platform.ffi.mjs';
+import {
+	_VirtualDom_applyPatches as __VirtualDom_applyPatches,
+	_VirtualDom_diff as __VirtualDom_diff,
+	_VirtualDom_doc as __VirtualDom_doc,
+	_VirtualDom_map as __VirtualDom_map,
+	_VirtualDom_node as __VirtualDom_node,
+	_VirtualDom_set_divertHrefToApp,
+	_VirtualDom_virtualize as __VirtualDom_virtualize,
+} from './virtual_dom.ffi.mjs';
 
 
 // HELPERS
@@ -35,17 +62,17 @@ function _Debugger_unsafeCoerce(value)
 // PROGRAMS
 
 
-var _Debugger_element = F4(function(impl, flagDecoder, debugMetadata, args)
+var _Debugger_element = function(flagDecoder, init, view, update, subscriptions, effectManagers) { return function(args)
 {
 	return __Platform_initialize(
 		flagDecoder,
 		args,
-		A3(__Main_wrapInit, __Json_wrap(debugMetadata), _Debugger_popout(), impl.__$init),
-		__Main_wrapUpdate(impl.__$update),
-		__Main_wrapSubs(impl.__$subscriptions),
+		__Main_wrapInit(_Debugger_popout(), init),
+		__Main_wrapUpdate(update),
+		__Main_wrapSubs(subscriptions),
+		effectManagers,
 		function(sendToApp, initialModel)
 		{
-			var view = impl.__$view;
 			var domNode = args && args['node'] ? args['node'] : __Debug_crash(0);
 			var currNode = __VirtualDom_virtualize(domNode);
 			var currBlocker = __Main_toBlockerType(initialModel);
@@ -55,11 +82,11 @@ var _Debugger_element = F4(function(impl, flagDecoder, debugMetadata, args)
 			domNode.parentNode.insertBefore(cornerNode, domNode.nextSibling);
 			var cornerCurr = __VirtualDom_virtualize(cornerNode);
 
-			initialModel.__$popout.__sendToApp = sendToApp;
+			initialModel.popout.__sendToApp = sendToApp;
 
 			return _Browser_makeAnimator(initialModel, function(model)
 			{
-				var nextNode = A2(__VirtualDom_map, __Main_UserMsg, view(__Main_getUserModel(model)));
+				var nextNode = __VirtualDom_map(view(__Main_getUserModel(model)), function(msg) { return new UserMsg(msg) });
 				var patches = __VirtualDom_diff(currNode, nextNode);
 				domNode = __VirtualDom_applyPatches(domNode, currNode, patches, sendToApp);
 				currNode = nextNode;
@@ -77,7 +104,7 @@ var _Debugger_element = F4(function(impl, flagDecoder, debugMetadata, args)
 				cornerNode = __VirtualDom_applyPatches(cornerNode, cornerCurr, cornerPatches, sendToApp);
 				cornerCurr = cornerNext;
 
-				if (!model.__$popout.__doc)
+				if (!model.popout.__doc)
 				{
 					currPopout = undefined;
 					return;
@@ -85,56 +112,56 @@ var _Debugger_element = F4(function(impl, flagDecoder, debugMetadata, args)
 
 				// view popout
 
-				__VirtualDom_doc = model.__$popout.__doc; // SWITCH TO POPOUT DOC
-				currPopout || (currPopout = __VirtualDom_virtualize(model.__$popout.__doc.body));
+				__VirtualDom_doc = model.popout.__doc; // SWITCH TO POPOUT DOC
+				currPopout || (currPopout = __VirtualDom_virtualize(model.popout.__doc.body));
 				var nextPopout = __Main_popoutView(model);
 				var popoutPatches = __VirtualDom_diff(currPopout, nextPopout);
-				__VirtualDom_applyPatches(model.__$popout.__doc.body, currPopout, popoutPatches, sendToApp);
+				__VirtualDom_applyPatches(model.popout.__doc.body, currPopout, popoutPatches, sendToApp);
 				currPopout = nextPopout;
 				__VirtualDom_doc = document; // SWITCH BACK TO NORMAL DOC
 			});
 		}
 	);
-});
+}};
 
 
-var _Debugger_document = F4(function(impl, flagDecoder, debugMetadata, args)
+var _Debugger_document = function(impl, flagDecoder, debugMetadata, args)
 {
 	return __Platform_initialize(
 		flagDecoder,
 		args,
-		A3(__Main_wrapInit, __Json_wrap(debugMetadata), _Debugger_popout(), impl.__$init),
-		__Main_wrapUpdate(impl.__$update),
-		__Main_wrapSubs(impl.__$subscriptions),
+		__Main_wrapInit(__Json_wrap(debugMetadata), _Debugger_popout(), impl.init),
+		__Main_wrapUpdate(impl.update),
+		__Main_wrapSubs(impl.subscriptions),
 		function(sendToApp, initialModel)
 		{
-			var divertHrefToApp = impl.__$setup && impl.__$setup(function(x) { return sendToApp(__Main_UserMsg(x)); });
-			var view = impl.__$view;
+			var divertHrefToApp = impl.setup && impl.setup(function(x) { return sendToApp(new UserMsg(x)); });
+			var view = impl.view;
 			var title = __VirtualDom_doc.title;
 			var bodyNode = __VirtualDom_doc.body;
-			__VirtualDom_divertHrefToApp = divertHrefToApp;
+			_VirtualDom_set_divertHrefToApp(divertHrefToApp);
 			var currNode = __VirtualDom_virtualize(bodyNode);
-			__VirtualDom_divertHrefToApp = 0;
+			_VirtualDom_set_divertHrefToApp(0);
 			var currBlocker = __Main_toBlockerType(initialModel);
 			var currPopout;
 
-			initialModel.__$popout.__sendToApp = sendToApp;
+			initialModel.popout.__sendToApp = sendToApp;
 
 			return _Browser_makeAnimator(initialModel, function(model)
 			{
-				__VirtualDom_divertHrefToApp = divertHrefToApp;
+				_VirtualDom_set_divertHrefToApp(divertHrefToApp);
 				var doc = view(__Main_getUserModel(model));
 				var nextNode = __VirtualDom_node('body')(__List_Nil)(
 					__Utils_ap(
-						A2(__List_map, __VirtualDom_map(__Main_UserMsg), doc.__$body),
+						__List_map(function(node) { return __VirtualDom_map(node, function(msg) { return new UserMsg(msg) }) }, doc.body),
 						__List_Cons(__Main_cornerView(model), __List_Nil)
 					)
 				);
 				var patches = __VirtualDom_diff(currNode, nextNode);
 				bodyNode = __VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
-				__VirtualDom_divertHrefToApp = 0;
-				(title !== doc.__$title) && (__VirtualDom_doc.title = title = doc.__$title);
+				_VirtualDom_set_divertHrefToApp(0);
+				(title !== doc.title) && (__VirtualDom_doc.title = title = doc.title);
 
 				// update blocker
 
@@ -144,19 +171,19 @@ var _Debugger_document = F4(function(impl, flagDecoder, debugMetadata, args)
 
 				// view popout
 
-				if (!model.__$popout.__doc) { currPopout = undefined; return; }
+				if (!model.popout.__doc) { currPopout = undefined; return; }
 
-				__VirtualDom_doc = model.__$popout.__doc; // SWITCH TO POPOUT DOC
-				currPopout || (currPopout = __VirtualDom_virtualize(model.__$popout.__doc.body));
+				__VirtualDom_doc = model.popout.__doc; // SWITCH TO POPOUT DOC
+				currPopout || (currPopout = __VirtualDom_virtualize(model.popout.__doc.body));
 				var nextPopout = __Main_popoutView(model);
 				var popoutPatches = __VirtualDom_diff(currPopout, nextPopout);
-				__VirtualDom_applyPatches(model.__$popout.__doc.body, currPopout, popoutPatches, sendToApp);
+				__VirtualDom_applyPatches(model.popout.__doc.body, currPopout, popoutPatches, sendToApp);
 				currPopout = nextPopout;
 				__VirtualDom_doc = document; // SWITCH BACK TO NORMAL DOC
 			});
 		}
 	);
-});
+};
 
 
 function _Debugger_popout()
@@ -239,7 +266,7 @@ function _Debugger_scroll(popout)
 }
 
 
-var _Debugger_scrollTo = F2(function(id, popout)
+var _Debugger_scrollTo = function(id, popout)
 {
 	return __Scheduler_binding(function(callback)
 	{
@@ -253,7 +280,7 @@ var _Debugger_scrollTo = F2(function(id, popout)
 		}
 		callback(__Scheduler_succeed(__Utils_Tuple0));
 	});
-});
+};
 
 
 
@@ -289,7 +316,7 @@ function _Debugger_upload(popout)
 // DOWNLOAD
 
 
-var _Debugger_download = F2(function(historyLength, json)
+var _Debugger_download = function(historyLength, json)
 {
 	return __Scheduler_binding(function(callback)
 	{
@@ -315,7 +342,7 @@ var _Debugger_download = F2(function(historyLength, json)
 		document.body.removeChild(element);
 		callback(done);
 	});
-});
+};
 
 
 
@@ -382,7 +409,7 @@ function _Debugger_init(value)
 {
 	if (typeof value === 'boolean')
 	{
-		return A3(__Expando_Constructor, __Maybe_Just(value ? 'True' : 'False'), true, __List_Nil);
+		return __Expando_Constructor(__Maybe_Just(value ? 'True' : 'False'), true, __List_Nil);
 	}
 
 	if (typeof value === 'number')
@@ -406,29 +433,29 @@ function _Debugger_init(value)
 
 		if (tag === '::' || tag === '[]')
 		{
-			return A3(__Expando_Sequence, __Expando_ListSeq, true,
-				A2(__List_map, _Debugger_init, value)
+			return __Expando_Sequence(__Expando_ListSeq, true,
+				__List_map(_Debugger_init, value)
 			);
 		}
 
 		if (tag === 'Set_elm_builtin')
 		{
-			return A3(__Expando_Sequence, __Expando_SetSeq, true,
-				A3(__Set_foldr, _Debugger_initCons, __List_Nil, value)
+			return __Expando_Sequence(__Expando_SetSeq, true,
+				__Set_foldr(_Debugger_initCons, __List_Nil, value)
 			);
 		}
 
 		if (tag === 'RBNode_elm_builtin' || tag == 'RBEmpty_elm_builtin')
 		{
-			return A2(__Expando_Dictionary, true,
-				A3(__Dict_foldr, _Debugger_initKeyValueCons, __List_Nil, value)
+			return __Expando_Dictionary(true,
+				__Dict_foldr(_Debugger_initKeyValueCons, __List_Nil, value)
 			);
 		}
 
 		if (tag === 'Array_elm_builtin')
 		{
-			return A3(__Expando_Sequence, __Expando_ArraySeq, true,
-				A3(__Array_foldr, _Debugger_initCons, __List_Nil, value)
+			return __Expando_Sequence(__Expando_ArraySeq, true,
+				__Array_foldr(_Debugger_initCons, __List_Nil, value)
 			);
 		}
 
@@ -446,7 +473,7 @@ function _Debugger_init(value)
 				if (i === '$') continue;
 				list = __List_Cons(_Debugger_init(value[i]), list);
 			}
-			return A3(__Expando_Constructor, char === 35 ? __Maybe_Nothing : __Maybe_Just(tag), true, __List_reverse(list));
+			return __Expando_Constructor(char === 35 ? __Maybe_Nothing : __Maybe_Just(tag), true, __List_reverse(list));
 		}
 
 		return __Expando_Primitive('<internals>');
@@ -457,26 +484,26 @@ function _Debugger_init(value)
 		var dict = __Dict_empty;
 		for (var i in value)
 		{
-			dict = A3(__Dict_insert, i, _Debugger_init(value[i]), dict);
+			dict = __Dict_insert(i, _Debugger_init(value[i]), dict);
 		}
-		return A2(__Expando_Record, true, dict);
+		return __Expando_Record(true, dict);
 	}
 
 	return __Expando_Primitive('<internals>');
 }
 
-var _Debugger_initCons = F2(function initConsHelp(value, list)
+var _Debugger_initCons = function initConsHelp(value, list)
 {
 	return __List_Cons(_Debugger_init(value), list);
-});
+};
 
-var _Debugger_initKeyValueCons = F3(function(key, value, list)
+var _Debugger_initKeyValueCons = function(key, value, list)
 {
 	return __List_Cons(
 		__Utils_Tuple2(_Debugger_init(key), _Debugger_init(value)),
 		list
 	);
-});
+};
 
 function _Debugger_addSlashes(str, isChar)
 {
@@ -545,9 +572,9 @@ function _Debugger_blocker(event)
 
 function _Debugger_blockerToEvents(blocker)
 {
-	return blocker === __Overlay_BlockNone
+	return blocker instanceof __Overlay_BlockNone
 		? []
-		: blocker === __Overlay_BlockMost
+		: blocker instanceof __Overlay_BlockMost
 			? _Debugger_mostEvents
 			: _Debugger_allEvents;
 }
@@ -565,3 +592,8 @@ var _Debugger_mostEvents = [
 ];
 
 var _Debugger_allEvents = _Debugger_mostEvents.concat('wheel', 'scroll');
+
+export {
+	_Debugger_element,
+	_Debugger_scroll,
+};

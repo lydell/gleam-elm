@@ -1,4 +1,4 @@
-import elm/browser
+import elm/debugger
 import elm/html
 import elm/html/events
 import elm/json/decode
@@ -57,7 +57,7 @@ fn subscriptions(model: Model) {
 }
 
 pub fn main(args) {
-  browser.element(
+  debugger.element(
     init: init,
     view: view,
     update: update,
