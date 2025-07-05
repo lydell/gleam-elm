@@ -1,3 +1,10 @@
+/// Calculate the logarithm of a number with a given base.
+/// 
+///     logBase 10 100 == 2
+///     logBase 2 256 == 8
+@external(javascript, "./basics.ffi.mjs", "_Basics_logBase")
+pub fn log_base(base: Float, number: Float) -> Float
+
 /// A value that can never happen! For context:
 /// 
 ///   - The boolean type `Bool` has two values: `True` and `False`
