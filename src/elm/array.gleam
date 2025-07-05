@@ -1,10 +1,10 @@
 //// Fast immutable arrays. The elements in an array must have the same type.
 
+import elm/basics.{log_base}
 import elm/js_array.{type JsArray}
 import gleam/float
 import gleam/int
 import gleam/list
-import gleam/result
 
 /// The array in this module is implemented as a tree with a high branching
 /// factor (number of elements at each level). In comparison, the `Dict` has
@@ -130,12 +130,12 @@ fn initialize_help(
   case from_index < 0 {
     True ->
       builder_to_array(
-        False,
         Builder(
           tail: tail,
           node_list: node_list,
           node_list_size: len / branch_factor,
         ),
+        False,
       )
     False -> {
       let leaf = Leaf(js_array.initialize(branch_factor, from_index, func))
@@ -179,12 +179,12 @@ fn from_list_help(
   case js_array.length(js_array) < branch_factor {
     True ->
       builder_to_array(
-        True,
         Builder(
           tail: js_array,
           node_list: node_list,
           node_list_size: node_list_size,
         ),
+        True,
       )
     False ->
       from_list_help(
@@ -483,21 +483,6 @@ fn map_helper(func: fn(a) -> b, node: Node(a)) -> Node(b) {
 ///
 ///     indexed_map(from_list([5,5,5]), int.multiply) == from_list([0,5,10])
 pub fn indexed_map(array: Array(a), func: fn(Int, a) -> b) -> Array(b) {
-  let helper = fn(node, builder) {
-    case node {
-      SubTree(sub_tree) -> js_array.foldl(helper, builder, sub_tree)
-      Leaf(leaf) -> {
-        let offset = builder.node_list_size * branch_factor
-        let mapped_leaf = Leaf(js_array.indexed_map(func, offset, leaf))
-        Builder(
-          tail: builder.tail,
-          node_list: [mapped_leaf, ..builder.node_list],
-          node_list_size: builder.node_list_size + 1,
-        )
-      }
-    }
-  }
-
   let initial_builder =
     Builder(
       tail: js_array.indexed_map(func, tail_index(array.length), array.tail),
@@ -505,7 +490,38 @@ pub fn indexed_map(array: Array(a), func: fn(Int, a) -> b) -> Array(b) {
       node_list_size: 0,
     )
 
-  builder_to_array(True, js_array.foldl(helper, initial_builder, array.tree))
+  builder_to_array(
+    js_array.foldl(
+      fn(node, builder) { indexed_map_helper(func, node, builder) },
+      initial_builder,
+      array.tree,
+    ),
+    True,
+  )
+}
+
+fn indexed_map_helper(
+  func: fn(Int, a) -> b,
+  node: Node(a),
+  builder: Builder(b),
+) -> Builder(b) {
+  case node {
+    SubTree(sub_tree) ->
+      js_array.foldl(
+        fn(node, builder) { indexed_map_helper(func, node, builder) },
+        builder,
+        sub_tree,
+      )
+    Leaf(leaf) -> {
+      let offset = builder.node_list_size * branch_factor
+      let mapped_leaf = Leaf(js_array.indexed_map(func, offset, leaf))
+      Builder(
+        tail: builder.tail,
+        node_list: [mapped_leaf, ..builder.node_list],
+        node_list_size: builder.node_list_size + 1,
+      )
+    }
+  }
 }
 
 /// Append two arrays to a new one.
@@ -515,30 +531,50 @@ pub fn append(a: Array(a), b: Array(a)) -> Array(a) {
   // The magic number 4 has been found with benchmarks
   case b.length <= branch_factor * 4 {
     True -> {
-      let fold_helper = fn(node, array) {
-        case node {
-          SubTree(tree) -> js_array.foldl(fold_helper, array, tree)
-          Leaf(leaf) -> append_help_tree(leaf, array)
-        }
-      }
-      js_array.foldl(fold_helper, a, b.tree)
+      js_array.foldl(
+        fn(node, array) { append_fold_tree_helper(node, array) },
+        a,
+        b.tree,
+      )
       |> append_help_tree(b.tail)
     }
     False -> {
-      let fold_helper = fn(node, builder) {
-        case node {
-          SubTree(tree) -> js_array.foldl(fold_helper, builder, tree)
-          Leaf(leaf) -> append_help_builder(leaf, builder)
-        }
-      }
-      js_array.foldl(fold_helper, builder_from_array(a), b.tree)
+      js_array.foldl(
+        fn(node, builder) { append_fold_builder_helper(node, builder) },
+        builder_from_array(a),
+        b.tree,
+      )
       |> append_help_builder(b.tail)
       |> builder_to_array(True)
     }
   }
 }
 
-fn append_help_tree(to_append: JsArray(a), array: Array(a)) -> Array(a) {
+fn append_fold_tree_helper(node: Node(a), array: Array(a)) -> Array(a) {
+  case node {
+    SubTree(tree) ->
+      js_array.foldl(
+        fn(node, array) { append_fold_tree_helper(node, array) },
+        array,
+        tree,
+      )
+    Leaf(leaf) -> append_help_tree(array, leaf)
+  }
+}
+
+fn append_fold_builder_helper(node: Node(a), builder: Builder(a)) -> Builder(a) {
+  case node {
+    SubTree(tree) ->
+      js_array.foldl(
+        fn(node, builder) { append_fold_builder_helper(node, builder) },
+        builder,
+        tree,
+      )
+    Leaf(leaf) -> append_help_builder(builder, leaf)
+  }
+}
+
+fn append_help_tree(array: Array(a), to_append: JsArray(a)) -> Array(a) {
   let appended = js_array.append_n(branch_factor, array.tail, to_append)
   let items_to_append = js_array.length(to_append)
   let not_appended =
@@ -554,7 +590,7 @@ fn append_help_tree(to_append: JsArray(a), array: Array(a)) -> Array(a) {
   }
 }
 
-fn append_help_builder(tail: JsArray(a), builder: Builder(a)) -> Builder(a) {
+fn append_help_builder(builder: Builder(a), tail: JsArray(a)) -> Builder(a) {
   let appended = js_array.append_n(branch_factor, builder.tail, tail)
   let tail_len = js_array.length(tail)
   let not_appended = branch_factor - js_array.length(builder.tail) - tail_len
@@ -662,12 +698,11 @@ fn slice_right(array: Array(a), end: Int) -> Array(a) {
           let depth =
             int.max(1, end_idx - 1)
             |> int.to_float
-            |> float.logarithm(int.to_float(branch_factor))
-            |> result.unwrap(0.0)
+            |> log_base(int.to_float(branch_factor), _)
             |> float.floor
             |> float.round
 
-          let new_shift = int.max(5, float.round(depth) * shift_step)
+          let new_shift = int.max(5, depth * shift_step)
 
           Array(
             length: end,
@@ -713,9 +748,11 @@ fn slice_tree(tree: Tree(a), shift: Int, end_idx: Int) -> Tree(a) {
           // The sub is empty, slice it away
           js_array.slice(0, last_pos, tree)
         False ->
-          tree
-          |> js_array.slice(0, last_pos + 1)
-          |> js_array.unsafe_set(last_pos, SubTree(new_sub))
+          js_array.unsafe_set(
+            last_pos,
+            SubTree(new_sub),
+            js_array.slice(0, last_pos + 1, tree),
+          )
       }
     }
     // This is supposed to be the new tail. Fetched by `fetch_new_tail`.
@@ -771,14 +808,12 @@ fn slice_left(array: Array(a), from: Int) -> Array(a) {
             ),
           )
         False -> {
-          let helper = fn(node, acc) {
-            case node {
-              SubTree(sub_tree) -> js_array.foldr(helper, acc, sub_tree)
-              Leaf(leaf) -> [leaf, ..acc]
-            }
-          }
-
-          let leaf_nodes = js_array.foldr(helper, [array.tail], array.tree)
+          let leaf_nodes =
+            js_array.foldr(
+              fn(node, acc) { slice_left_helper(node, acc) },
+              [array.tail],
+              array.tree,
+            )
           let skip_nodes = from / branch_factor
           let nodes_to_insert = list.drop(leaf_nodes, skip_nodes)
 
@@ -801,6 +836,18 @@ fn slice_left(array: Array(a), from: Int) -> Array(a) {
   }
 }
 
+fn slice_left_helper(node: Node(a), acc: List(JsArray(a))) -> List(JsArray(a)) {
+  case node {
+    SubTree(sub_tree) ->
+      js_array.foldr(
+        fn(node, acc) { slice_left_helper(node, acc) },
+        acc,
+        sub_tree,
+      )
+    Leaf(leaf) -> [leaf, ..acc]
+  }
+}
+
 /// A builder contains all information necessary to build an array. Adding
 /// information to the builder is fast. A builder is therefore a suitable
 /// intermediary for constructing arrays.
@@ -808,24 +855,29 @@ type Builder(a) {
   Builder(tail: JsArray(a), node_list: List(Node(a)), node_list_size: Int)
 }
 
-/// The empty builder.
-fn empty_builder() -> Builder(a) {
-  Builder(tail: js_array.empty(), node_list: [], node_list_size: 0)
-}
-
 /// Converts an array to a builder.
 fn builder_from_array(array: Array(a)) -> Builder(a) {
-  let helper = fn(node, acc) {
-    case node {
-      SubTree(sub_tree) -> js_array.foldl(helper, acc, sub_tree)
-      Leaf(_) -> [node, ..acc]
-    }
-  }
   Builder(
     tail: array.tail,
-    node_list: js_array.foldl(helper, [], array.tree),
+    node_list: js_array.foldl(
+      fn(node, acc) { builder_from_array_helper(node, acc) },
+      [],
+      array.tree,
+    ),
     node_list_size: array.length / branch_factor,
   )
+}
+
+fn builder_from_array_helper(node: Node(a), acc: List(Node(a))) -> List(Node(a)) {
+  case node {
+    SubTree(sub_tree) ->
+      js_array.foldl(
+        fn(node, acc) { builder_from_array_helper(node, acc) },
+        acc,
+        sub_tree,
+      )
+    Leaf(_) -> [node, ..acc]
+  }
 }
 
 /// Construct an array with the information in a given builder.
@@ -834,7 +886,7 @@ fn builder_from_array(array: Array(a)) -> Builder(a) {
 /// be in reverse order (that is, the first leaf of the array is the last
 /// node in the node list). This function therefore allows the caller to
 /// specify if the node list should be reversed before building the array.
-fn builder_to_array(reverse_node_list: Bool, builder: Builder(a)) -> Array(a) {
+fn builder_to_array(builder: Builder(a), reverse_node_list: Bool) -> Array(a) {
   case builder.node_list_size == 0 {
     True ->
       Array(
@@ -847,8 +899,7 @@ fn builder_to_array(reverse_node_list: Bool, builder: Builder(a)) -> Array(a) {
       let tree_len = builder.node_list_size * branch_factor
       let depth =
         int.to_float(tree_len - 1)
-        |> float.logarithm(int.to_float(branch_factor))
-        |> result.unwrap(0.0)
+        |> log_base(int.to_float(branch_factor), _)
         |> float.floor
 
       let correct_node_list = case reverse_node_list {
@@ -881,11 +932,7 @@ fn tree_from_builder(node_list: List(Node(a)), node_list_size: Int) -> Tree(a) {
       let #(result, _) = js_array.initialize_from_list(branch_factor, node_list)
       result
     }
-    False ->
-      tree_from_builder(
-        compress_nodes(node_list, []),
-        float.round(new_node_size),
-      )
+    False -> tree_from_builder(compress_nodes(node_list, []), new_node_size)
   }
 }
 
