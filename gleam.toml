@@ -14,7 +14,8 @@ target = "javascript"
 # https://gleam.run/writing-gleam/gleam-toml/.
 
 internal_modules = [
-    "elm/debugger/*"
+    "elm/debugger/*",
+    "elm/js_array"
 ]
 
 [dependencies]
