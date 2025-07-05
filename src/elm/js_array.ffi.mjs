@@ -7,17 +7,17 @@ import Elm.Kernel.Utils exposing (Tuple2)
 
 var _JsArray_empty = [];
 
-function _JsArray_singleton(value)
+var _JsArray_singleton = function(value)
 {
     return [value];
-}
+};
 
-function _JsArray_length(array)
+var _JsArray_length = function(array)
 {
     return array.length;
-}
+};
 
-var _JsArray_initialize = F3(function(size, offset, func)
+var _JsArray_initialize = function(size, offset, func)
 {
     var result = new Array(size);
 
@@ -27,9 +27,9 @@ var _JsArray_initialize = F3(function(size, offset, func)
     }
 
     return result;
-});
+};
 
-var _JsArray_initializeFromList = F2(function (max, ls)
+var _JsArray_initializeFromList = function (max, ls)
 {
     var result = new Array(max);
 
@@ -40,15 +40,15 @@ var _JsArray_initializeFromList = F2(function (max, ls)
     }
 
     result.length = i;
-    return __Utils_Tuple2(result, ls);
-});
+    return [result, ls];
+};
 
-var _JsArray_unsafeGet = F2(function(index, array)
+var _JsArray_unsafeGet = function(index, array)
 {
     return array[index];
-});
+};
 
-var _JsArray_unsafeSet = F3(function(index, value, array)
+var _JsArray_unsafeSet = function(index, value, array)
 {
     var length = array.length;
     var result = new Array(length);
@@ -60,9 +60,9 @@ var _JsArray_unsafeSet = F3(function(index, value, array)
 
     result[index] = value;
     return result;
-});
+};
 
-var _JsArray_push = F2(function(value, array)
+var _JsArray_push = function(value, array)
 {
     var length = array.length;
     var result = new Array(length + 1);
@@ -74,31 +74,31 @@ var _JsArray_push = F2(function(value, array)
 
     result[length] = value;
     return result;
-});
+};
 
-var _JsArray_foldl = F3(function(func, acc, array)
+var _JsArray_foldl = function(func, acc, array)
 {
     var length = array.length;
 
     for (var i = 0; i < length; i++)
     {
-        acc = A2(func, array[i], acc);
+        acc = func(array[i], acc);
     }
 
     return acc;
-});
+};
 
-var _JsArray_foldr = F3(function(func, acc, array)
+var _JsArray_foldr = function(func, acc, array)
 {
     for (var i = array.length - 1; i >= 0; i--)
     {
-        acc = A2(func, array[i], acc);
+        acc = func(array[i], acc);
     }
 
     return acc;
-});
+};
 
-var _JsArray_map = F2(function(func, array)
+var _JsArray_map = function(func, array)
 {
     var length = array.length;
     var result = new Array(length);
@@ -109,27 +109,27 @@ var _JsArray_map = F2(function(func, array)
     }
 
     return result;
-});
+};
 
-var _JsArray_indexedMap = F3(function(func, offset, array)
+var _JsArray_indexedMap = function(func, offset, array)
 {
     var length = array.length;
     var result = new Array(length);
 
     for (var i = 0; i < length; i++)
     {
-        result[i] = A2(func, offset + i, array[i]);
+        result[i] = func(offset + i, array[i]);
     }
 
     return result;
-});
+};
 
-var _JsArray_slice = F3(function(from, to, array)
+var _JsArray_slice = function(from, to, array)
 {
     return array.slice(from, to);
-});
+};
 
-var _JsArray_appendN = F3(function(n, dest, source)
+var _JsArray_appendN = function(n, dest, source)
 {
     var destLen = dest.length;
     var itemsToCopy = n - destLen;
@@ -153,4 +153,21 @@ var _JsArray_appendN = F3(function(n, dest, source)
     }
 
     return result;
-});
+};
+
+export {
+    _JsArray_appendN,
+    _JsArray_empty,
+    _JsArray_foldl,
+    _JsArray_foldr,
+    _JsArray_indexedMap,
+    _JsArray_initialize,
+    _JsArray_initializeFromList,
+    _JsArray_length,
+    _JsArray_map,
+    _JsArray_push,
+    _JsArray_singleton,
+    _JsArray_slice,
+    _JsArray_unsafeGet,
+    _JsArray_unsafeSet,
+};
