@@ -413,7 +413,7 @@ function _Debugger_messageToString(value)
 		return "'" + _Debugger_addSlashes(value, true) + "'";
 	}
 
-	if (typeof value !== 'object' || value === null || !('$' in value))
+	if (typeof value !== 'object' || value === null)
 	{
 		return '…';
 	}
@@ -423,7 +423,7 @@ function _Debugger_messageToString(value)
 		return '…';
 	}
 
-	var code = value.$.charCodeAt(0);
+	var code = '$' in value ? value.$.charCodeAt(0) : 0;
 	if (code === 0x23 /* # */ || /* a */ 0x61 <= code && code <= 0x7A /* z */)
 	{
 		return '…';
@@ -437,12 +437,12 @@ function _Debugger_messageToString(value)
 	var keys = Object.keys(value);
 	switch (keys.length)
 	{
+		case 0:
+			return value.constructor.name;
 		case 1:
-			return value.$;
-		case 2:
-			return value.$ + ' ' + _Debugger_messageToString(value.a);
+			return value.constructor.name + ' ' + _Debugger_messageToString(value.a);
 		default:
-			return value.$ + ' … ' + _Debugger_messageToString(value[keys[keys.length - 1]]);
+			return value.constructor.name + ' … ' + _Debugger_messageToString(value[keys[keys.length - 1]]);
 	}
 }
 

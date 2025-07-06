@@ -30,7 +30,7 @@ fn init(_) -> #(Model, cmd.Cmd(Msg)) {
 
 pub type Msg {
   IncrementPressed
-  TimePassed
+  TimePassed(time.Posix)
 }
 
 fn window_alert() {
@@ -43,7 +43,7 @@ fn update(msg: Msg, model: Model) -> #(Model, cmd.Cmd(Msg)) {
       Model(..model, counter: model.counter + 1),
       platform.call_outgoing_port(window_alert, "Cool alert"),
     )
-    TimePassed -> #(
+    TimePassed(_) -> #(
       Model(..model, time_counter: model.time_counter + 1),
       cmd.none(),
     )
@@ -52,7 +52,7 @@ fn update(msg: Msg, model: Model) -> #(Model, cmd.Cmd(Msg)) {
 
 fn subscriptions(model: Model) {
   case model.time_counter < 5 {
-    True -> time.every(1000.0, fn(_) { TimePassed })
+    True -> time.every(1000.0, TimePassed)
     False -> sub.none()
   }
 }
