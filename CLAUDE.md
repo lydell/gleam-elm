@@ -97,6 +97,8 @@ This package is intended for migrating existing Elm applications to Gleam. For n
 - Turn the `A2` to `A9` calls into regular function calls. For example, change `A2(f, a, b)` into `f(a, b)`.
 - Turn `_Utils_Tuple0` into `undefined`.
 - Turn `_Utils_Tuple2(a, b)` into `[a, b]`.
+- If the implementation of a function is for example just `VirtualDom.keyedNode`, make the Gleam function have `@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_keyedNode")` and no function body.
+- Always preserve all comments exactly, even if empty. In Gleam, module comments are `////`, documentation comments are `///` and regular comments are `//`. 
 
 ## Elm and Gleam differences
 
