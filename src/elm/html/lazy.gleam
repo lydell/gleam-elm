@@ -19,19 +19,19 @@ import elm/html.{type Html}
 /// can check to see if `model` is referentially equal to the previous value used,
 /// and if so, we just stop. No need to build up the tree structure and diff it,
 /// we know if the input to `view` is the same, the output must be the same!
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy")
+@external(javascript, "../virtual_dom.ffi.mjs", "_VirtualDom_lazy")
 pub fn lazy(view: fn(a) -> Html(msg), a: a) -> Html(msg)
 
 /// Same as `lazy` but checks on two arguments.
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy2")
+@external(javascript, "../virtual_dom.ffi.mjs", "_VirtualDom_lazy2")
 pub fn lazy2(view: fn(a, b) -> Html(msg), a: a, b: b) -> Html(msg)
 
 /// Same as `lazy` but checks on three arguments.
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy3")
+@external(javascript, "../virtual_dom.ffi.mjs", "_VirtualDom_lazy3")
 pub fn lazy3(view: fn(a, b, c) -> Html(msg), a: a, b: b, c: c) -> Html(msg)
 
 /// Same as `lazy` but checks on four arguments.
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy4")
+@external(javascript, "../virtual_dom.ffi.mjs", "_VirtualDom_lazy4")
 pub fn lazy4(
   view: fn(a, b, c, d) -> Html(msg),
   a: a,
@@ -41,7 +41,7 @@ pub fn lazy4(
 ) -> Html(msg)
 
 /// Same as `lazy` but checks on five arguments.
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy5")
+@external(javascript, "../virtual_dom.ffi.mjs", "_VirtualDom_lazy5")
 pub fn lazy5(
   view: fn(a, b, c, d, e) -> Html(msg),
   a: a,
@@ -52,7 +52,7 @@ pub fn lazy5(
 ) -> Html(msg)
 
 /// Same as `lazy` but checks on six arguments.
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy6")
+@external(javascript, "../virtual_dom.ffi.mjs", "_VirtualDom_lazy6")
 pub fn lazy6(
   view: fn(a, b, c, d, e, f) -> Html(msg),
   a: a,
@@ -64,7 +64,7 @@ pub fn lazy6(
 ) -> Html(msg)
 
 /// Same as `lazy` but checks on seven arguments.
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy7")
+@external(javascript, "../virtual_dom.ffi.mjs", "_VirtualDom_lazy7")
 pub fn lazy7(
   view: fn(a, b, c, d, e, f, g) -> Html(msg),
   a: a,
@@ -77,7 +77,7 @@ pub fn lazy7(
 ) -> Html(msg)
 
 /// Same as `lazy` but checks on eight arguments.
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_lazy8")
+@external(javascript, "../virtual_dom.ffi.mjs", "_VirtualDom_lazy8")
 pub fn lazy8(
   view: fn(a, b, c, d, e, f, g, h) -> Html(msg),
   a: a,

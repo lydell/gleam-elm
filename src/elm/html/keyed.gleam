@@ -15,7 +15,7 @@ import elm/html.{type Attribute, type Html}
 /// node. You want this when you have a list of nodes that is changing: adding
 /// nodes, removing nodes, etc. In these cases, the unique identifiers help make
 /// the DOM modifications more efficient.
-@external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_keyedNode")
+@external(javascript, "../virtual_dom.ffi.mjs", "_VirtualDom_keyedNode")
 pub fn node(
   tag: String,
   attributes: List(Attribute(msg)),
