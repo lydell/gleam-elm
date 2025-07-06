@@ -1,10 +1,11 @@
 import elm/basics.{type Never}
 import elm/debugger/history.{type History}
 import elm/debugger/overlay
-import elm/html.{type Html, button, div, input, node, span, text}
+import elm/html.{type Attribute, type Html, button, div, input, node, span, text}
 import elm/html/attributes.{max, min, style, type_, value}
-import elm/html/events.{on_click, on_input}
+import elm/html/events.{on, on_click, on_input, on_mouse_down, on_mouse_up}
 import elm/html/lazy.{lazy}
+import elm/json/decode
 import elm/platform/cmd.{type Cmd}
 import elm/platform/sub.{type Sub}
 import elm/task.{type Task}
@@ -272,24 +273,20 @@ pub fn popout_view(model: Model(model, msg)) -> Html(Msg(msg)) {
   let history_to_render = cached_history(model)
   node(
     "body",
-    list.append(
-      // to_drag_listeners(model.layout)
-      [],
-      [
-        style("margin", "0"),
-        style("padding", "0"),
-        style("width", "100%"),
-        style("height", "100%"),
-        style("font-family", "monospace"),
-        style("display", "flex"),
-        style("background-color", "white"),
-        style("flex-direction", to_flex_direction(model.layout)),
-      ],
-    ),
+    list.append(to_drag_listeners(model.layout), [
+      style("margin", "0"),
+      style("padding", "0"),
+      style("width", "100%"),
+      style("height", "100%"),
+      style("font-family", "monospace"),
+      style("display", "flex"),
+      style("background-color", "white"),
+      style("flex-direction", to_flex_direction(model.layout)),
+    ]),
     [
       view_history(maybe_index, history_to_render, model.layout),
-      // , viewDragZone model.layout
-    // , viewExpando model.expandoMsg model.expandoModel model.layout
+      view_drag_zone(model.layout),
+      // , viewExpando model.expandoMsg model.expandoModel model.layout
     ],
   )
 }
@@ -303,6 +300,13 @@ fn to_flex_direction(layout: Layout) -> String {
 
 // DRAG LISTENERS
 
+fn to_drag_listeners(layout: Layout) -> List(Attribute(Msg(msg))) {
+  case get_drag_status(layout) {
+    Static -> []
+    Moving -> [on_mouse_move(), on_mouse_up(DragEnd)]
+  }
+}
+
 fn get_drag_status(layout: Layout) -> DragStatus {
   case layout {
     Horizontal(status, _, _) -> status
@@ -312,6 +316,65 @@ fn get_drag_status(layout: Layout) -> DragStatus {
 
 pub type DragInfo {
   DragInfo(x: Float, y: Float, down: Bool, width: Float, height: Float)
+}
+
+fn on_mouse_move() -> Attribute(Msg(msg)) {
+  on(
+    "mousemove",
+    decode.map5(
+      decode.field("pageX", decode.float()),
+      decode.field("pageY", decode.float()),
+      decode.field("buttons", decode.map(decode.int(), fn(v) { v == 1 })),
+      decode_dimension("innerWidth"),
+      decode_dimension("innerHeight"),
+      fn(x, y, down, width, height) {
+        Drag(DragInfo(x, y, down, width, height))
+      },
+    ),
+  )
+}
+
+fn decode_dimension(field: String) -> decode.Decoder(Float) {
+  decode.at(
+    ["currentTarget", "ownerDocument", "defaultView", field],
+    decode.float(),
+  )
+}
+
+// VIEW DRAG ZONE
+
+fn view_drag_zone(layout: Layout) -> Html(Msg(msg)) {
+  case layout {
+    Horizontal(_, x, _) ->
+      div(
+        [
+          style("position", "absolute"),
+          style("top", "0"),
+          style("left", to_percent(x)),
+          style("margin-left", "-5px"),
+          style("width", "10px"),
+          style("height", "100%"),
+          style("cursor", "col-resize"),
+          on_mouse_down(DragStart),
+        ],
+        [],
+      )
+
+    Vertical(_, _, y) ->
+      div(
+        [
+          style("position", "absolute"),
+          style("top", to_percent(y)),
+          style("left", "0"),
+          style("margin-top", "-5px"),
+          style("width", "100%"),
+          style("height", "10px"),
+          style("cursor", "row-resize"),
+          on_mouse_down(DragStart),
+        ],
+        [],
+      )
+  }
 }
 
 // LAYOUT HELPERS
