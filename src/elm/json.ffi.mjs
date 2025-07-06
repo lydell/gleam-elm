@@ -458,30 +458,57 @@ var _Json_addField = function(key, value, object)
 	return object;
 };
 
-function _Json_addEntry(func)
+var _Json_addEntry = function(value, array)
 {
-	return function(entry, array)
-	{
-		array.push(_Json_unwrap(func(entry)));
-		return array;
-	};
-}
+	array.push(_Json_unwrap(value));
+	return array;
+};
 
 var _Json_encodeNull = _Json_wrap(null);
 
+
+// GLEAM EXTRAS
+
+var _Json_isSimpleFieldNameRegex = /^[a-z][a-z0-9]$/i;
+
+function _Json_isSimpleFieldName(name)
+{
+	return _Json_isSimpleFieldNameRegex.test(name);
+}
+
 export {
+	_Json_addEntry,
+	_Json_addField,
 	_Json_andThen,
 	_Json_decodeBool,
+	_Json_decodeArray,
 	_Json_decodeField,
 	_Json_decodeFloat,
 	_Json_decodeIndex,
 	_Json_decodeInt,
+	_Json_decodeKeyValuePairs,
+	_Json_decodeList,
+	_Json_decodeNull,
 	_Json_decodeString,
+	_Json_decodeValue,
+	_Json_emptyArray,
+	_Json_emptyObject,
+	_Json_encode,
+	_Json_encodeNull,
 	_Json_fail,
+	_Json_isSimpleFieldName,
 	_Json_map1 as _Json_map,
 	_Json_map2,
+	_Json_map3,
+	_Json_map4,
+	_Json_map5,
+	_Json_map6,
+	_Json_map7,
+	_Json_map8,
+	_Json_oneOf,
 	_Json_run,
 	_Json_runHelp,
+	_Json_runOnString,
 	_Json_succeed,
 	_Json_unwrap,
 	_Json_wrap,
