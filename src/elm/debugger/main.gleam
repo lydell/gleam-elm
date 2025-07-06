@@ -207,18 +207,43 @@ pub fn wrap_update(
       Jump(index) -> #(jump_update(update, index, model), cmd.none())
       SliderJump(index) -> #(jump_update(update, index, model), cmd.none())
       Open -> #(model, task.perform(fn(_) { NoOp }, open(model.popout)))
-      Up -> #(model, cmd.none())
-      // TODO: implement
-      Down -> #(model, cmd.none())
-      // TODO: implement
-      SwapLayout -> #(model, cmd.none())
-      // TODO: implement
-      DragStart -> #(model, cmd.none())
-      // TODO: implement
-      Drag(_) -> #(model, cmd.none())
-      // TODO: implement
-      DragEnd -> #(model, cmd.none())
-      // TODO: implement
+      Up ->
+        case model.state {
+          Running(_) -> #(model, cmd.none())
+          Paused(i, _, _, _, history) -> {
+            let target_index = i + 1
+            case target_index < history.size(history) {
+              True -> wrap_update(update)(SliderJump(target_index), model)
+              False -> wrap_update(update)(Resume, model)
+            }
+          }
+        }
+      Down ->
+        case model.state {
+          Running(_) ->
+            wrap_update(update)(Jump(history.size(model.history) - 1), model)
+          Paused(index, _, _, _, _) ->
+            case index > 0 {
+              True -> wrap_update(update)(SliderJump(index - 1), model)
+              False -> #(model, cmd.none())
+            }
+        }
+      SwapLayout -> #(
+        Model(..model, layout: swap_layout(model.layout)),
+        cmd.none(),
+      )
+      DragStart -> #(
+        Model(..model, layout: set_drag_status(Moving, model.layout)),
+        cmd.none(),
+      )
+      Drag(info) -> #(
+        Model(..model, layout: drag(info, model.layout)),
+        cmd.none(),
+      )
+      DragEnd -> #(
+        Model(..model, layout: set_drag_status(Static, model.layout)),
+        cmd.none(),
+      )
     }
   }
 }
@@ -235,7 +260,32 @@ fn jump_update(
   Model(
     ..model,
     state: Paused(index, index_model, current_model, current_msg, history),
+    // , expandoModel = Expando.merge indexModel model.expandoModel
+  // , expandoMsg = Expando.merge indexMsg model.expandoMsg
   )
+}
+
+// LAYOUT HELPERS
+
+fn swap_layout(layout: Layout) -> Layout {
+  case layout {
+    Horizontal(s, x, y) -> Vertical(s, x, y)
+    Vertical(s, x, y) -> Horizontal(s, x, y)
+  }
+}
+
+fn set_drag_status(status: DragStatus, layout: Layout) -> Layout {
+  case layout {
+    Horizontal(_, x, y) -> Horizontal(status, x, y)
+    Vertical(_, x, y) -> Vertical(status, x, y)
+  }
+}
+
+fn drag(info: DragInfo, layout: Layout) -> Layout {
+  case layout {
+    Horizontal(status, _, y) -> Horizontal(status, info.x /. info.width, y)
+    Vertical(status, x, _) -> Vertical(status, x, info.y /. info.height)
+  }
 }
 
 // COMMANDS
