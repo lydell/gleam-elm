@@ -34,12 +34,14 @@ import {
 } from './browser.ffi.mjs';
 import {
 	corner_view as __Main_cornerView,
+	Down,
 	get_user_model as __Main_getUserModel,
 	initial_window_height as __Main_initialWindowHeight,
 	initial_window_width as __Main_initialWindowWidth,
 	NoOp,
 	popout_view as __Main_popoutView,
 	to_blocker_type as __Main_toBlockerType,
+	Up,
 	UserMsg,
 	wrap_init as __Main_wrapInit,
 	wrap_subs as __Main_wrapSubs,
@@ -264,8 +266,8 @@ function _Debugger_openWindow(popout)
 	// handle arrow keys
 	doc.addEventListener('keydown', function(event) {
 		event.metaKey && event.which === 82 && window.location.reload();
-		event.key === 'ArrowUp'   && (popout.__sendToApp(__Main_Up  ), event.preventDefault());
-		event.key === 'ArrowDown' && (popout.__sendToApp(__Main_Down), event.preventDefault());
+		event.key === 'ArrowUp'   && (popout.__sendToApp(new Up  ), event.preventDefault());
+		event.key === 'ArrowDown' && (popout.__sendToApp(new Down), event.preventDefault());
 	});
 
 	// handle window close
