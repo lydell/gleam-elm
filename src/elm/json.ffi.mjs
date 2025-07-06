@@ -270,7 +270,7 @@ function _Json_runHelp(decoder, value)
 				return _Json_expecting('an OBJECT with a field named `' + field + '`', value);
 			}
 			var result = _Json_runHelp(decoder.__decoder, value[field]);
-			return (result instanceof Ok) ? result : new GleamError(new __Json_Field(field, result.a));
+			return (result instanceof Ok) ? result : new GleamError(new __Json_Field(field, result[0]));
 
 		case __1_INDEX:
 			var index = decoder.__index;
@@ -283,7 +283,7 @@ function _Json_runHelp(decoder, value)
 				return _Json_expecting('a LONGER array. Need index ' + index + ' but only see ' + value.length + ' entries', value);
 			}
 			var result = _Json_runHelp(decoder.__decoder, value[index]);
-			return (result instanceof Ok) ? result : new GleamError(new __Json_Index(index, result.a));
+			return (result instanceof Ok) ? result : new GleamError(new __Json_Index(index, result[0]));
 
 		case __1_KEY_VALUE:
 			if (typeof value !== 'object' || value === null || _Json_isArray(value))
@@ -300,9 +300,9 @@ function _Json_runHelp(decoder, value)
 					var result = _Json_runHelp(decoder.__decoder, value[key]);
 					if (!(result instanceof Ok))
 					{
-						return new GleamError(new __Json_Field(key, result.a));
+						return new GleamError(new __Json_Field(key, result[0]));
 					}
-					keyValuePairs = new NonEmpty([key, result.a], keyValuePairs);
+					keyValuePairs = new NonEmpty([key, result[0]], keyValuePairs);
 				}
 			}
 			return new Ok(__List_reverse(keyValuePairs));
@@ -317,7 +317,7 @@ function _Json_runHelp(decoder, value)
 				{
 					return result;
 				}
-				answer = answer(result.a);
+				answer = answer(result[0]);
 			}
 			return new Ok(answer);
 
@@ -325,7 +325,7 @@ function _Json_runHelp(decoder, value)
 			var result = _Json_runHelp(decoder.__decoder, value);
 			return (!(result instanceof Ok))
 				? result
-				: _Json_runHelp(decoder.__callback(result.a), value);
+				: _Json_runHelp(decoder.__callback(result[0]), value);
 
 		case __1_ONE_OF:
 			var errors = new Empty;
@@ -336,7 +336,7 @@ function _Json_runHelp(decoder, value)
 				{
 					return result;
 				}
-				errors = new NonEmpty(result.a, errors);
+				errors = new NonEmpty(result[0], errors);
 			}
 			return new GleamError(new __Json_OneOf(__List_reverse(errors)));
 
@@ -357,9 +357,9 @@ function _Json_runArrayDecoder(decoder, value, toElmValue)
 		var result = _Json_runHelp(decoder, value[i]);
 		if (!(result instanceof Ok))
 		{
-			return new GleamError(new __Json_Index(i, result.a));
+			return new GleamError(new __Json_Index(i, result[0]));
 		}
-		array[i] = result.a;
+		array[i] = result[0];
 	}
 	return new Ok(toElmValue(array));
 }

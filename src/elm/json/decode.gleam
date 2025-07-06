@@ -199,7 +199,9 @@ pub fn field(name: String, decoder: Decoder(a)) -> Decoder(a)
 ///
 ///     field "person" (field "name" string) == at ["person", "name"] string
 pub fn at(fields: List(String), decoder: Decoder(a)) -> Decoder(a) {
-  list.fold(fields, decoder, fn(acc, field_name) { field(field_name, acc) })
+  list.fold_right(fields, decoder, fn(acc, field_name) {
+    field(field_name, acc)
+  })
 }
 
 /// Decode a JSON array, requiring a particular index.
