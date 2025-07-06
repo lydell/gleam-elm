@@ -5,7 +5,10 @@ import Elm.Kernel.Utils exposing (Tuple2)
 */
 
 
-var _JsArray_empty = [];
+var _JsArray_empty = function()
+{
+    return [];
+};
 
 var _JsArray_singleton = function(value)
 {

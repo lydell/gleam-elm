@@ -640,6 +640,7 @@ export {
 	_Debugger_document,
 	_Debugger_element,
 	_Debugger_isOpen,
+	_Debugger_messageToString,
 	_Debugger_open,
 	_Debugger_scroll,
 };

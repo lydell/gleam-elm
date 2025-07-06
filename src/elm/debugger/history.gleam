@@ -353,7 +353,7 @@ fn view_message(current_index: Int, index: Int, msg: msg) -> Html(Int) {
   )
 }
 
-@external(javascript, "../debugger.ffi.mjs", "messageToString")
+@external(javascript, "../debugger.ffi.mjs", "_Debugger_messageToString")
 fn message_to_string(msg: msg) -> String
 
 fn show_more_button(num_messages: Int) -> Html(Int) {
