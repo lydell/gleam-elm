@@ -122,7 +122,7 @@ pub fn get(
         list.fold(
           recent.messages,
           Stepping(index - snapshot_max, recent.model),
-          fn(msg, acc) { get_help(update, msg, acc) },
+          fn(acc, msg) { get_help(update, msg, acc) },
         )
       undone(result)
     }
@@ -215,7 +215,7 @@ pub fn view(maybe_index: Option(Int), history: History(model, msg)) -> Html(Int)
       list.fold(
         history.recent.messages,
         #(recent_message_start_index, []),
-        fn(msg, acc) { cons_msg(index, msg, acc) },
+        fn(acc, msg) { cons_msg(index, msg, acc) },
       )
     keyed.node("div", [], keyed_nodes)
   }
