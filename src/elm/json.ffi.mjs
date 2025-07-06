@@ -13,12 +13,22 @@ import Result exposing (Ok, Err, isOk)
 import {
 	Empty,
 	Error as GleamError,
+	List,
 	NonEmpty,
 	Ok,
 } from '../gleam.mjs';
 import {
 	reverse as __List_reverse,
 } from '../../gleam_stdlib/gleam/list.mjs';
+import {
+	initialize as __Array_initialize,
+} from './array.mjs';
+import {
+	Failure as __Json_Failure,
+	Field as __Json_Field,
+	Index as __Json_Index,
+	OneOf as __Json_OneOf,
+} from './json/decode.mjs';
 
 var __1_SUCCEED = 0;
 var __1_FAIL = 1;
@@ -218,7 +228,7 @@ var _Json_runOnString = function(decoder, string)
 	}
 	catch (e)
 	{
-		return new GleamError(__Json_Failure('This is not valid JSON! ' + e.message, _Json_wrap(string)));
+		return new GleamError(new __Json_Failure('This is not valid JSON! ' + e.message, _Json_wrap(string)));
 	}
 };
 
@@ -244,7 +254,7 @@ function _Json_runHelp(decoder, value)
 			{
 				return _Json_expecting('a LIST', value);
 			}
-			return _Json_runArrayDecoder(decoder.__decoder, value, __List_fromArray);
+			return _Json_runArrayDecoder(decoder.__decoder, value, List.fromArray);
 
 		case __1_ARRAY:
 			if (!_Json_isArray(value))
@@ -260,7 +270,7 @@ function _Json_runHelp(decoder, value)
 				return _Json_expecting('an OBJECT with a field named `' + field + '`', value);
 			}
 			var result = _Json_runHelp(decoder.__decoder, value[field]);
-			return (result instanceof Ok) ? result : new GleamError(__Json_Field(field, result.a));
+			return (result instanceof Ok) ? result : new GleamError(new __Json_Field(field, result.a));
 
 		case __1_INDEX:
 			var index = decoder.__index;
@@ -273,7 +283,7 @@ function _Json_runHelp(decoder, value)
 				return _Json_expecting('a LONGER array. Need index ' + index + ' but only see ' + value.length + ' entries', value);
 			}
 			var result = _Json_runHelp(decoder.__decoder, value[index]);
-			return (result instanceof Ok) ? result : new GleamError(__Json_Index(index, result.a));
+			return (result instanceof Ok) ? result : new GleamError(new __Json_Index(index, result.a));
 
 		case __1_KEY_VALUE:
 			if (typeof value !== 'object' || value === null || _Json_isArray(value))
@@ -290,7 +300,7 @@ function _Json_runHelp(decoder, value)
 					var result = _Json_runHelp(decoder.__decoder, value[key]);
 					if (!(result instanceof Ok))
 					{
-						return new GleamError(__Json_Field(key, result.a));
+						return new GleamError(new __Json_Field(key, result.a));
 					}
 					keyValuePairs = new NonEmpty([key, result.a], keyValuePairs);
 				}
@@ -328,10 +338,10 @@ function _Json_runHelp(decoder, value)
 				}
 				errors = new NonEmpty(result.a, errors);
 			}
-			return new GleamError(__Json_OneOf(__List_reverse(errors)));
+			return new GleamError(new __Json_OneOf(__List_reverse(errors)));
 
 		case __1_FAIL:
-			return new GleamError(__Json_Failure(decoder.__msg, _Json_wrap(value)));
+			return new GleamError(new __Json_Failure(decoder.__msg, _Json_wrap(value)));
 
 		case __1_SUCCEED:
 			return new Ok(decoder.__msg);
@@ -347,7 +357,7 @@ function _Json_runArrayDecoder(decoder, value, toElmValue)
 		var result = _Json_runHelp(decoder, value[i]);
 		if (!(result instanceof Ok))
 		{
-			return new GleamError(__Json_Index(i, result.a));
+			return new GleamError(new __Json_Index(i, result.a));
 		}
 		array[i] = result.a;
 	}
@@ -366,7 +376,7 @@ function _Json_toElmArray(array)
 
 function _Json_expecting(type, value)
 {
-	return new GleamError(__Json_Failure('Expecting ' + type, _Json_wrap(value)));
+	return new GleamError(new __Json_Failure('Expecting ' + type, _Json_wrap(value)));
 }
 
 
