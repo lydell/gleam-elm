@@ -9,6 +9,7 @@ import elm/platform/cmd.{type Cmd}
 import elm/platform/sub.{type Sub}
 import elm/task.{type Task}
 import elm/virtual_dom as v
+import gleam/float
 import gleam/int
 import gleam/list
 import gleam/option.{None, Some}
@@ -134,19 +135,16 @@ pub type Msg(msg) {
   // | TweakExpandoMsg Expando.Msg
   // | TweakExpandoModel Expando.Msg
   Resume
-  // | Jump Int
-  // | SliderJump Int
+  Jump(Int)
+  SliderJump(Int)
   Open
-  // | Up
-  // | Down
-  // | Import
-  // | Export
-  // | Upload String
+  Up
+  Down
   // --
-  // | SwapLayout
-  // | DragStart
-  // | Drag DragInfo
-  // | DragEnd
+  SwapLayout
+  DragStart
+  Drag(DragInfo)
+  DragEnd
 }
 
 type UserUpdate(model, msg) =
@@ -205,9 +203,38 @@ pub fn wrap_update(
             scroll(model.popout),
           )
         }
+      Jump(index) -> #(jump_update(update, index, model), cmd.none())
+      SliderJump(index) -> #(jump_update(update, index, model), cmd.none())
       Open -> #(model, task.perform(fn(_) { NoOp }, open(model.popout)))
+      Up -> #(model, cmd.none())
+      // TODO: implement
+      Down -> #(model, cmd.none())
+      // TODO: implement
+      SwapLayout -> #(model, cmd.none())
+      // TODO: implement
+      DragStart -> #(model, cmd.none())
+      // TODO: implement
+      Drag(_) -> #(model, cmd.none())
+      // TODO: implement
+      DragEnd -> #(model, cmd.none())
+      // TODO: implement
     }
   }
+}
+
+fn jump_update(
+  update: UserUpdate(model, msg),
+  index: Int,
+  model: Model(model, msg),
+) -> Model(model, msg) {
+  let history = cached_history(model)
+  let current_msg = history.get_recent_msg(history)
+  let current_model = get_latest_model(model.state)
+  let #(index_model, index_msg) = history.get(update, index, history)
+  Model(
+    ..model,
+    state: Paused(index, index_model, current_model, current_msg, history),
+  )
 }
 
 // COMMANDS
@@ -260,7 +287,6 @@ pub fn popout_view(model: Model(model, msg)) -> Html(Msg(msg)) {
       ],
     ),
     [
-      text("TODO: Actual debugger UI"),
       view_history(maybe_index, history_to_render, model.layout),
       // , viewDragZone model.layout
     // , viewExpando model.expandoMsg model.expandoModel model.layout
@@ -272,6 +298,32 @@ fn to_flex_direction(layout: Layout) -> String {
   case layout {
     Horizontal(_, _, _) -> "row"
     Vertical(_, _, _) -> "column-reverse"
+  }
+}
+
+// DRAG LISTENERS
+
+fn get_drag_status(layout: Layout) -> DragStatus {
+  case layout {
+    Horizontal(status, _, _) -> status
+    Vertical(status, _, _) -> status
+  }
+}
+
+pub type DragInfo {
+  DragInfo(x: Float, y: Float, down: Bool, width: Float, height: Float)
+}
+
+// LAYOUT HELPERS
+
+fn to_percent(fraction: Float) -> String {
+  float.to_string(100.0 *. fraction) <> "%"
+}
+
+fn to_mouse_blocker(layout: Layout) -> String {
+  case get_drag_status(layout) {
+    Static -> "auto"
+    Moving -> "none"
   }
 }
 
@@ -386,29 +438,7 @@ fn view_history_options(layout: Layout) -> Html(Msg(msg)) {
       style("justify-content", "space-between"),
       style("background-color", "rgb(50, 50, 50)"),
     ],
-    [
-      view_history_button("Swap Layout", SwapLayout, to_history_icon(layout)),
-      div(
-        [
-          style("display", "flex"),
-          style("flex-direction", "row"),
-          style("align-items", "center"),
-          style("justify-content", "space-between"),
-        ],
-        [
-          view_history_button(
-            "Import",
-            Import,
-            "M5 1a1 1 0 0 1 0 2h-2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1a1 1 0 0 1 2 0a3 3 0 0 1-3 3h-10a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3z M10 2a1 1 0 0 0 -2 0v6a1 1 0 0 0 1 1h6a1 1 0 0 0 0-2h-3.586l4.293-4.293a1 1 0 0 0-1.414-1.414l-4.293 4.293z",
-          ),
-          view_history_button(
-            "Export",
-            Export,
-            "M5 1a1 1 0 0 1 0 2h-2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1 a1 1 0 0 1 2 0a3 3 0 0 1-3 3h-10a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3z M9 3a1 1 0 1 1 0-2h6a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-3.586l-5.293 5.293 a1 1 0 0 1-1.414-1.414l5.293 -5.293z",
-          ),
-        ],
-      ),
-    ],
+    [view_history_button("Swap Layout", SwapLayout, to_history_icon(layout))],
   )
 }
 
