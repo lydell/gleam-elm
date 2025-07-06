@@ -322,14 +322,14 @@ fn on_mouse_move() -> Attribute(Msg(msg)) {
   on(
     "mousemove",
     decode.map5(
+      fn(x, y, down, width, height) {
+        Drag(DragInfo(x, y, down, width, height))
+      },
       decode.field("pageX", decode.float()),
       decode.field("pageY", decode.float()),
       decode.field("buttons", decode.map(decode.int(), fn(v) { v == 1 })),
       decode_dimension("innerWidth"),
       decode_dimension("innerHeight"),
-      fn(x, y, down, width, height) {
-        Drag(DragInfo(x, y, down, width, height))
-      },
     ),
   )
 }

@@ -298,9 +298,9 @@ pub fn map(decoder: Decoder(a), tagger: fn(a) -> value) -> Decoder(value)
 /// constructor.
 @external(javascript, "../json.ffi.mjs", "_Json_map2")
 pub fn map2(
+  combiner: fn(a, b) -> value,
   decoder_a: Decoder(a),
   decoder_b: Decoder(b),
-  combiner: fn(a, b) -> value,
 ) -> Decoder(value)
 
 /// Try three decoders and then combine the result. We can use this to decode
@@ -323,48 +323,49 @@ pub fn map2(
 /// `Person` constructor. That can be any function though!
 @external(javascript, "../json.ffi.mjs", "_Json_map3")
 pub fn map3(
+  combiner: fn(a, b, c) -> value,
   decoder_a: Decoder(a),
   decoder_b: Decoder(b),
   decoder_c: Decoder(c),
-  combiner: fn(a, b, c) -> value,
 ) -> Decoder(value)
 
 ///
 @external(javascript, "../json.ffi.mjs", "_Json_map4")
 pub fn map4(
+  combiner: fn(a, b, c, d) -> value,
   decoder_a: Decoder(a),
   decoder_b: Decoder(b),
   decoder_c: Decoder(c),
   decoder_d: Decoder(d),
-  combiner: fn(a, b, c, d) -> value,
 ) -> Decoder(value)
 
 ///
 @external(javascript, "../json.ffi.mjs", "_Json_map5")
 pub fn map5(
+  combiner: fn(a, b, c, d, e) -> value,
   decoder_a: Decoder(a),
   decoder_b: Decoder(b),
   decoder_c: Decoder(c),
   decoder_d: Decoder(d),
   decoder_e: Decoder(e),
-  combiner: fn(a, b, c, d, e) -> value,
 ) -> Decoder(value)
 
 ///
 @external(javascript, "../json.ffi.mjs", "_Json_map6")
 pub fn map6(
+  combiner: fn(a, b, c, d, e, f) -> value,
   decoder_a: Decoder(a),
   decoder_b: Decoder(b),
   decoder_c: Decoder(c),
   decoder_d: Decoder(d),
   decoder_e: Decoder(e),
   decoder_f: Decoder(f),
-  combiner: fn(a, b, c, d, e, f) -> value,
 ) -> Decoder(value)
 
 ///
 @external(javascript, "../json.ffi.mjs", "_Json_map7")
 pub fn map7(
+  combiner: fn(a, b, c, d, e, f, g) -> value,
   decoder_a: Decoder(a),
   decoder_b: Decoder(b),
   decoder_c: Decoder(c),
@@ -372,12 +373,12 @@ pub fn map7(
   decoder_e: Decoder(e),
   decoder_f: Decoder(f),
   decoder_g: Decoder(g),
-  combiner: fn(a, b, c, d, e, f, g) -> value,
 ) -> Decoder(value)
 
 ///
 @external(javascript, "../json.ffi.mjs", "_Json_map8")
 pub fn map8(
+  combiner: fn(a, b, c, d, e, f, g, h) -> value,
   decoder_a: Decoder(a),
   decoder_b: Decoder(b),
   decoder_c: Decoder(c),
@@ -386,7 +387,6 @@ pub fn map8(
   decoder_f: Decoder(f),
   decoder_g: Decoder(g),
   decoder_h: Decoder(h),
-  combiner: fn(a, b, c, d, e, f, g, h) -> value,
 ) -> Decoder(value)
 
 // RUN DECODERS
