@@ -1,4 +1,5 @@
 import elm/basics.{type Never}
+import elm/debugger/expando.{type Expando}
 import elm/debugger/history.{type History}
 import elm/debugger/overlay
 import elm/html.{type Attribute, type Html, button, div, input, node, span, text}
@@ -17,8 +18,6 @@ import gleam/option.{None, Some}
 import gleam/result
 
 // CONSTANTS
-
-const minimum_panel_size: Int = 150
 
 pub const initial_window_width: Int = 900
 
@@ -40,8 +39,8 @@ pub type Model(model, msg) {
   Model(
     history: History(model, msg),
     state: State(model, msg),
-    // expando_model: Expando,
-    // expando_msg: Expando,
+    expando_model: Expando,
+    expando_msg: Expando,
     popout: Popout,
     layout: Layout,
   )
@@ -118,8 +117,8 @@ pub fn wrap_init(
       Model(
         history: history.empty(user_model),
         state: Running(user_model),
-        // expandoModel: Expando.init(user_model),
-        // expandoMsg: Expando.init(),
+        expando_model: expando.init(user_model),
+        expando_msg: expando.init(Nil),
         popout: popout,
         layout: Horizontal(Static, 0.3, 0.5),
       ),
@@ -133,8 +132,8 @@ pub fn wrap_init(
 pub type Msg(msg) {
   NoOp
   UserMsg(msg)
-  // | TweakExpandoMsg Expando.Msg
-  // | TweakExpandoModel Expando.Msg
+  TweakExpandoMsg(expando.Msg)
+  TweakExpandoModel(expando.Msg)
   Resume
   Jump(Int)
   SliderJump(Int)
@@ -168,8 +167,8 @@ pub fn wrap_update(
               ..model,
               history: new_history,
               state: Running(new_user_model),
-              // , expandoModel: Expando.merge new_user_model model.expandoModel
-            // , expandoMsg: Expando.merge user_msg model.expandoMsg
+              expando_model: expando.merge(new_user_model, model.expando_model),
+              expando_msg: expando.merge(user_msg, model.expando_msg),
             ),
             cmd.batch([commands, scroll(model.popout)]),
           )
@@ -190,6 +189,17 @@ pub fn wrap_update(
           )
         }
       }
+      TweakExpandoMsg(e_msg) -> #(
+        Model(..model, expando_msg: expando.update(e_msg, model.expando_msg)),
+        cmd.none(),
+      )
+      TweakExpandoModel(e_msg) -> #(
+        Model(
+          ..model,
+          expando_model: expando.update(e_msg, model.expando_model),
+        ),
+        cmd.none(),
+      )
       Resume ->
         case model.state {
           Running(_) -> #(model, cmd.none())
@@ -198,8 +208,8 @@ pub fn wrap_update(
             Model(
               ..model,
               state: Running(user_model),
-              //   , expandoMsg: Expando.merge user_msg model.expandoMsg
-            //   , expandoModel: Expando.merge user_model model.expandoModel
+              expando_msg: expando.merge(user_msg, model.expando_msg),
+              expando_model: expando.merge(user_model, model.expando_model),
             ),
             scroll(model.popout),
           )
@@ -260,8 +270,8 @@ fn jump_update(
   Model(
     ..model,
     state: Paused(index, index_model, current_model, current_msg, history),
-    // , expandoModel = Expando.merge indexModel model.expandoModel
-  // , expandoMsg = Expando.merge indexMsg model.expandoMsg
+    expando_model: expando.merge(index_model, model.expando_model),
+    expando_msg: expando.merge(index_msg, model.expando_msg),
   )
 }
 
@@ -336,7 +346,7 @@ pub fn popout_view(model: Model(model, msg)) -> Html(Msg(msg)) {
     [
       view_history(maybe_index, history_to_render, model.layout),
       view_drag_zone(model.layout),
-      // , viewExpando model.expandoMsg model.expandoModel model.layout
+      view_expando(model.expando_msg, model.expando_model, model.layout),
     ],
   )
 }
@@ -599,5 +609,48 @@ fn to_history_icon(layout: Layout) -> String {
       "M13 1a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3h-10a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3z M13 3h-10a1 1 0 0 0-1 1v5h12v-5a1 1 0 0 0-1-1z M14 10h-12v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1z"
     Vertical(_, _, _) ->
       "M0 4a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3h-10a3 3 0 0 1-3-3z M2 4v8a1 1 0 0 0 1 1h2v-10h-2a1 1 0 0 0-1 1z M6 3v10h7a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1z"
+  }
+}
+
+// VIEW EXPANDO
+
+fn view_expando(
+  expando_msg: Expando,
+  expando_model: Expando,
+  layout: Layout,
+) -> Html(Msg(msg)) {
+  let #(w, h) = to_expando_percents(layout)
+  let block = to_mouse_blocker(layout)
+  div(
+    [
+      style("display", "block"),
+      style("width", "calc(" <> w <> " - 4em)"),
+      style("height", "calc(" <> h <> " - 4em)"),
+      style("padding", "2em"),
+      style("margin", "0"),
+      style("overflow", "auto"),
+      style("pointer-events", block),
+      style("-webkit-user-select", block),
+      style("-moz-user-select", block),
+      style("-ms-user-select", block),
+      style("user-select", block),
+    ],
+    [
+      div([style("color", "#ccc"), style("padding", "0 0 1em 0")], [
+        text("-- MESSAGE"),
+      ]),
+      html.map(expando.view(option.None, expando_msg), TweakExpandoMsg),
+      div([style("color", "#ccc"), style("padding", "1em 0")], [
+        text("-- MODEL"),
+      ]),
+      html.map(expando.view(option.None, expando_model), TweakExpandoModel),
+    ],
+  )
+}
+
+fn to_expando_percents(layout: Layout) -> #(String, String) {
+  case layout {
+    Horizontal(_, x, _) -> #(to_percent(1.0 -. x), "100%")
+    Vertical(_, _, y) -> #("100%", to_percent(y))
   }
 }
