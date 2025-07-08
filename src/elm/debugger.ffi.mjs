@@ -33,6 +33,7 @@ import {
 	map as __List_map,
 } from '../../gleam_stdlib/gleam/list.mjs';
 import {
+	None,
 	Some,
 } from '../../gleam_stdlib/gleam/option.mjs';
 import {
@@ -469,6 +470,11 @@ function _Debugger_messageToString(value)
 
 function _Debugger_init(value)
 {
+	if (value === undefined)
+	{
+		return new Primitive('Nil');
+	}
+
 	if (typeof value === 'boolean')
 	{
 		return new Constructor(new Some(value ? 'True' : 'False'), true, new Empty);
@@ -487,6 +493,16 @@ function _Debugger_init(value)
 	if (value instanceof String)
 	{
 		return new S("'" + _Debugger_addSlashes(value, true) + "'");
+	}
+
+	if (Array.isArray(value))
+	{
+		var list = [];
+		for (var i = 0; i < value.length; i++)
+		{
+			list[i] = _Debugger_init(value[i]);
+		}
+		return new Constructor(new None, true, List.fromArray(list));
 	}
 
 	/* TODO: Adapt this.

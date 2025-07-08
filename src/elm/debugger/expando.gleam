@@ -423,12 +423,12 @@ fn view_constructor(
     })
 
   let description = case maybe_name, tiny_args {
-    option.None, [] -> [text("()")]
+    option.None, [] -> [text("#()")]
     option.None, [x, ..xs] ->
-      list.fold(xs, [text("( "), span([], x)], fn(acc, args) {
+      list.fold(xs, [text("#("), span([], x)], fn(acc, args) {
         list.append(acc, [text(", "), span([], args)])
       })
-      |> list.append([text(" )")])
+      |> list.append([text(")")])
     option.Some(name), [] -> [text(name)]
     option.Some(name), [x, ..xs] ->
       list.fold(xs, [text(name <> " "), span([], x)], fn(acc, args) {
@@ -513,7 +513,7 @@ fn view_tiny(value: Expando) -> #(Int, List(Html(msg))) {
       )
     Record(_, record) -> view_tiny_record(record)
     Constructor(maybe_name, _, []) ->
-      view_tiny_help(option.unwrap(maybe_name, "Unit"))
+      view_tiny_help(option.unwrap(maybe_name, "#()"))
     Constructor(maybe_name, _, value_list) ->
       view_tiny_help(case maybe_name {
         option.None -> "Tuple(" <> int.to_string(list.length(value_list)) <> ")"
