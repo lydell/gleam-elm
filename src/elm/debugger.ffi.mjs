@@ -109,15 +109,6 @@ var ElmArray = Array_empty().constructor;
 var GleamSet = Set_new().constructor;
 
 
-// HELPERS
-
-
-function _Debugger_unsafeCoerce(value)
-{
-	return value;
-}
-
-
 
 // PROGRAMS
 
@@ -371,68 +362,6 @@ var _Debugger_scrollTo = function(id, popout)
 
 
 
-// UPLOAD
-
-
-function _Debugger_upload(popout)
-{
-	return __Scheduler_binding(function(callback)
-	{
-		var doc = popout.__doc || document;
-		var element = doc.createElement('input');
-		element.setAttribute('type', 'file');
-		element.setAttribute('accept', 'text/json');
-		element.style.display = 'none';
-		element.addEventListener('change', function(event)
-		{
-			var fileReader = new FileReader();
-			fileReader.onload = function(e)
-			{
-				callback(__Scheduler_succeed(e.target.result));
-			};
-			fileReader.readAsText(event.target.files[0]);
-			doc.body.removeChild(element);
-		});
-		doc.body.appendChild(element);
-		element.click();
-	});
-}
-
-
-
-// DOWNLOAD
-
-
-var _Debugger_download = function(historyLength, json)
-{
-	return __Scheduler_binding(function(callback)
-	{
-		var fileName = 'history-' + historyLength + '.txt';
-		var jsonString = JSON.stringify(json);
-		var mime = 'text/plain;charset=utf-8';
-		var done = __Scheduler_succeed(undefined);
-
-		// for IE10+
-		if (navigator.msSaveBlob)
-		{
-			navigator.msSaveBlob(new Blob([jsonString], {type: mime}), fileName);
-			return callback(done);
-		}
-
-		// for HTML5
-		var element = document.createElement('a');
-		element.setAttribute('href', 'data:' + mime + ',' + encodeURIComponent(jsonString));
-		element.setAttribute('download', fileName);
-		element.style.display = 'none';
-		document.body.appendChild(element);
-		element.click();
-		document.body.removeChild(element);
-		callback(done);
-	});
-};
-
-
-
 // POPOUT CONTENT
 
 
@@ -598,19 +527,6 @@ function _Debugger_init(value)
 
 	return new Primitive('<internals>');
 }
-
-var _Debugger_initCons = function initConsHelp(value, list)
-{
-	return __List_Cons(_Debugger_init(value), list);
-};
-
-var _Debugger_initKeyValueCons = function(key, value, list)
-{
-	return __List_Cons(
-		[_Debugger_init(key), _Debugger_init(value)],
-		list
-	);
-};
 
 function _Debugger_addSlashes(str, isChar)
 {
