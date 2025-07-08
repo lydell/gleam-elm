@@ -475,6 +475,11 @@ function _Debugger_init(value)
 		return new Primitive('Nil');
 	}
 
+	if (value === null)
+	{
+		return new Primitive('null');
+	}
+
 	if (typeof value === 'boolean')
 	{
 		return new Constructor(new Some(value ? 'True' : 'False'), true, new Empty);
@@ -505,11 +510,9 @@ function _Debugger_init(value)
 		return new Constructor(new None, true, List.fromArray(list));
 	}
 
-	/* TODO: Adapt this.
-	if (typeof value === 'object' && '$' in value)
+	if (typeof value === 'object')
 	{
-		var tag = value.$;
-
+		/* TODO: Adapt this.
 		if (tag === '::' || tag === '[]')
 		{
 			return __Expando_Sequence(__Expando_ListSeq, true,
@@ -537,40 +540,8 @@ function _Debugger_init(value)
 				__Array_foldr(_Debugger_initCons, __List_Nil, value)
 			);
 		}
+		*/
 
-		if (typeof tag === 'number')
-		{
-			return __Expando_Primitive('<internals>');
-		}
-
-		var char = tag.charCodeAt(0);
-		if (char === 35 || 65 <= char && char <= 90)
-		{
-			var list = __List_Nil;
-			for (var i in value)
-			{
-				if (i === '$') continue;
-				list = __List_Cons(_Debugger_init(value[i]), list);
-			}
-			return __Expando_Constructor(char === 35 ? __Maybe_Nothing : __Maybe_Just(tag), true, __List_reverse(list));
-		}
-
-		return __Expando_Primitive('<internals>');
-	}
-
-	if (typeof value === 'object')
-	{
-		var dict = __Dict_empty;
-		for (var i in value)
-		{
-			dict = __Dict_insert(i, _Debugger_init(value[i]), dict);
-		}
-		return __Expando_Record(true, dict);
-	}
-	*/
-
-	if (typeof value === 'object')
-	{
 		var children;
 		if ('0' in value)
 		{
