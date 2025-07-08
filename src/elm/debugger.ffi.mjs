@@ -38,9 +38,11 @@ import {
 } from '../../gleam_stdlib/gleam/option.mjs';
 import {
 	Constructor,
+	ListSeq,
 	Primitive,
 	Record,
 	S,
+	Sequence,
 } from './debugger/expando.mjs';
 import {
 	_Debug_crash as __Debug_crash,
@@ -512,14 +514,14 @@ function _Debugger_init(value)
 
 	if (typeof value === 'object')
 	{
-		/* TODO: Adapt this.
-		if (tag === '::' || tag === '[]')
+		if (value instanceof List)
 		{
-			return __Expando_Sequence(__Expando_ListSeq, true,
-				__List_map(_Debugger_init, value)
+			return new Sequence(new ListSeq, true,
+				__List_map(value, _Debugger_init)
 			);
 		}
 
+		/* TODO: Adapt this.
 		if (tag === 'Set_elm_builtin')
 		{
 			return __Expando_Sequence(__Expando_SetSeq, true,
