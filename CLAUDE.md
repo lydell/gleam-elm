@@ -24,8 +24,7 @@ After building, serve the repo root with a static file server to test the HTML e
 ## Architecture
 
 ### Core Structure
-- `src/elm.gleam` - Main example application demonstrating usage
-- `src/elm_cheat.gleam` - Additional usage examples
+- `dev/` - Example apps demonstrating usage and used for testing
 - `src/elm/` - All ported Elm modules organized by package
 - `test/` - Test files using gleeunit
 
@@ -75,13 +74,15 @@ pub fn main(args) {
     update: update,
     flags_decoder: decode.succeed(Nil),
     subscriptions: subscriptions,
-    effect_managers: [/* required effect managers */],
+    effect_managers: [
+      // required effect managers
+    ],
   )(args)
 }
 ```
 
 ### HTML Integration
-The built JavaScript is loaded as ES modules. See `index.html` for integration example.
+The built JavaScript is loaded as ES modules. See `dev/browser_element.html` for integration example.
 
 ## Target Audience
 
