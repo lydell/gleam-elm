@@ -29,6 +29,9 @@ import {
 	default as Dict,
 } from '../../gleam_stdlib/dict.mjs';
 import {
+	to_list as Dict_to_list,
+} from '../../gleam_stdlib/gleam/dict.mjs';
+import {
 	append as __Utils_ap,
 	map as __List_map,
 } from '../../gleam_stdlib/gleam/list.mjs';
@@ -42,6 +45,7 @@ import {
 } from '../../gleam_stdlib/gleam/set.mjs';
 import {
 	Constructor,
+	Dictionary,
 	ListSeq,
 	Primitive,
 	Record,
@@ -536,14 +540,17 @@ function _Debugger_init(value)
 			);
 		}
 
-		/* TODO: Adapt this.
-		if (tag === 'RBNode_elm_builtin' || tag == 'RBEmpty_elm_builtin')
+		if (value instanceof Dict)
 		{
-			return __Expando_Dictionary(true,
-				__Dict_foldr(_Debugger_initKeyValueCons, __List_Nil, value)
+			return new Dictionary(true,
+				__List_map(Dict_to_list(value), function(tuple)
+				{
+					return [_Debugger_init(tuple[0]), _Debugger_init(tuple[1])];
+				})
 			);
 		}
 
+		/* TODO: Adapt this.
 		if (tag === 'Array_elm_builtin')
 		{
 			return __Expando_Sequence(__Expando_ArraySeq, true,
