@@ -120,79 +120,79 @@ So far, I’ve flipped some `map` and `and_then` functions around to the Gleam s
 
 Key:
 
-F Fully ported.  
-P Partially ported.  
-N Not started.  
-X Port not planned.  
-G This has a [similar Gleam module](#similar-gleam-modules).
+✅ Fully ported.  
+🏗️ Partially ported.  
+💤 Not started.  
+🚫 Port not planned.  
+⭐ This has a [similar Gleam module](#similar-gleam-modules).
 
-| Package | Version | Module | Status | Comment |
-|-|-|-|-|
-|elm/browser|1.0.2\*|Browser|F||
-|elm/browser|1.0.2\*|Browser.Dom|N||
-|elm/browser|1.0.2\*|Browser.Events|N||
-|elm/browser|1.0.2\*|Browser.Navigation|F||
-|elm/bytes|1.0.8|Bytes|N||
-|elm/bytes|1.0.8|Bytes.Encode|N||
-|elm/bytes|1.0.8|Bytes.Decode|N||
-|elm/core|1.0.5|Basics|P|G|
-|elm/core|1.0.5|String|N|G|
-|elm/core|1.0.5|Char|N||
-|elm/core|1.0.5|Bitwise|N||
-|elm/core|1.0.5|Tuple|N|G|
-|elm/core|1.0.5|List|N|G|
-|elm/core|1.0.5|Dict|N|G|
-|elm/core|1.0.5|Set|N|G|
-|elm/core|1.0.5|Array|F|No arrays out of the box in Gleam.|
-|elm/core|1.0.5|Maybe|N|G|
-|elm/core|1.0.5|Result|N|G|
-|elm/core|1.0.5|Debug|X|Use `echo`, `todo` and `string.inspect` instead.|
-|elm/core|1.0.5|Platform.Cmd|F||
-|elm/core|1.0.5|Platform.Sub|F||
-|elm/core|1.0.5|Platform|F||
-|elm/core|1.0.5|Process|F||
-|elm/core|1.0.5|Task|F||
-|elm/file|1.0.5|File|N||
-|elm/file|1.0.5|File.Select|N||
-|elm/file|1.0.5|File.Download|N||
-|elm/html|1.0.0\*|Html|F||
-|elm/html|1.0.0\*|Html.Attributes|F||
-|elm/html|1.0.0\*|Html.Events|F||
-|elm/html|1.0.0\*|Html.Keyed|F||
-|elm/html|1.0.0\*|Html.Lazy|F||
-|elm/http|2.0.0|Http|N||
-|elm/json|1.1.3|Json.Decode|F||
-|elm/json|1.1.3|Json.Encode|F||
-|elm/parser|1.1.0|Parser|N||
-|elm/parser|1.1.0|Parser.Advanced|N||
-|elm/project-metadata-utils|1.0.2|Elm.Docs|X||
-|elm/project-metadata-utils|1.0.2|Elm.Project|X||
-|elm/project-metadata-utils|1.0.2|Elm.Error|X||
-|elm/project-metadata-utils|1.0.2|Elm.Type|X||
-|elm/project-metadata-utils|1.0.2|Elm.Module|X||
-|elm/project-metadata-utils|1.0.2|Elm.Package|X||
-|elm/project-metadata-utils|1.0.2|Elm.Version|X||
-|elm/project-metadata-utils|1.0.2|Elm.Constraint|X||
-|elm/project-metadata-utils|1.0.2|Elm.License|X||
-|elm/random|1.0.0|Random|N||
-|elm/regex|1.0.0|Regex|N||
-|elm/svg|1.0.1|Svg|N||
-|elm/svg|1.0.1|Svg.Attributes|N||
-|elm/svg|1.0.1|Svg.Events|N||
-|elm/svg|1.0.1|Svg.Keyed|N||
-|elm/svg|1.0.1|Svg.Lazy|N||
-|elm/time|1.0.0|Time|P||
-|elm/url|1.0.0|Url|F||
-|elm/url|1.0.0|Url.Builder|N||
-|elm/url|1.0.0|Url.Parser|N||
-|elm/url|1.0.0|Url.Parser.Query|N||
-|elm/virtual-dom|1.0.4\*|VirtualDom|F||
+| Package                    | Version | Module             | Status | Comment                                          |
+| -------------------------- | ------- | ------------------ | ------ | ------------------------------------------------ |
+| elm/browser                | 1.0.2\* | Browser            | ✅     |                                                  |
+| elm/browser                | 1.0.2\* | Browser.Dom        | 💤     |                                                  |
+| elm/browser                | 1.0.2\* | Browser.Events     | 💤     |                                                  |
+| elm/browser                | 1.0.2\* | Browser.Navigation | ✅     |                                                  |
+| elm/bytes                  | 1.0.8   | Bytes              | 💤     |                                                  |
+| elm/bytes                  | 1.0.8   | Bytes.Encode       | 💤     |                                                  |
+| elm/bytes                  | 1.0.8   | Bytes.Decode       | 💤     |                                                  |
+| elm/core                   | 1.0.5   | Basics             | 🏗️     | ⭐                                               |
+| elm/core                   | 1.0.5   | String             | 💤     | ⭐                                               |
+| elm/core                   | 1.0.5   | Char               | 💤     |                                                  |
+| elm/core                   | 1.0.5   | Bitwise            | 💤     |                                                  |
+| elm/core                   | 1.0.5   | Tuple              | 💤     | ⭐                                               |
+| elm/core                   | 1.0.5   | List               | 💤     | ⭐                                               |
+| elm/core                   | 1.0.5   | Dict               | 💤     | ⭐                                               |
+| elm/core                   | 1.0.5   | Set                | 💤     | ⭐                                               |
+| elm/core                   | 1.0.5   | Array              | ✅     | No arrays out of the box in Gleam.               |
+| elm/core                   | 1.0.5   | Maybe              | 💤     | ⭐                                               |
+| elm/core                   | 1.0.5   | Result             | 💤     | ⭐                                               |
+| elm/core                   | 1.0.5   | Debug              | 🚫     | Use `echo`, `todo` and `string.inspect` instead. |
+| elm/core                   | 1.0.5   | Platform.Cmd       | ✅     |                                                  |
+| elm/core                   | 1.0.5   | Platform.Sub       | ✅     |                                                  |
+| elm/core                   | 1.0.5   | Platform           | ✅     |                                                  |
+| elm/core                   | 1.0.5   | Process            | ✅     |                                                  |
+| elm/core                   | 1.0.5   | Task               | ✅     |                                                  |
+| elm/file                   | 1.0.5   | File               | 💤     |                                                  |
+| elm/file                   | 1.0.5   | File.Select        | 💤     |                                                  |
+| elm/file                   | 1.0.5   | File.Download      | 💤     |                                                  |
+| elm/html                   | 1.0.0\* | Html               | ✅     |                                                  |
+| elm/html                   | 1.0.0\* | Html.Attributes    | ✅     |                                                  |
+| elm/html                   | 1.0.0\* | Html.Events        | ✅     |                                                  |
+| elm/html                   | 1.0.0\* | Html.Keyed         | ✅     |                                                  |
+| elm/html                   | 1.0.0\* | Html.Lazy          | ✅     |                                                  |
+| elm/http                   | 2.0.0   | Http               | 💤     |                                                  |
+| elm/json                   | 1.1.3   | Json.Decode        | ✅     |                                                  |
+| elm/json                   | 1.1.3   | Json.Encode        | ✅     |                                                  |
+| elm/parser                 | 1.1.0   | Parser             | 💤     |                                                  |
+| elm/parser                 | 1.1.0   | Parser.Advanced    | 💤     |                                                  |
+| elm/project-metadata-utils | 1.0.2   | Elm.Docs           | 🚫     |                                                  |
+| elm/project-metadata-utils | 1.0.2   | Elm.Project        | 🚫     |                                                  |
+| elm/project-metadata-utils | 1.0.2   | Elm.Error          | 🚫     |                                                  |
+| elm/project-metadata-utils | 1.0.2   | Elm.Type           | 🚫     |                                                  |
+| elm/project-metadata-utils | 1.0.2   | Elm.Module         | 🚫     |                                                  |
+| elm/project-metadata-utils | 1.0.2   | Elm.Package        | 🚫     |                                                  |
+| elm/project-metadata-utils | 1.0.2   | Elm.Version        | 🚫     |                                                  |
+| elm/project-metadata-utils | 1.0.2   | Elm.Constraint     | 🚫     |                                                  |
+| elm/project-metadata-utils | 1.0.2   | Elm.License        | 🚫     |                                                  |
+| elm/random                 | 1.0.0   | Random             | 💤     |                                                  |
+| elm/regex                  | 1.0.0   | Regex              | 💤     |                                                  |
+| elm/svg                    | 1.0.1   | Svg                | 💤     |                                                  |
+| elm/svg                    | 1.0.1   | Svg.Attributes     | 💤     |                                                  |
+| elm/svg                    | 1.0.1   | Svg.Events         | 💤     |                                                  |
+| elm/svg                    | 1.0.1   | Svg.Keyed          | 💤     |                                                  |
+| elm/svg                    | 1.0.1   | Svg.Lazy           | 💤     |                                                  |
+| elm/time                   | 1.0.0   | Time               | 🏗️     |                                                  |
+| elm/url                    | 1.0.0   | Url                | ✅     |                                                  |
+| elm/url                    | 1.0.0   | Url.Builder        | 💤     |                                                  |
+| elm/url                    | 1.0.0   | Url.Parser         | 💤     |                                                  |
+| elm/url                    | 1.0.0   | Url.Parser.Query   | 💤     |                                                  |
+| elm/virtual-dom            | 1.0.4\* | VirtualDom         | ✅     |                                                  |
 
 \* The versions marked with an asterisk are actually based on the versions from the [elm-safe-virtual-dom](https://github.com/lydell/elm-safe-virtual-dom) project. So it’s the noted version plus the changes from `elm-safe-virtual-dom`.
 
 ### Similar Gleam modules
 
-This refers to the modules marked with G in the above table.
+This refers to the modules marked with ⭐ in the above table.
 
 - Basics: Gleam probably already has most of this, so no need to port it all. I think.
 - String: The idea is to use Gleam’s strings instead of defining a new type for Elm `String`. We probably need to port some or all functions in the `String` module though, since Gleam’s `string` module isn’t identical, to make migration easier.
