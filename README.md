@@ -13,9 +13,11 @@ Gleam and Elm are very similar languages. With this package, a migration basical
 
 Perhaps [elm-syntax-to-gleam](https://github.com/lue-bird/elm-syntax-to-gleam) can be used to do the syntax translation.
 
+We probably need to port `elm-exploration/test` as well, so you can migrate your app’s tests to increase confidence. But that would probably also require forking the test runner to be able to run them. Sounds fun, but I’m not sure!
+
 ```sh
 # gleam add elm@1
-Not published yet!
+Not published!
 ```
 ```gleam
 import elm/browser
@@ -43,9 +45,9 @@ Why I created this project:
 - To learn more about Gleam FFI.
 - _In case_ I need to port an Elm app to Gleam.
 
-As you can see in the [Ported packages and modules](#ported-packages-and-modules) section, there are a lot of packages and modules left to implement.
+As you can see in the [Ported packages and modules](#ported-packages-and-modules) section, there are a lot of packages and modules left to implement. With the ones ported so far it’s possible to build a new, working Elm app, but it’s probably not enough to migrate an existing app.
 
-Don’t expect me to finish this, or be around for fixing bugs. Do however feel free to report issues if you somehow end up trying this and run into something! And ask me if you’d like to contribute.
+Don’t expect me to finish this, or be around for fixing bugs. Do however feel free to report issues if you somehow end up trying this and run into something (because you probably will)! And ask me if you’d like to contribute.
 
 ## Differences
 
@@ -209,4 +211,4 @@ Build:
 gleam build
 ```
 
-Then serve the repo root with a static file server.
+Then serve the repo root with a static file server. There are example apps to test with in the `dev/` folder.

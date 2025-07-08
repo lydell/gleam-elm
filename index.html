@@ -3,15 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elm in Gleam</title>
+    <title>Elm in Gleam examples</title>
 </head>
 <body>
-    <script type="module" id="node">
-        import {main} from "./build/dev/javascript/elm/elm.mjs";
-        const app = main({ node });
-        app.ports.windowAlert.subscribe(message => {
-            window.alert(message)
-        })
-    </script>
+    <ul>
+        <li><a href="./dev/elm.html">elm</a></li>
+        <li><a href="./dev/elm_cheat.html">elm_cheat</a></li>
+    </ul>
 </body>
 </html>
