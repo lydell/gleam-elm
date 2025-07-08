@@ -392,12 +392,20 @@ fn view_record(
 }
 
 fn view_record_open(record: Dict(String, Expando)) -> Html(Msg) {
-  div([], list.map(dict.to_list(record), view_record_entry))
+  div([], list.map(record_to_sorted_list(record), view_record_entry))
 }
 
 fn view_record_entry(entry: #(String, Expando)) -> Html(Msg) {
   let #(field, value) = entry
   html.map(view(Some(field), value), Field(field, _))
+}
+
+fn record_to_sorted_list(
+  record: Dict(String, Expando),
+) -> List(#(String, Expando)) {
+  record
+  |> dict.to_list
+  |> list.sort(fn(a, b) { string.compare(a.0, b.0) })
 }
 
 // VIEW CONSTRUCTOR
@@ -530,7 +538,7 @@ fn elide_middle(str: String) -> String {
 fn view_tiny_record(record: Dict(String, Expando)) -> #(Int, List(Html(msg))) {
   case dict.is_empty(record) {
     True -> #(2, [text("()")])
-    False -> view_tiny_record_help(0, "( ", dict.to_list(record))
+    False -> view_tiny_record_help(0, "( ", record_to_sorted_list(record))
   }
 }
 
@@ -566,7 +574,12 @@ fn view_tiny_record_help(
 
 fn view_extra_tiny(value: Expando) -> #(Int, List(Html(msg))) {
   case value {
-    Record(_, record) -> view_extra_tiny_record(0, "(", dict.keys(record))
+    Record(_, record) ->
+      view_extra_tiny_record(
+        0,
+        "(",
+        list.map(record_to_sorted_list(record), fn(a) { a.0 }),
+      )
     _ -> view_tiny(value)
   }
 }
