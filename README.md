@@ -5,7 +5,7 @@
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/elm/)
 -->
 
-[Elm](https://elm-lang.org/) ported to Gleam. Specifically, all `elm/*` packages ported to Gleam. `elm/*` packages are implemented partially in Elm, and partially in plain JavaScript. The Elm parts have been translated to Gleam. The JavaScript parts have been copy-pasted as-is and have then been adjusted slightly to work with Gleam.
+[Elm](https://elm-lang.org/) ported to [Gleam](https://gleam.run/). Specifically, all `elm/*` packages ported to Gleam. `elm/*` packages are implemented partially in Elm, and partially in plain JavaScript. The Elm parts have been translated to Gleam. The JavaScript parts have been copy-pasted as-is and have then been adjusted slightly to work with Gleam.
 
 The idea is that this could help you migrate an existing Elm app to Gleam. If you’re starting from scratch, you might want to check out [Lustre](https://github.com/lustre-labs/lustre) instead.
 
@@ -34,7 +34,9 @@ pub fn main(args) {
 }
 ```
 
+<!--
 Further documentation can be found at <https://hexdocs.pm/elm>.
+-->
 
 ## Status
 
@@ -45,7 +47,7 @@ Why I created this project:
 - To learn more about Gleam FFI.
 - _In case_ I need to port an Elm app to Gleam.
 
-As you can see in the [Ported packages and modules](#ported-packages-and-modules) section, there are a lot of packages and modules left to implement. With the ones ported so far it’s possible to build a new, working Elm app, but it’s probably not enough to migrate an existing app.
+As you can see in the [Ported packages and modules](#ported-packages-and-modules) section, **there are a lot of packages and modules left to implement.** With the ones ported so far it’s possible to build a new, working Elm app, but it’s probably not enough to migrate an existing app.
 
 Don’t expect me to finish this, or be around for fixing bugs. Do however feel free to report issues if you somehow end up trying this and run into something (because you probably will)! And ask me if you’d like to contribute.
 
