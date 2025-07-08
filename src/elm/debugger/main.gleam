@@ -1,4 +1,3 @@
-import elm/basics.{type Never}
 import elm/debugger/expando.{type Expando}
 import elm/debugger/history.{type History}
 import elm/debugger/overlay
@@ -9,7 +8,6 @@ import elm/html/lazy.{lazy}
 import elm/json/decode
 import elm/platform/cmd.{type Cmd}
 import elm/platform/sub.{type Sub}
-import elm/task.{type Task}
 import elm/virtual_dom as v
 import gleam/float
 import gleam/int
@@ -95,8 +93,10 @@ fn is_paused(state: State(model, msg)) -> Bool {
 @external(javascript, "../debugger.ffi.mjs", "_Debugger_isOpen")
 fn is_open(popout: Popout) -> Bool
 
-@external(javascript, "../debugger.ffi.mjs", "_Debugger_open")
-fn open(popout: Popout) -> Task(Never, Nil)
+// This is supposed to bind to `_Debugger_open`.
+// But to avoid depending on the task manager, we bind directly to the side effect function straight away instead.
+@external(javascript, "../debugger.ffi.mjs", "_Debugger_openWindow")
+fn open(popout: Popout) -> Nil
 
 fn cached_history(model: Model(model, msg)) -> History(model, msg) {
   case model.state {
@@ -216,7 +216,13 @@ pub fn wrap_update(
         }
       Jump(index) -> #(jump_update(update, index, model), cmd.none())
       SliderJump(index) -> #(jump_update(update, index, model), cmd.none())
-      Open -> #(model, task.perform(fn(_) { NoOp }, open(model.popout)))
+      Open -> {
+        // This is supposed to be:
+        // #(model, task.perform(fn(_) { NoOp }, open(model.popout)))
+        // But to avoid depending on the task manager, we just do the side effect straight away instead.
+        open(model.popout)
+        #(model, cmd.none())
+      }
       Up ->
         case model.state {
           Running(_) -> #(model, cmd.none())
@@ -301,11 +307,15 @@ fn drag(info: DragInfo, layout: Layout) -> Layout {
 // COMMANDS
 
 fn scroll(popout: Popout) -> Cmd(Msg(msg)) {
-  task.perform(fn(_) { NoOp }, scroll_raw(popout))
+  // This is supposed to be:
+  // task.perform(fn(_) { NoOp }, scroll_raw(popout))
+  // But to avoid depending on the task manager, we just do the side effect straight away instead.
+  scroll_raw(popout)
+  cmd.none()
 }
 
 @external(javascript, "../debugger.ffi.mjs", "_Debugger_scroll")
-fn scroll_raw(popout: Popout) -> Task(Never, Nil)
+fn scroll_raw(popout: Popout) -> Nil
 
 // CORNER VIEW
 

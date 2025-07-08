@@ -334,8 +334,10 @@ function _Debugger_openWindow(popout)
 
 function _Debugger_scroll(popout)
 {
-	return __Scheduler_binding(function(callback)
-	{
+	// This is supposed to return a task.
+	// But to avoid depending on the task manager, we execute the side effect function straight away instead.
+	// return __Scheduler_binding(function(callback)
+	// {
 		if (popout.__doc)
 		{
 			var msgs = popout.__doc.getElementById('elm-debugger-sidebar');
@@ -344,8 +346,8 @@ function _Debugger_scroll(popout)
 				msgs.scrollTop = 0;
 			}
 		}
-		callback(__Scheduler_succeed(undefined));
-	});
+	// 	callback(__Scheduler_succeed(undefined));
+	// });
 }
 
 
@@ -703,6 +705,6 @@ export {
 	_Debugger_init,
 	_Debugger_isOpen,
 	_Debugger_messageToString,
-	_Debugger_open,
+	_Debugger_openWindow,
 	_Debugger_scroll,
 };
