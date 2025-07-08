@@ -565,6 +565,11 @@ function _Debugger_init(value)
 			);
 		}
 
+		if (value.constructor === Object)
+		{
+			return new Primitive('<internals>');
+		}
+
 		var children;
 		if ('0' in value)
 		{
