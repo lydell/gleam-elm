@@ -37,12 +37,17 @@ import {
 	Some,
 } from '../../gleam_stdlib/gleam/option.mjs';
 import {
+	new$ as Set_new,
+	to_list as Set_to_list,
+} from '../../gleam_stdlib/gleam/set.mjs';
+import {
 	Constructor,
 	ListSeq,
 	Primitive,
 	Record,
 	S,
 	Sequence,
+	SetSeq,
 } from './debugger/expando.mjs';
 import {
 	_Debug_crash as __Debug_crash,
@@ -87,6 +92,9 @@ import {
 	_VirtualDom_set_doc,
 	_VirtualDom_virtualize as __VirtualDom_virtualize,
 } from './virtual_dom.ffi.mjs';
+
+// The `Set` constructor is not exported.
+var GleamSet = Set_new().constructor;
 
 
 // HELPERS
@@ -521,14 +529,14 @@ function _Debugger_init(value)
 			);
 		}
 
-		/* TODO: Adapt this.
-		if (tag === 'Set_elm_builtin')
+		if (value instanceof GleamSet)
 		{
-			return __Expando_Sequence(__Expando_SetSeq, true,
-				__Set_foldr(_Debugger_initCons, __List_Nil, value)
+			return new Sequence(new SetSeq, true,
+				__List_map(Set_to_list(value), _Debugger_init)
 			);
 		}
 
+		/* TODO: Adapt this.
 		if (tag === 'RBNode_elm_builtin' || tag == 'RBEmpty_elm_builtin')
 		{
 			return __Expando_Dictionary(true,
