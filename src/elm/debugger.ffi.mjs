@@ -44,6 +44,11 @@ import {
 	to_list as Set_to_list,
 } from '../../gleam_stdlib/gleam/set.mjs';
 import {
+	empty as Array_empty,
+	to_list as Array_to_list,
+} from './array.mjs';
+import {
+	ArraySeq,
 	Constructor,
 	Dictionary,
 	ListSeq,
@@ -96,6 +101,9 @@ import {
 	_VirtualDom_set_doc,
 	_VirtualDom_virtualize as __VirtualDom_virtualize,
 } from './virtual_dom.ffi.mjs';
+
+// The `Array` constructor is not exported.
+var ElmArray = Array_empty().constructor;
 
 // The `Set` constructor is not exported.
 var GleamSet = Set_new().constructor;
@@ -550,14 +558,12 @@ function _Debugger_init(value)
 			);
 		}
 
-		/* TODO: Adapt this.
-		if (tag === 'Array_elm_builtin')
+		if (value instanceof ElmArray)
 		{
-			return __Expando_Sequence(__Expando_ArraySeq, true,
-				__Array_foldr(_Debugger_initCons, __List_Nil, value)
+			return new Sequence(new ArraySeq, true,
+				__List_map(Array_to_list(value), _Debugger_init)
 			);
 		}
-		*/
 
 		var children;
 		if ('0' in value)
