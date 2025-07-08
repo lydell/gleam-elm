@@ -434,6 +434,11 @@ var _Debugger_download = function(historyLength, json)
 
 function _Debugger_messageToString(value)
 {
+	if (value === undefined)
+	{
+		return 'Nil';
+	}
+
 	if (typeof value === 'boolean')
 	{
 		return value ? 'True' : 'False';
@@ -459,33 +464,26 @@ function _Debugger_messageToString(value)
 		return '…';
 	}
 
-	if (typeof value.$ === 'number')
+	if (Object.getPrototypeOf(value).constructor === Object)
 	{
 		return '…';
 	}
 
-	// TODO: Adapt this.
-	var code = '$' in value ? value.$.charCodeAt(0) : 0;
-	if (code === 0x23 /* # */ || /* a */ 0x61 <= code && code <= 0x7A /* z */)
+	if (value instanceof ElmArray || value instanceof GleamSet || value instanceof Dict)
 	{
 		return '…';
 	}
 
-	// TODO: Adapt this.
-	if (['Array_elm_builtin', 'Set_elm_builtin', 'RBNode_elm_builtin', 'RBEmpty_elm_builtin'].indexOf(value.$) >= 0)
-	{
-		return '…';
-	}
-
+	var tag = Object.getPrototypeOf(value).constructor.name;
 	var keys = Object.keys(value);
 	switch (keys.length)
 	{
 		case 0:
-			return value.constructor.name;
+			return tag;
 		case 1:
-			return value.constructor.name + ' ' + _Debugger_messageToString(value.a);
+			return tag + ' ' + _Debugger_messageToString(value[keys[0]]);
 		default:
-			return value.constructor.name + ' … ' + _Debugger_messageToString(value[keys[keys.length - 1]]);
+			return tag + ' … ' + _Debugger_messageToString(value[keys[keys.length - 1]]);
 	}
 }
 
@@ -565,7 +563,7 @@ function _Debugger_init(value)
 			);
 		}
 
-		if (value.constructor === Object)
+		if (Object.getPrototypeOf(value).constructor === Object)
 		{
 			return new Primitive('<internals>');
 		}
@@ -591,7 +589,7 @@ function _Debugger_init(value)
 			}
 			children = isEmpty ? new Empty : List.fromArray([new Record(true, Dict.fromObject(object))]);
 		}
-		return new Constructor(new Some(value.constructor.name), true, children);
+		return new Constructor(new Some(Object.getPrototypeOf(value).constructor.name), true, children);
 	}
 
 	return new Primitive('<internals>');
