@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>browser_element.gleam</title>
+</head>
+<body>
+    <script type="module" id="node">
+        import { main } from "../build/dev/javascript/elm/browser_element.mjs";
+        const app = main({ node });
+        app.ports.windowAlert.subscribe(alert);
+    </script>
+</body>
+</html>

@@ -1,7 +1,6 @@
 import elm/browser
 import elm/debugger
 import elm/html
-import elm/html/attributes
 import elm/html/events
 import elm/json/decode
 import elm/json/encode
@@ -9,15 +8,8 @@ import elm/platform
 import elm/platform/cmd
 import elm/task
 import elm/time
-import elm/virtual_dom
 import gleam/function
 import gleam/int
-
-pub fn html_program(args) {
-  virtual_dom.init(
-    html.a([attributes.href("https://elm-lang.org/")], [html.text("Elm!")]),
-  )(args)
-}
 
 fn port_on_count() -> platform.OutgoingPort(Int) {
   platform.outgoing_port("onCount", encode.int)
@@ -27,7 +19,7 @@ fn port_on_js_message() -> platform.IncomingPort(String) {
   platform.incoming_port("onJsMessage", decode.string())
 }
 
-pub fn program(args) {
+pub fn main(args) {
   debugger.application(
     flags_decoder: decode.succeed(Nil),
     init: fn(_, _, _) { #(0, cmd.none()) },

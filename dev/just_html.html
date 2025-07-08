@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elm</title>
+    <title>just_html.gleam</title>
 </head>
 <body>
     <script type="module" id="node">
-        import { main } from "../build/dev/javascript/elm/elm.mjs";
-        const app = main({ node });
-        app.ports.windowAlert.subscribe(alert);
+        import { main } from "../build/dev/javascript/elm/just_html.mjs";
+
+        main({ node });
     </script>
 </body>
 </html>

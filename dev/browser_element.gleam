@@ -14,10 +14,11 @@ import gleam/set
 
 fn view(model: Model) {
   html.div([], [
-    html.text("Hello Elm Camp!"),
-    html.button([events.on_click(IncrementPressed(Thing(foo: 5, bar: "yes")))], [
-      html.text(int.to_string(model.counter)),
-    ]),
+    html.text("Hello, world!"),
+    html.button(
+      [events.on_click(IncrementPressed(Thing(foo: 5, bar: "some text")))],
+      [html.text(int.to_string(model.counter))],
+    ),
     html.div([], [html.text(int.to_string(model.time_counter))]),
   ])
 }
