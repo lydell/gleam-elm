@@ -367,6 +367,8 @@ fn view_dictionary_entry(index: Int, pair: #(Expando, Expando)) -> Html(Msg) {
 
 // VIEW RECORD
 
+/// Note: This function is never reached in Gleam. A `Record` is always
+/// a single child of a `Constructor`. `view_constructor` renders that by itself.
 fn view_record(
   maybe_key: Option(String),
   is_closed: Bool,
@@ -378,9 +380,9 @@ fn view_record(
       #(tiny_html, text(""), text(""))
     }
     False -> #(
-      [text("(")],
+      [text("{")],
       view_record_open(record),
-      div(left_pad(Some(Nil)), [text(")")]),
+      div(left_pad(Some(Nil)), [text("}")]),
     )
   }
 
@@ -431,9 +433,12 @@ fn view_constructor(
       |> list.append([text(")")])
     option.Some(name), [] -> [text(name)]
     option.Some(name), [x, ..xs] ->
-      list.fold(xs, [text(name <> " "), span([], x)], fn(acc, args) {
-        list.append(acc, [text(" "), span([], args)])
-      })
+      list.append(
+        list.fold(xs, [text(name <> "("), span([], x)], fn(acc, args) {
+          list.append(acc, [text(", "), span([], args)])
+        }),
+        [text(")")],
+      )
   }
 
   let #(maybe_is_closed, open_html) = case value_list {
@@ -517,7 +522,7 @@ fn view_tiny(value: Expando) -> #(Int, List(Html(msg))) {
     Constructor(maybe_name, _, value_list) ->
       view_tiny_help(case maybe_name {
         option.None -> "Tuple(" <> int.to_string(list.length(value_list)) <> ")"
-        option.Some(name) -> name <> " …"
+        option.Some(name) -> name <> "(…)"
       })
   }
 }
@@ -577,7 +582,7 @@ fn view_extra_tiny(value: Expando) -> #(Int, List(Html(msg))) {
     Record(_, record) ->
       view_extra_tiny_record(
         0,
-        "(",
+        "",
         list.map(record_to_sorted_list(record), fn(a) { a.0 }),
       )
     _ -> view_tiny(value)
@@ -594,7 +599,7 @@ fn view_extra_tiny_record(
     [field, ..rest] -> {
       let next_length = length + string.length(field) + 1
       case next_length > 18 {
-        True -> #(length + 2, [text("…)")])
+        True -> #(length + 2, [text("…")])
         False -> {
           let #(final_length, other_htmls) =
             view_extra_tiny_record(next_length, ",", rest)

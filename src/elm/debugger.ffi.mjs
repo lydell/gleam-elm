@@ -481,9 +481,9 @@ function _Debugger_messageToString(value)
 		case 0:
 			return tag;
 		case 1:
-			return tag + ' ' + _Debugger_messageToString(value[keys[0]]);
+			return tag + '(' + _Debugger_messageToString(value[keys[0]]) + ')';
 		default:
-			return tag + ' … ' + _Debugger_messageToString(value[keys[keys.length - 1]]);
+			return tag + '(…, ' + _Debugger_messageToString(value[keys[keys.length - 1]]) + ')';
 	}
 }
 
