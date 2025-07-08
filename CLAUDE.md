@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is `elm_compat` - a Gleam package that ports all `elm/*` packages to Gleam. It's designed to help migrate existing Elm applications to Gleam by providing familiar APIs. The Elm parts have been translated to Gleam while the JavaScript FFI code has been adapted to work with Gleam's JavaScript target.
+This is `elm` - a Gleam package that ports all `elm/*` packages to Gleam. It's designed to help migrate existing Elm applications to Gleam by providing familiar APIs. The Elm parts have been translated to Gleam while the JavaScript FFI code has been adapted to work with Gleam's JavaScript target.
 
 ## Development Commands
 
@@ -24,8 +24,8 @@ After building, serve the repo root with a static file server to test the HTML e
 ## Architecture
 
 ### Core Structure
-- `src/elm_compat.gleam` - Main example application demonstrating usage
-- `src/elm_compat_cheat.gleam` - Additional usage examples
+- `src/elm.gleam` - Main example application demonstrating usage
+- `src/elm_cheat.gleam` - Additional usage examples
 - `src/elm/` - All ported Elm modules organized by package
 - `test/` - Test files using gleeunit
 

@@ -1,4 +1,4 @@
-name = "elm_compat"
+name = "elm"
 version = "1.0.0"
 target = "javascript"
 
