@@ -22,12 +22,24 @@ import Array exposing (foldr)
 
 import {
 	Empty,
+	List,
 	NonEmpty,
 } from '../gleam.mjs';
 import {
 	append as __Utils_ap,
 	map as __List_map,
 } from '../../gleam_stdlib/gleam/list.mjs';
+import {
+	Some,
+} from '../../gleam_stdlib/gleam/option.mjs';
+import {
+	Constructor,
+	Primitive,
+	S,
+} from './debugger/expando.mjs';
+import {
+	_Debug_crash as __Debug_crash,
+} from './debug.ffi.mjs';
 import {
 	_Browser_application,
 	_Browser_makeAnimator,
@@ -425,12 +437,14 @@ function _Debugger_messageToString(value)
 		return '…';
 	}
 
+	// TODO: Adapt this.
 	var code = '$' in value ? value.$.charCodeAt(0) : 0;
 	if (code === 0x23 /* # */ || /* a */ 0x61 <= code && code <= 0x7A /* z */)
 	{
 		return '…';
 	}
 
+	// TODO: Adapt this.
 	if (['Array_elm_builtin', 'Set_elm_builtin', 'RBNode_elm_builtin', 'RBEmpty_elm_builtin'].indexOf(value.$) >= 0)
 	{
 		return '…';
@@ -453,24 +467,25 @@ function _Debugger_init(value)
 {
 	if (typeof value === 'boolean')
 	{
-		return __Expando_Constructor(__Maybe_Just(value ? 'True' : 'False'), true, __List_Nil);
+		return new Constructor(new Some(value ? 'True' : 'False'), true, new Empty);
 	}
 
 	if (typeof value === 'number')
 	{
-		return __Expando_Primitive(value + '');
+		return new Primitive(value + '');
 	}
 
 	if (typeof value === 'string')
 	{
-		return __Expando_S('"' + _Debugger_addSlashes(value, false) + '"');
+		return new S('"' + _Debugger_addSlashes(value, false) + '"');
 	}
 
 	if (value instanceof String)
 	{
-		return __Expando_S("'" + _Debugger_addSlashes(value, true) + "'");
+		return new S("'" + _Debugger_addSlashes(value, true) + "'");
 	}
 
+	/* TODO: Adapt this.
 	if (typeof value === 'object' && '$' in value)
 	{
 		var tag = value.$;
@@ -532,8 +547,19 @@ function _Debugger_init(value)
 		}
 		return __Expando_Record(true, dict);
 	}
+	*/
 
-	return __Expando_Primitive('<internals>');
+	if (typeof value === 'object')
+	{
+		var list = [];
+		for (var i in value)
+		{
+			list.push(_Debugger_init(value[i]));
+		}
+		return new Constructor(new Some(value.constructor.name), true, List.fromArray(list));
+	}
+
+	return new Primitive('<internals>');
 }
 
 var _Debugger_initCons = function initConsHelp(value, list)
@@ -641,6 +667,7 @@ export {
 	_Debugger_application,
 	_Debugger_document,
 	_Debugger_element,
+	_Debugger_init,
 	_Debugger_isOpen,
 	_Debugger_messageToString,
 	_Debugger_open,
