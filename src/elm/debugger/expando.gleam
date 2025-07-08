@@ -378,9 +378,9 @@ fn view_record(
       #(tiny_html, text(""), text(""))
     }
     False -> #(
-      [text("{")],
+      [text("(")],
       view_record_open(record),
-      div(left_pad(Some(Nil)), [text("}")]),
+      div(left_pad(Some(Nil)), [text(")")]),
     )
   }
 
@@ -529,8 +529,8 @@ fn elide_middle(str: String) -> String {
 
 fn view_tiny_record(record: Dict(String, Expando)) -> #(Int, List(Html(msg))) {
   case dict.is_empty(record) {
-    True -> #(2, [text("{}")])
-    False -> view_tiny_record_help(0, "{ ", dict.to_list(record))
+    True -> #(2, [text("()")])
+    False -> view_tiny_record_help(0, "( ", dict.to_list(record))
   }
 }
 
@@ -540,21 +540,21 @@ fn view_tiny_record_help(
   entries: List(#(String, Expando)),
 ) -> #(Int, List(Html(msg))) {
   case entries {
-    [] -> #(length + 2, [text(" }")])
+    [] -> #(length + 2, [text(" )")])
     [#(field, value), ..rest] -> {
       let field_len = string.length(field)
       let #(value_len, value_htmls) = view_extra_tiny(value)
       let new_length = length + field_len + value_len + 5
 
       case new_length > 60 {
-        True -> #(length + 4, [text(", … }")])
+        True -> #(length + 4, [text(", … )")])
         False -> {
           let #(final_length, other_htmls) =
             view_tiny_record_help(new_length, ", ", rest)
           #(final_length, [
             text(starter),
             span([purple()], [text(field)]),
-            text(" = "),
+            text(": "),
             span([], value_htmls),
             ..other_htmls
           ])
@@ -566,7 +566,7 @@ fn view_tiny_record_help(
 
 fn view_extra_tiny(value: Expando) -> #(Int, List(Html(msg))) {
   case value {
-    Record(_, record) -> view_extra_tiny_record(0, "{", dict.keys(record))
+    Record(_, record) -> view_extra_tiny_record(0, "(", dict.keys(record))
     _ -> view_tiny(value)
   }
 }
@@ -577,11 +577,11 @@ fn view_extra_tiny_record(
   entries: List(String),
 ) -> #(Int, List(Html(msg))) {
   case entries {
-    [] -> #(length + 1, [text("}")])
+    [] -> #(length + 1, [text(")")])
     [field, ..rest] -> {
       let next_length = length + string.length(field) + 1
       case next_length > 18 {
-        True -> #(length + 2, [text("…}")])
+        True -> #(length + 2, [text("…)")])
         False -> {
           let #(final_length, other_htmls) =
             view_extra_tiny_record(next_length, ",", rest)
@@ -614,7 +614,7 @@ fn line_starter(
     option.Some(key) -> [
       arrow,
       span([purple()], [text(key)]),
-      text(" = "),
+      text(": "),
       ..description
     ]
   }

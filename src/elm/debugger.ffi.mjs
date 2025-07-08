@@ -26,6 +26,9 @@ import {
 	NonEmpty,
 } from '../gleam.mjs';
 import {
+	default as Dict,
+} from '../../gleam_stdlib/dict.mjs';
+import {
 	append as __Utils_ap,
 	map as __List_map,
 } from '../../gleam_stdlib/gleam/list.mjs';
@@ -35,6 +38,7 @@ import {
 import {
 	Constructor,
 	Primitive,
+	Record,
 	S,
 } from './debugger/expando.mjs';
 import {
@@ -551,12 +555,28 @@ function _Debugger_init(value)
 
 	if (typeof value === 'object')
 	{
-		var list = [];
-		for (var i in value)
+		var children;
+		if ('0' in value)
 		{
-			list.push(_Debugger_init(value[i]));
+			var list = [];
+			for (var i in value)
+			{
+				list.push(_Debugger_init(value[i]));
+			}
+			children = List.fromArray(list);
 		}
-		return new Constructor(new Some(value.constructor.name), true, List.fromArray(list));
+		else
+		{
+			var isEmpty = true;
+			var object = {};
+			for (var i in value)
+			{
+				isEmpty = false;
+				object[i] = _Debugger_init(value[i]);
+			}
+			children = isEmpty ? new Empty : List.fromArray([new Record(true, Dict.fromObject(object))]);
+		}
+		return new Constructor(new Some(value.constructor.name), true, children);
 	}
 
 	return new Primitive('<internals>');
