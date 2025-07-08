@@ -33,24 +33,6 @@ var __2_TAGGER = 4;
 var __2_THUNK = 5;
 
 
-// Double underscore sequences are replaced with single letters or numbers.
-// Exactly which letter or number is used depends on the order the properties are first mentioned.
-// This preserves the letters and numbers from v1.0.3 for compatibility with tools that assume those exact values.
-// elm-explorations/test: https://github.com/elm-explorations/test/blob/d5eb84809de0f8bbf50303efd26889092c800609/src/Elm/Kernel/HtmlAsJson.js
-// elm-pages: https://github.com/dillonkearns/elm-pages/blob/fa1d0347016e20917b412de5c3657c2e6e095087/generator/src/build.js#L642
-// The list of names was extracted using the following commands:
-// # Switch to the reference commit:
-// git switch $old
-// # Find all relevant double underscore tokens.
-// grep --only --extended-regexp '_{2}[0-9a-z]\w+' src/Elm/Kernel/VirtualDom.js | awk '!visited[$0]++' >a.txt
-// # Switch to the current commit:
-// git switch $new
-// # Exclude the below line, then find all relevant double underscore tokens.
-// grep --invert-match void src/Elm/Kernel/VirtualDom.js | grep --only --extended-regexp '_{2}[0-9a-z]\w+' | awk '!visited[$0]++' >b.txt
-// # Keep only the double underscore tokens from the reference commit that still exist.
-// grep --fixed-strings --line-regexp --file=b.txt a.txt
-void { __2_TEXT: null, __text: null, __descendantsCount: null, __2_NODE: null, __tag: null, __facts: null, __kids: null, __namespace: null, __2_KEYED_NODE: null, __2_CUSTOM: null, __model: null, __render: null, __diff: null, __2_TAGGER: null, __tagger: null, __node: null, __2_THUNK: null, __refs: null, __thunk: null, __1_EVENT: null, __key: null, __value: null, __1_STYLE: null, __1_PROP: null, __1_ATTR: null, __1_ATTR_NS: null, __handler: null, __eventNode: null };
-
 
 // HELPERS
 

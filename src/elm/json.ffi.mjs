@@ -380,81 +380,12 @@ function _Json_expecting(type, value)
 }
 
 
-// EQUALITY
-
-function _Json_equality(x, y)
-{
-	if (x === y)
-	{
-		return true;
-	}
-
-	if (x.$ !== y.$)
-	{
-		return false;
-	}
-
-	switch (x.$)
-	{
-		case __1_SUCCEED:
-		case __1_FAIL:
-			return x.__msg === y.__msg;
-
-		case __1_PRIM:
-			return x.__decoder === y.__decoder;
-
-		case __1_NULL:
-			return x.__value === y.__value;
-
-		case __1_LIST:
-		case __1_ARRAY:
-		case __1_KEY_VALUE:
-			return _Json_equality(x.__decoder, y.__decoder);
-
-		case __1_FIELD:
-			return x.__field === y.__field && _Json_equality(x.__decoder, y.__decoder);
-
-		case __1_INDEX:
-			return x.__index === y.__index && _Json_equality(x.__decoder, y.__decoder);
-
-		case __1_MAP:
-			return x.__func === y.__func && _Json_listEquality(x.__decoders, y.__decoders);
-
-		case __1_AND_THEN:
-			return x.__callback === y.__callback && _Json_equality(x.__decoder, y.__decoder);
-
-		case __1_ONE_OF:
-			return _Json_listEquality(x.__decoders, y.__decoders);
-	}
-}
-
-function _Json_listEquality(aDecoders, bDecoders)
-{
-	var len = aDecoders.length;
-	if (len !== bDecoders.length)
-	{
-		return false;
-	}
-	for (var i = 0; i < len; i++)
-	{
-		if (!_Json_equality(aDecoders[i], bDecoders[i]))
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
-
 // ENCODE
 
 var _Json_encode = function(indentLevel, value)
 {
 	return JSON.stringify(_Json_unwrap(value), null, indentLevel) + '';
 };
-
-function _Json_wrap__DEBUG(value) { return { $: __0_JSON, a: value }; }
-function _Json_unwrap__DEBUG(value) { return value.a; }
 
 function _Json_wrap(value) { return value; }
 function _Json_unwrap(value) { return value; }

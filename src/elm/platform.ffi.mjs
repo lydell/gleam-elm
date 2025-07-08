@@ -501,54 +501,6 @@ function _Platform_setupIncomingPort(name, sendToApp)
 
 
 
-// EXPORT ELM MODULES
-//
-// Have DEBUG and PROD versions so that we can (1) give nicer errors in
-// debug mode and (2) not pay for the bits needed for that in prod mode.
-//
-
-
-function _Platform_export__PROD(exports)
-{
-	scope['Elm']
-		? _Platform_mergeExportsProd(scope['Elm'], exports)
-		: scope['Elm'] = exports;
-}
-
-
-function _Platform_mergeExportsProd(obj, exports)
-{
-	for (var name in exports)
-	{
-		(name in obj)
-			? (name == 'init')
-				? __Debug_crash(6)
-				: _Platform_mergeExportsProd(obj[name], exports[name])
-			: (obj[name] = exports[name]);
-	}
-}
-
-
-function _Platform_export__DEBUG(exports)
-{
-	scope['Elm']
-		? _Platform_mergeExportsDebug('Elm', scope['Elm'], exports)
-		: scope['Elm'] = exports;
-}
-
-
-function _Platform_mergeExportsDebug(moduleName, obj, exports)
-{
-	for (var name in exports)
-	{
-		(name in obj)
-			? (name == 'init')
-				? __Debug_crash(6, moduleName)
-				: _Platform_mergeExportsDebug(moduleName + '.' + name, obj[name], exports[name])
-			: (obj[name] = exports[name]);
-	}
-}
-
 export {
 	_Platform_batch,
 	_Platform_createManager,
