@@ -353,8 +353,10 @@ function _Debugger_scroll(popout)
 
 var _Debugger_scrollTo = function(id, popout)
 {
-	return __Scheduler_binding(function(callback)
-	{
+	// This is supposed to return a task.
+	// But to avoid depending on the task manager, we execute the side effect function straight away instead.
+	// return __Scheduler_binding(function(callback)
+	// {
 		if (popout.__doc)
 		{
 			var msg = popout.__doc.getElementById(id);
@@ -363,8 +365,8 @@ var _Debugger_scrollTo = function(id, popout)
 				msg.scrollIntoView(false);
 			}
 		}
-		callback(__Scheduler_succeed(undefined));
-	});
+	// 	callback(__Scheduler_succeed(undefined));
+	// });
 };
 
 
@@ -707,4 +709,5 @@ export {
 	_Debugger_messageToString,
 	_Debugger_openWindow,
 	_Debugger_scroll,
+	_Debugger_scrollTo,
 };

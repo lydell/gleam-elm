@@ -215,7 +215,10 @@ pub fn wrap_update(
           )
         }
       Jump(index) -> #(jump_update(update, index, model), cmd.none())
-      SliderJump(index) -> #(jump_update(update, index, model), cmd.none())
+      SliderJump(index) -> #(
+        jump_update(update, index, model),
+        scroll_to(history.id_for_message_index(index), model.popout),
+      )
       Open -> {
         // This is supposed to be:
         // #(model, task.perform(fn(_) { NoOp }, open(model.popout)))
@@ -316,6 +319,17 @@ fn scroll(popout: Popout) -> Cmd(Msg(msg)) {
 
 @external(javascript, "../debugger.ffi.mjs", "_Debugger_scroll")
 fn scroll_raw(popout: Popout) -> Nil
+
+fn scroll_to(id: String, popout: Popout) -> Cmd(Msg(msg)) {
+  // This is supposed to be:
+  // task.perform(fn(_) { NoOp }, scroll_to_raw(id, popout))
+  // But to avoid depending on the task manager, we just do the side effect straight away instead.
+  scroll_to_raw(id, popout)
+  cmd.none()
+}
+
+@external(javascript, "../debugger.ffi.mjs", "_Debugger_scrollTo")
+fn scroll_to_raw(id: String, popout: Popout) -> Nil
 
 // CORNER VIEW
 
