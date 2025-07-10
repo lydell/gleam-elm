@@ -775,7 +775,7 @@ function _VirtualDom_removeProps(domNode, prevProps, props)
 
 		if (!(key in props))
 		{
-			var value = props[key];
+			var value = prevProps[key];
 			switch (typeof value)
 			{
 				// Most string properties default to the empty string.
