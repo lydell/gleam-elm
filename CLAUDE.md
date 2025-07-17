@@ -25,7 +25,7 @@ After building, serve the repo root with a static file server to test the HTML e
 
 ### Core Structure
 - `dev/` - Example apps demonstrating usage and used for testing
-- `src/elm/` - All ported Elm modules organized by package
+- `src/elm/` - All ported Elm modules organized by package. The original Elm file is right next to each Gleam file. For example, `array.gleam` and `Array.elm`.
 - `test/` - Test files using gleeunit
 
 ### Key Modules
@@ -40,7 +40,7 @@ After building, serve the repo root with a static file server to test the HTML e
 
 ### FFI Integration
 Each module has a corresponding `.ffi.mjs` file containing JavaScript implementations. These files:
-- Import from the original Elm kernel modules
+- Are originally copies of the original Elm kernel modules, which are located next to each `.ffi.mjs` file. For example, `basics.ffi.mjs` and `Basics.js`.
 - Adapt the JavaScript to work with Gleam's data structures
 - Are automatically copied to the build directory
 
