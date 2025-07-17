@@ -4,6 +4,10 @@ import Elm.Kernel.Utils exposing (Tuple2)
 
 */
 
+import {
+	NonEmpty,
+} from '../gleam.mjs';
+
 
 var _JsArray_empty = function()
 {
@@ -36,10 +40,10 @@ var _JsArray_initializeFromList = function (max, ls)
 {
     var result = new Array(max);
 
-    for (var i = 0; i < max && ls.b; i++)
+    for (var i = 0; i < max && ls instanceof NonEmpty; i++)
     {
-        result[i] = ls.a;
-        ls = ls.b;
+        result[i] = ls.head;
+        ls = ls.tail;
     }
 
     result.length = i;
