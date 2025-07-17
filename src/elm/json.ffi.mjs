@@ -310,6 +310,7 @@ function _Json_runHelp(decoder, value)
 		case __1_MAP:
 			var answer = decoder.__func;
 			var decoders = decoder.__decoders;
+			var args = new Array(decoders.length);
 			for (var i = 0; i < decoders.length; i++)
 			{
 				var result = _Json_runHelp(decoders[i], value);
@@ -317,9 +318,9 @@ function _Json_runHelp(decoder, value)
 				{
 					return result;
 				}
-				answer = answer(result[0]);
+				args[i] = result[0];
 			}
-			return new Ok(answer);
+			return new Ok(answer.apply(null, args));
 
 		case __1_AND_THEN:
 			var result = _Json_runHelp(decoder.__decoder, value);
