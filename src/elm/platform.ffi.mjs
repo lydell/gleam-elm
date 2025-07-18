@@ -213,12 +213,11 @@ var _Platform_sendToSelf = function(router, msg)
 
 function _Platform_leaf(home, value)
 {
-	// Double indentation to avoid diff with original code.
-		return {
-			$: __2_LEAF,
-			__home: home,
-			__value: value
-		};
+	return {
+		$: __2_LEAF,
+		__home: home,
+		__value: value
+	};
 }
 
 

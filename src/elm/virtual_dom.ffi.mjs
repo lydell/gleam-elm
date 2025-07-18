@@ -134,18 +134,17 @@ function _VirtualDom_text(string)
 
 var _VirtualDom_nodeNS = function(namespace, tag, factList, kidList)
 {
-	// Double indentation to avoid diff with original code.
-		return {
-			$: __2_NODE,
-			__tag: tag,
-			__facts: _VirtualDom_organizeFacts(factList),
-			__kids: kidList.toArray(),
-			__namespace: namespace,
-			// Unused, only exists for backwards compatibility with:
-			// https://github.com/elm-explorations/test/blob/9669a27d84fc29175364c7a60d5d700771a2801e/src/Test/Html/Internal/ElmHtml/InternalTypes.elm#L279
-			// https://github.com/dillonkearns/elm-pages/blob/fa1d0347016e20917b412de5c3657c2e6e095087/src/Test/Html/Internal/ElmHtml/InternalTypes.elm#L281
-			__descendantsCount: 0
-		};
+	return {
+		$: __2_NODE,
+		__tag: tag,
+		__facts: _VirtualDom_organizeFacts(factList),
+		__kids: kidList.toArray(),
+		__namespace: namespace,
+		// Unused, only exists for backwards compatibility with:
+		// https://github.com/elm-explorations/test/blob/9669a27d84fc29175364c7a60d5d700771a2801e/src/Test/Html/Internal/ElmHtml/InternalTypes.elm#L279
+		// https://github.com/dillonkearns/elm-pages/blob/fa1d0347016e20917b412de5c3657c2e6e095087/src/Test/Html/Internal/ElmHtml/InternalTypes.elm#L281
+		__descendantsCount: 0
+	};
 };
 
 
@@ -161,35 +160,34 @@ var _VirtualDom_node = function(tag, factList, kidList)
 
 var _VirtualDom_keyedNodeNS = function(namespace, tag, factList, kidList)
 {
-	// Double indentation to avoid diff with original code.
-		for (var kids = kidList.toArray(), kidsMap = Object.create(null), i = 0; i < kids.length; i++)
+	for (var kids = kidList.toArray(), kidsMap = Object.create(null), i = 0; i < kids.length; i++)
+	{
+		var kid = kids[i];
+		var key = kid[0];
+		// Handle duplicate keys by adding a postfix.
+		while (key in kidsMap)
 		{
-			var kid = kids[i];
-			var key = kid[0];
-			// Handle duplicate keys by adding a postfix.
-			while (key in kidsMap)
-			{
-				key += _VirtualDom_POSTFIX;
-			}
-			kidsMap[key] = kid[1];
+			key += _VirtualDom_POSTFIX;
 		}
+		kidsMap[key] = kid[1];
+	}
 
-		return {
-			$: __2_KEYED_NODE,
-			__tag: tag,
-			__facts: _VirtualDom_organizeFacts(factList),
-			// __kids holds the order and length of the kids.
-			__kids: kids,
-			// __kidsMap is a dict from key to node.
-			// Note when iterating JavaScript objects, numeric-looking keys come first.
-			// So we need both __kids and __kidsMap.
-			// Another reason is backwards compatibility with:
-			// https://github.com/elm-explorations/test/blob/d5eb84809de0f8bbf50303efd26889092c800609/src/Elm/Kernel/HtmlAsJson.js#L37
-			// https://github.com/dillonkearns/elm-pages/blob/fa1d0347016e20917b412de5c3657c2e6e095087/generator/src/build.js#L675
-			__kidsMap: kidsMap,
-			__namespace: namespace,
-			__descendantsCount: 0 // See _VirtualDom_nodeNS.
-		};
+	return {
+		$: __2_KEYED_NODE,
+		__tag: tag,
+		__facts: _VirtualDom_organizeFacts(factList),
+		// __kids holds the order and length of the kids.
+		__kids: kids,
+		// __kidsMap is a dict from key to node.
+		// Note when iterating JavaScript objects, numeric-looking keys come first.
+		// So we need both __kids and __kidsMap.
+		// Another reason is backwards compatibility with:
+		// https://github.com/elm-explorations/test/blob/d5eb84809de0f8bbf50303efd26889092c800609/src/Elm/Kernel/HtmlAsJson.js#L37
+		// https://github.com/dillonkearns/elm-pages/blob/fa1d0347016e20917b412de5c3657c2e6e095087/generator/src/build.js#L675
+		__kidsMap: kidsMap,
+		__namespace: namespace,
+		__descendantsCount: 0 // See _VirtualDom_nodeNS.
+	};
 };
 
 

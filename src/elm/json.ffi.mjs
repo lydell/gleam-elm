@@ -75,8 +75,7 @@ function _Json_decodePrim(decoder)
 {
 	return function()
 	{
-	// Wrong indentation to avoid diff.
-	return { $: __1_PRIM, __decoder: decoder };
+		return { $: __1_PRIM, __decoder: decoder };
 	}
 }
 

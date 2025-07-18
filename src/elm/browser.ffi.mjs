@@ -267,34 +267,35 @@ function _Browser_application(flagDecoder, init, view, update, subscriptions, on
 
 	var key = function() { key.__sendToApp(onUrlChange(_Browser_getUrl())); };
 
-	return documentFunction({
-		setup: function(sendToApp)
+	return documentFunction(
 		{
-			key.__sendToApp = sendToApp;
-			_Browser_window.addEventListener('popstate', key);
-			_Browser_window.navigator.userAgent.indexOf('Trident') < 0 || _Browser_window.addEventListener('hashchange', key);
-
-			return function(domNode) { return function(event)
+			setup: function(sendToApp)
 			{
-				if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.button < 1 && !domNode.target && !domNode.hasAttribute('download') && domNode.hasAttribute('href'))
+				key.__sendToApp = sendToApp;
+				_Browser_window.addEventListener('popstate', key);
+				_Browser_window.navigator.userAgent.indexOf('Trident') < 0 || _Browser_window.addEventListener('hashchange', key);
+
+				return function(domNode) { return function(event)
 				{
-					event.preventDefault();
-					var href = domNode.href;
-					var curr = _Browser_getUrl();
-					var next = __Url_fromString(href)[0];
-					sendToApp(onUrlRequest(
-						(next
-							&& curr.protocol === next.protocol
-							&& curr.host === next.host
-							&& curr.port_[0] === next.port_[0]
-						)
-							? __Browser_Internal(next)
-							: __Browser_External(href)
-					));
-				}
-			}};
-		},
-		flagDecoder: flagDecoder,
+					if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.button < 1 && !domNode.target && !domNode.hasAttribute('download') && domNode.hasAttribute('href'))
+					{
+						event.preventDefault();
+						var href = domNode.href;
+						var curr = _Browser_getUrl();
+						var next = __Url_fromString(href)[0];
+						sendToApp(onUrlRequest(
+							(next
+								&& curr.protocol === next.protocol
+								&& curr.host === next.host
+								&& curr.port_[0] === next.port_[0]
+							)
+								? __Browser_Internal(next)
+								: __Browser_External(href)
+						));
+					}
+				}};
+			},
+			flagDecoder: flagDecoder,
 		},
 		function(flags)
 		{
