@@ -9,7 +9,7 @@
     <script type="module" id="node">
         import { main } from "../build/dev/javascript/elm/browser_element.mjs";
         const app = main({ node });
-        app.ports.windowAlert.subscribe(alert);
+        app.ports.windowAlert.subscribe((message) => alert(message));
     </script>
 </body>
 </html>

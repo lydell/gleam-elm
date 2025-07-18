@@ -1,23 +1,37 @@
-//// Library for viewing Elm values in the debugger.
-
 import elm/html.{type Attribute, type Html, div, span, text}
 import elm/html/attributes.{style}
 import elm/html/events.{on_click}
 import gleam/dict.{type Dict}
 import gleam/int
 import gleam/list
-import gleam/option.{type Option, Some}
+import gleam/option.{type Option, None, Some}
+import gleam/set.{type Set}
 import gleam/string
 
 // MODEL
 
 pub type Expando {
+  Expando(
+    unexpanded: Unexpanded,
+    expanded: Set(Path),
+    view_more: Dict(Path, Int),
+  )
+}
+
+pub type Path =
+  List(String)
+
+pub type Unexpanded {
+  Unexpanded
+}
+
+pub type Expanded {
   S(String)
   Primitive(String)
-  Sequence(SeqType, Bool, List(Expando))
-  Dictionary(Bool, List(#(Expando, Expando)))
-  Record(Bool, Dict(String, Expando))
-  Constructor(Option(String), Bool, List(Expando))
+  Sequence(SeqType, List(Unexpanded))
+  Dictionary(List(#(Unexpanded, Unexpanded)))
+  Record(Dict(String, Unexpanded))
+  Constructor(Option(String), List(Unexpanded))
 }
 
 pub type SeqType {
@@ -34,333 +48,223 @@ fn seq_type_to_string(n: Int, seq_type: SeqType) -> String {
   }
 }
 
-// INITIALIZE
-
-@external(javascript, "../debugger.ffi.mjs", "_Debugger_init")
-fn debugger_init(value: a) -> Expando
-
-pub fn init(value: a) -> Expando {
-  init_help(True, debugger_init(value))
+fn maximum_items_to_view(path: Path, expando: Expando) -> Int {
+  // Show 100 items at a time.
+  case dict.get(expando.view_more, path) {
+    Ok(count) -> count * 100
+    Error(_) -> 100
+  }
 }
 
-fn init_help(is_outer: Bool, expando: Expando) -> Expando {
-  case expando {
-    S(_) -> expando
-    Primitive(_) -> expando
+// INITIALIZE
 
-    Sequence(seq_type, _, items) ->
-      case is_outer {
-        True -> Sequence(seq_type, False, list.map(items, init_help(False, _)))
-        False ->
-          case list.length(items) <= 8 {
-            True -> Sequence(seq_type, False, items)
-            False -> expando
-          }
-      }
+@external(javascript, "../debugger.ffi.mjs", "_Debugger_toUnexpanded")
+fn to_unexpanded(value: a) -> Unexpanded
 
-    Dictionary(_, key_value_pairs) ->
-      case is_outer {
-        True ->
-          Dictionary(
-            False,
-            list.map(key_value_pairs, fn(pair) {
-              let #(k, v) = pair
-              #(k, init_help(False, v))
-            }),
-          )
-        False ->
-          case list.length(key_value_pairs) <= 8 {
-            True -> Dictionary(False, key_value_pairs)
-            False -> expando
-          }
-      }
+@external(javascript, "../debugger.ffi.mjs", "_Debugger_init")
+fn debugger_init(value: Unexpanded) -> Expanded
 
-    Record(_, entries) ->
-      case is_outer {
-        True ->
-          Record(
-            False,
-            dict.map_values(entries, fn(_, v) { init_help(False, v) }),
-          )
-        False ->
-          case dict.size(entries) <= 4 {
-            True -> Record(False, entries)
-            False -> expando
-          }
-      }
-
-    Constructor(maybe_name, _, args) ->
-      case is_outer {
-        True ->
-          Constructor(maybe_name, False, list.map(args, init_help(False, _)))
-        False ->
-          case list.length(args) <= 4 {
-            True -> Constructor(maybe_name, False, args)
-            False -> expando
-          }
-      }
-  }
+pub fn init(value: a) -> Expando {
+  Expando(
+    unexpanded: to_unexpanded(value),
+    expanded: set.from_list([[]]),
+    view_more: dict.new(),
+  )
 }
 
 // PRESERVE OLD EXPANDO STATE (open/closed)
 
 pub fn merge(value: a, expando: Expando) -> Expando {
-  merge_help(expando, debugger_init(value))
-}
-
-fn merge_help(old: Expando, new: Expando) -> Expando {
-  case old, new {
-    _, S(_) -> new
-    _, Primitive(_) -> new
-
-    Sequence(_, is_closed, old_values), Sequence(seq_type, _, new_values) ->
-      Sequence(seq_type, is_closed, merge_list_help(old_values, new_values))
-
-    Dictionary(is_closed, _), Dictionary(_, key_value_pairs) ->
-      Dictionary(is_closed, key_value_pairs)
-
-    Record(is_closed, old_dict), Record(_, new_dict) ->
-      Record(
-        is_closed,
-        dict.map_values(new_dict, fn(k, v) { merge_dict_help(old_dict, k)(v) }),
-      )
-
-    Constructor(_, is_closed, old_values),
-      Constructor(maybe_name, _, new_values)
-    ->
-      Constructor(
-        maybe_name,
-        is_closed,
-        merge_list_help(old_values, new_values),
-      )
-
-    _, _ -> new
-  }
-}
-
-fn merge_list_help(olds: List(Expando), news: List(Expando)) -> List(Expando) {
-  case olds, news {
-    [], _ -> news
-    _, [] -> news
-    [x, ..xs], [y, ..ys] -> [merge_help(x, y), ..merge_list_help(xs, ys)]
-  }
-}
-
-fn merge_dict_help(
-  old_dict: Dict(String, Expando),
-  key: String,
-) -> fn(Expando) -> Expando {
-  fn(value: Expando) -> Expando {
-    case dict.get(old_dict, key) {
-      Error(Nil) -> value
-      Ok(old_value) -> merge_help(old_value, value)
-    }
-  }
+  Expando(..expando, unexpanded: to_unexpanded(value))
 }
 
 // UPDATE
 
 pub type Msg {
-  Toggle
-  Index(Redirect, Int, Msg)
-  Field(String, Msg)
+  Toggle(Path)
+  ViewMore(Path)
 }
 
-pub type Redirect {
-  None
-  Key
-  Value
-}
-
-pub fn update(msg: Msg, value: Expando) -> Expando {
-  case value {
-    S(_) -> value
-    Primitive(_) -> value
-
-    Sequence(seq_type, is_closed, value_list) ->
-      case msg {
-        Toggle -> Sequence(seq_type, !is_closed, value_list)
-        Index(None, index, sub_msg) ->
-          Sequence(
-            seq_type,
-            is_closed,
-            update_index(index, update(sub_msg, _), value_list),
-          )
-        Index(_, _, _) -> value
-        Field(_, _) -> value
+pub fn update(msg: Msg, expando: Expando) -> Expando {
+  case msg {
+    Toggle(path) -> {
+      let new_expanded = case set.contains(expando.expanded, path) {
+        True -> set.delete(expando.expanded, path)
+        False -> set.insert(expando.expanded, path)
       }
-
-    Dictionary(is_closed, key_value_pairs) ->
-      case msg {
-        Toggle -> Dictionary(!is_closed, key_value_pairs)
-        Index(redirect, index, sub_msg) ->
-          case redirect {
-            None -> value
-            Key ->
-              Dictionary(
-                is_closed,
-                update_index(
-                  index,
-                  fn(pair) {
-                    let #(k, v) = pair
-                    #(update(sub_msg, k), v)
-                  },
-                  key_value_pairs,
-                ),
-              )
-            Value ->
-              Dictionary(
-                is_closed,
-                update_index(
-                  index,
-                  fn(pair) {
-                    let #(k, v) = pair
-                    #(k, update(sub_msg, v))
-                  },
-                  key_value_pairs,
-                ),
-              )
+      Expando(..expando, expanded: new_expanded)
+    }
+    ViewMore(path) -> {
+      let new_view_more =
+        dict.upsert(expando.view_more, path, fn(maybe_count) {
+          case maybe_count {
+            Some(count) -> count + 1
+            None -> 2
           }
-        Field(_, _) -> value
-      }
-
-    Record(is_closed, value_dict) ->
-      case msg {
-        Toggle -> Record(!is_closed, value_dict)
-        Index(_, _, _) -> value
-        Field(field, sub_msg) -> {
-          let new_dict = case dict.get(value_dict, field) {
-            Ok(existing_value) -> {
-              let updated_value = update(sub_msg, existing_value)
-              dict.insert(value_dict, field, updated_value)
-            }
-            Error(_) -> value_dict
-          }
-          Record(is_closed, new_dict)
-        }
-      }
-
-    Constructor(maybe_name, is_closed, value_list) ->
-      case msg {
-        Toggle -> Constructor(maybe_name, !is_closed, value_list)
-        Index(None, index, sub_msg) ->
-          Constructor(
-            maybe_name,
-            is_closed,
-            update_index(index, update(sub_msg, _), value_list),
-          )
-        Index(_, _, _) -> value
-        Field(_, _) -> value
-      }
-  }
-}
-
-fn update_index(n: Int, func: fn(a) -> a, list: List(a)) -> List(a) {
-  case list {
-    [] -> []
-    [x, ..xs] ->
-      case n <= 0 {
-        True -> [func(x), ..xs]
-        False -> [x, ..update_index(n - 1, func, xs)]
-      }
+        })
+      Expando(..expando, view_more: new_view_more)
+    }
   }
 }
 
 // VIEW
 
-pub fn view(maybe_key: Option(String), expando: Expando) -> Html(Msg) {
-  case expando {
+pub fn view(path: Path, expando: Expando) -> Html(Msg) {
+  let maybe_key = list_first(path)
+  case debugger_init(expando.unexpanded) {
     S(string_rep) ->
       div(
         left_pad(maybe_key),
-        line_starter(maybe_key, option.None, [span([red()], [text(string_rep)])]),
+        line_starter(maybe_key, None, [span([red()], [text(string_rep)])]),
       )
 
     Primitive(string_rep) ->
       div(
         left_pad(maybe_key),
-        line_starter(maybe_key, option.None, [
-          span([blue()], [text(string_rep)]),
-        ]),
+        line_starter(maybe_key, None, [span([blue()], [text(string_rep)])]),
       )
 
-    Sequence(seq_type, is_closed, value_list) ->
-      view_sequence(maybe_key, seq_type, is_closed, value_list)
+    Sequence(seq_type, value_list) ->
+      view_sequence(path, seq_type, expando, value_list)
 
-    Dictionary(is_closed, key_value_pairs) ->
-      view_dictionary(maybe_key, is_closed, key_value_pairs)
+    Dictionary(key_value_pairs) ->
+      view_dictionary(path, expando, key_value_pairs)
 
-    Record(is_closed, value_dict) ->
-      view_record(maybe_key, is_closed, value_dict)
+    Record(value_dict) -> view_record(path, expando, value_dict)
 
-    Constructor(maybe_name, is_closed, value_list) ->
-      view_constructor(maybe_key, maybe_name, is_closed, value_list)
+    Constructor(maybe_name, value_list) ->
+      view_constructor(path, maybe_name, expando, value_list)
   }
 }
 
 // VIEW SEQUENCE
 
 fn view_sequence(
-  maybe_key: Option(String),
+  path: Path,
   seq_type: SeqType,
-  is_closed: Bool,
-  value_list: List(Expando),
+  expando: Expando,
+  value_list: List(Unexpanded),
 ) -> Html(Msg) {
   let starter = seq_type_to_string(list.length(value_list), seq_type)
+  let maybe_key = list_first(path)
+  let is_closed = !set.contains(expando.expanded, path)
+
   div(left_pad(maybe_key), [
     div(
-      [on_click(Toggle)],
+      [on_click(Toggle(path))],
       line_starter(maybe_key, Some(is_closed), [text(starter)]),
     ),
     case is_closed {
       True -> text("")
-      False -> view_sequence_open(value_list)
+      False -> view_sequence_open(path, expando, value_list)
     },
   ])
 }
 
-fn view_sequence_open(values: List(Expando)) -> Html(Msg) {
-  div([], list.index_map(values, fn(v, i) { view_constructor_entry(i, v) }))
+fn view_sequence_open(
+  path: Path,
+  expando: Expando,
+  values: List(Unexpanded),
+) -> Html(Msg) {
+  let max = maximum_items_to_view(path, expando)
+  div([], view_sequence_open_help(path, expando, 0, max, values, []))
+}
+
+fn view_sequence_open_help(
+  path: Path,
+  expando: Expando,
+  index: Int,
+  max: Int,
+  values: List(Unexpanded),
+  acc: List(Html(Msg)),
+) -> List(Html(Msg)) {
+  case index < max {
+    True ->
+      case values {
+        [] -> list.reverse(acc)
+        [value, ..rest] ->
+          view_sequence_open_help(path, expando, index + 1, max, rest, [
+            view_constructor_entry(path, expando, index, value),
+            ..acc
+          ])
+      }
+    False -> list.reverse([view_more_button(path), ..acc])
+  }
 }
 
 // VIEW DICTIONARY
 
 fn view_dictionary(
-  maybe_key: Option(String),
-  is_closed: Bool,
-  key_value_pairs: List(#(Expando, Expando)),
+  path: Path,
+  expando: Expando,
+  key_value_pairs: List(#(Unexpanded, Unexpanded)),
 ) -> Html(Msg) {
   let starter = "Dict(" <> int.to_string(list.length(key_value_pairs)) <> ")"
+  let maybe_key = list_first(path)
+  let is_closed = !set.contains(expando.expanded, path)
+
   div(left_pad(maybe_key), [
     div(
-      [on_click(Toggle)],
+      [on_click(Toggle(path))],
       line_starter(maybe_key, Some(is_closed), [text(starter)]),
     ),
     case is_closed {
       True -> text("")
-      False -> view_dictionary_open(key_value_pairs)
+      False -> view_dictionary_open(path, expando, key_value_pairs)
     },
   ])
 }
 
-fn view_dictionary_open(key_value_pairs: List(#(Expando, Expando))) -> Html(Msg) {
-  div(
-    [],
-    list.index_map(key_value_pairs, fn(p, i) { view_dictionary_entry(i, p) }),
-  )
+fn view_dictionary_open(
+  path: Path,
+  expando: Expando,
+  key_value_pairs: List(#(Unexpanded, Unexpanded)),
+) -> Html(Msg) {
+  let max = maximum_items_to_view(path, expando)
+  div([], view_dictionary_open_help(path, expando, 0, max, key_value_pairs, []))
 }
 
-fn view_dictionary_entry(index: Int, pair: #(Expando, Expando)) -> Html(Msg) {
-  let #(key, value) = pair
-  case key {
+fn view_dictionary_open_help(
+  path: Path,
+  expando: Expando,
+  index: Int,
+  max: Int,
+  key_value_pairs: List(#(Unexpanded, Unexpanded)),
+  acc: List(Html(Msg)),
+) -> List(Html(Msg)) {
+  case index < max {
+    True ->
+      case key_value_pairs {
+        [] -> list.reverse(acc)
+        [key_value, ..rest] ->
+          view_dictionary_open_help(path, expando, index + 1, max, rest, [
+            view_dictionary_entry(
+              [int.to_string(index), ..path],
+              expando,
+              key_value,
+            ),
+            ..acc
+          ])
+      }
+    False -> list.reverse([view_more_button(path), ..acc])
+  }
+}
+
+fn view_dictionary_entry(
+  path: Path,
+  expando: Expando,
+  key_value: #(Unexpanded, Unexpanded),
+) -> Html(Msg) {
+  let #(key, value) = key_value
+  case debugger_init(key) {
     S(string_rep) ->
-      html.map(view(Some(string_rep), value), Index(Value, index, _))
+      view([string_rep, ..path], Expando(..expando, unexpanded: value))
     Primitive(string_rep) ->
-      html.map(view(Some(string_rep), value), Index(Value, index, _))
+      view([string_rep, ..path], Expando(..expando, unexpanded: value))
     _ ->
       div([], [
-        html.map(view(Some("key"), key), Index(Key, index, _)),
-        html.map(view(Some("value"), value), Index(Value, index, _)),
+        view(["key", ..path], Expando(..expando, unexpanded: key)),
+        view(["value", ..path], Expando(..expando, unexpanded: value)),
       ])
   }
 }
@@ -370,10 +274,13 @@ fn view_dictionary_entry(index: Int, pair: #(Expando, Expando)) -> Html(Msg) {
 /// Note: This function is never reached in Gleam. A `Record` is always
 /// a single child of a `Constructor`. `view_constructor` renders that by itself.
 fn view_record(
-  maybe_key: Option(String),
-  is_closed: Bool,
-  record: Dict(String, Expando),
+  path: Path,
+  expando: Expando,
+  record: Dict(String, Unexpanded),
 ) -> Html(Msg) {
+  let maybe_key = list_first(path)
+  let is_closed = !set.contains(expando.expanded, path)
+
   let #(start, middle, end) = case is_closed {
     True -> {
       let #(_, tiny_html) = view_tiny_record(record)
@@ -381,30 +288,44 @@ fn view_record(
     }
     False -> #(
       [text("{")],
-      view_record_open(record),
+      view_record_open(path, expando, record),
       div(left_pad(Some(Nil)), [text("}")]),
     )
   }
 
   div(left_pad(maybe_key), [
-    div([on_click(Toggle)], line_starter(maybe_key, Some(is_closed), start)),
+    div(
+      [on_click(Toggle(path))],
+      line_starter(maybe_key, Some(is_closed), start),
+    ),
     middle,
     end,
   ])
 }
 
-fn view_record_open(record: Dict(String, Expando)) -> Html(Msg) {
-  div([], list.map(record_to_sorted_list(record), view_record_entry))
+fn view_record_open(
+  path: Path,
+  expando: Expando,
+  record: Dict(String, Unexpanded),
+) -> Html(Msg) {
+  div(
+    [],
+    list.map(record_to_sorted_list(record), view_record_entry(path, expando, _)),
+  )
 }
 
-fn view_record_entry(entry: #(String, Expando)) -> Html(Msg) {
+fn view_record_entry(
+  path: Path,
+  expando: Expando,
+  entry: #(String, Unexpanded),
+) -> Html(Msg) {
   let #(field, value) = entry
-  html.map(view(Some(field), value), Field(field, _))
+  view([field, ..path], Expando(..expando, unexpanded: value))
 }
 
 fn record_to_sorted_list(
-  record: Dict(String, Expando),
-) -> List(#(String, Expando)) {
+  record: Dict(String, Unexpanded),
+) -> List(#(String, Unexpanded)) {
   record
   |> dict.to_list
   |> list.sort(fn(a, b) { string.compare(a.0, b.0) })
@@ -413,11 +334,14 @@ fn record_to_sorted_list(
 // VIEW CONSTRUCTOR
 
 fn view_constructor(
-  maybe_key: Option(String),
+  path: Path,
   maybe_name: Option(String),
-  is_closed: Bool,
-  value_list: List(Expando),
+  expando: Expando,
+  value_list: List(Unexpanded),
 ) -> Html(Msg) {
+  let maybe_key = list_first(path)
+  let is_closed = !set.contains(expando.expanded, path)
+
   let tiny_args =
     list.map(value_list, fn(val) {
       let #(_, html) = view_extra_tiny(val)
@@ -425,14 +349,14 @@ fn view_constructor(
     })
 
   let description = case maybe_name, tiny_args {
-    option.None, [] -> [text("#()")]
-    option.None, [x, ..xs] ->
+    None, [] -> [text("#()")]
+    None, [x, ..xs] ->
       list.fold(xs, [text("#("), span([], x)], fn(acc, args) {
         list.append(acc, [text(", "), span([], args)])
       })
       |> list.append([text(")")])
-    option.Some(name), [] -> [text(name)]
-    option.Some(name), [x, ..xs] ->
+    Some(name), [] -> [text(name)]
+    Some(name), [x, ..xs] ->
       list.append(
         list.fold(xs, [text(name <> "("), span([], x)], fn(acc, args) {
           list.append(acc, [text(", "), span([], args)])
@@ -442,67 +366,69 @@ fn view_constructor(
   }
 
   let #(maybe_is_closed, open_html) = case value_list {
-    [] -> #(option.None, div([], []))
+    [] -> #(None, div([], []))
     [entry] ->
-      case entry {
-        S(_) -> #(option.None, div([], []))
-        Primitive(_) -> #(option.None, div([], []))
-        Sequence(_, _, sub_value_list) -> #(
-          option.Some(is_closed),
-          case is_closed {
-            True -> div([], [])
-            False ->
-              html.map(view_sequence_open(sub_value_list), Index(None, 0, _))
-          },
-        )
-        Dictionary(_, key_value_pairs) -> #(
-          option.Some(is_closed),
-          case is_closed {
-            True -> div([], [])
-            False ->
-              html.map(view_dictionary_open(key_value_pairs), Index(None, 0, _))
-          },
-        )
-        Record(_, record) -> #(option.Some(is_closed), case is_closed {
+      case debugger_init(entry) {
+        S(_) -> #(None, div([], []))
+        Primitive(_) -> #(None, div([], []))
+        Sequence(_, sub_value_list) -> #(Some(is_closed), case is_closed {
           True -> div([], [])
-          False -> html.map(view_record_open(record), Index(None, 0, _))
+          False -> view_sequence_open(["0", ..path], expando, sub_value_list)
         })
-        Constructor(_, _, sub_value_list) -> #(
-          option.Some(is_closed),
-          case is_closed {
-            True -> div([], [])
-            False ->
-              html.map(view_constructor_open(sub_value_list), Index(None, 0, _))
-          },
-        )
+        Dictionary(key_value_pairs) -> #(Some(is_closed), case is_closed {
+          True -> div([], [])
+          False -> view_dictionary_open(["0", ..path], expando, key_value_pairs)
+        })
+        Record(record) -> #(Some(is_closed), case is_closed {
+          True -> div([], [])
+          False -> view_record_open(["0", ..path], expando, record)
+        })
+        Constructor(_, sub_value_list) -> #(Some(is_closed), case is_closed {
+          True -> div([], [])
+          False -> view_constructor_open(["0", ..path], expando, sub_value_list)
+        })
       }
-    _ -> #(option.Some(is_closed), case is_closed {
+    _ -> #(Some(is_closed), case is_closed {
       True -> div([], [])
-      False -> view_constructor_open(value_list)
+      False -> view_constructor_open(["0", ..path], expando, value_list)
     })
   }
 
   div(left_pad(maybe_key), [
     div(
-      [on_click(Toggle)],
+      [on_click(Toggle(path))],
       line_starter(maybe_key, maybe_is_closed, description),
     ),
     open_html,
   ])
 }
 
-fn view_constructor_open(value_list: List(Expando)) -> Html(Msg) {
-  div([], list.index_map(value_list, fn(v, i) { view_constructor_entry(i, v) }))
+fn view_constructor_open(
+  path: Path,
+  expando: Expando,
+  value_list: List(Unexpanded),
+) -> Html(Msg) {
+  div(
+    [],
+    list.index_map(value_list, fn(value, index) {
+      view_constructor_entry(path, expando, index, value)
+    }),
+  )
 }
 
-fn view_constructor_entry(index: Int, value: Expando) -> Html(Msg) {
-  html.map(view(Some(int.to_string(index)), value), Index(None, index, _))
+fn view_constructor_entry(
+  path: Path,
+  expando: Expando,
+  index: Int,
+  value: Unexpanded,
+) -> Html(Msg) {
+  view([int.to_string(index), ..path], Expando(..expando, unexpanded: value))
 }
 
 // VIEW TINY
 
-fn view_tiny(value: Expando) -> #(Int, List(Html(msg))) {
-  case value {
+fn view_tiny(value: Unexpanded) -> #(Int, List(Html(msg))) {
+  case debugger_init(value) {
     S(string_rep) -> {
       let str = elide_middle(string_rep)
       #(string.length(str), [span([red()], [text(str)])])
@@ -510,19 +436,19 @@ fn view_tiny(value: Expando) -> #(Int, List(Html(msg))) {
     Primitive(string_rep) -> #(string.length(string_rep), [
       span([blue()], [text(string_rep)]),
     ])
-    Sequence(seq_type, _, value_list) ->
+    Sequence(seq_type, value_list) ->
       view_tiny_help(seq_type_to_string(list.length(value_list), seq_type))
-    Dictionary(_, key_value_pairs) ->
+    Dictionary(key_value_pairs) ->
       view_tiny_help(
         "Dict(" <> int.to_string(list.length(key_value_pairs)) <> ")",
       )
-    Record(_, record) -> view_tiny_record(record)
-    Constructor(maybe_name, _, []) ->
+    Record(record) -> view_tiny_record(record)
+    Constructor(maybe_name, []) ->
       view_tiny_help(option.unwrap(maybe_name, "#()"))
-    Constructor(maybe_name, _, value_list) ->
+    Constructor(maybe_name, value_list) ->
       view_tiny_help(case maybe_name {
-        option.None -> "Tuple(" <> int.to_string(list.length(value_list)) <> ")"
-        option.Some(name) -> name <> "(…)"
+        None -> "Tuple(" <> int.to_string(list.length(value_list)) <> ")"
+        Some(name) -> name <> "(…)"
       })
   }
 }
@@ -540,7 +466,7 @@ fn elide_middle(str: String) -> String {
 
 // VIEW TINY RECORDS
 
-fn view_tiny_record(record: Dict(String, Expando)) -> #(Int, List(Html(msg))) {
+fn view_tiny_record(record: Dict(String, Unexpanded)) -> #(Int, List(Html(msg))) {
   case dict.is_empty(record) {
     True -> #(2, [text("()")])
     False -> view_tiny_record_help(0, "( ", record_to_sorted_list(record))
@@ -550,7 +476,7 @@ fn view_tiny_record(record: Dict(String, Expando)) -> #(Int, List(Html(msg))) {
 fn view_tiny_record_help(
   length: Int,
   starter: String,
-  entries: List(#(String, Expando)),
+  entries: List(#(String, Unexpanded)),
 ) -> #(Int, List(Html(msg))) {
   case entries {
     [] -> #(length + 2, [text(" )")])
@@ -577,9 +503,9 @@ fn view_tiny_record_help(
   }
 }
 
-fn view_extra_tiny(value: Expando) -> #(Int, List(Html(msg))) {
-  case value {
-    Record(_, record) ->
+fn view_extra_tiny(value: Unexpanded) -> #(Int, List(Html(msg))) {
+  case debugger_init(value) {
+    Record(record) ->
       view_extra_tiny_record(
         0,
         "",
@@ -599,7 +525,7 @@ fn view_extra_tiny_record(
     [field, ..rest] -> {
       let next_length = length + string.length(field) + 1
       case next_length > 18 {
-        True -> #(length + 2, [text("…")])
+        True -> #(length + 1, [text("…")])
         False -> {
           let #(final_length, other_htmls) =
             view_extra_tiny_record(next_length, ",", rest)
@@ -616,20 +542,26 @@ fn view_extra_tiny_record(
 
 // VIEW HELPERS
 
+fn view_more_button(path: Path) -> Html(Msg) {
+  div(left_pad(list_first(path)), [
+    div([on_click(ViewMore(path)), ..left_pad(Some(Nil))], [text("View more")]),
+  ])
+}
+
 fn line_starter(
   maybe_key: Option(String),
   maybe_is_closed: Option(Bool),
   description: List(Html(msg)),
 ) -> List(Html(msg)) {
   let arrow = case maybe_is_closed {
-    option.None -> make_arrow("")
-    option.Some(True) -> make_arrow("▸")
-    option.Some(False) -> make_arrow("▾")
+    None -> make_arrow("")
+    Some(True) -> make_arrow("▸")
+    Some(False) -> make_arrow("▾")
   }
 
   case maybe_key {
-    option.None -> [arrow, ..description]
-    option.Some(key) -> [
+    None -> [arrow, ..description]
+    Some(key) -> [
       arrow,
       span([purple()], [text(key)]),
       text(": "),
@@ -652,8 +584,8 @@ fn make_arrow(arrow: String) -> Html(msg) {
 
 fn left_pad(maybe_key: Option(a)) -> List(Attribute(msg)) {
   case maybe_key {
-    option.None -> []
-    option.Some(_) -> [style("padding-left", "4ch")]
+    None -> []
+    Some(_) -> [style("padding-left", "4ch")]
   }
 }
 
@@ -667,4 +599,11 @@ fn blue() -> Attribute(msg) {
 
 fn purple() -> Attribute(msg) {
   style("color", "rgb(136, 19, 145)")
+}
+
+fn list_first(list: List(a)) -> Option(a) {
+  case list.first(list) {
+    Ok(item) -> Some(item)
+    Error(_) -> None
+  }
 }

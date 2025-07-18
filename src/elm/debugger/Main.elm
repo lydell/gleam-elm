@@ -171,6 +171,7 @@ type Msg msg
     | UserMsg msg
     | TweakExpandoMsg Expando.Msg
     | TweakExpandoModel Expando.Msg
+    | Pause
     | Resume
     | Jump Int
     | SliderJump Int
@@ -233,6 +234,22 @@ wrapUpdate update msg model =
       ( { model | expandoModel = Expando.update eMsg model.expandoModel }
       , Cmd.none
       )
+
+    Pause ->
+      case model.state of
+          Running _ ->
+              let
+                size = History.size model.history
+              in
+              if size == 0 then
+                ( model, Cmd.none )
+              else
+                ( jumpUpdate update (size - 1) model
+                , Cmd.none
+                )
+
+          Paused _ _ userModel userMsg _ ->
+              ( model, Cmd.none )
 
     Resume ->
         case model.state of
@@ -687,7 +704,7 @@ viewPlayButton playing =
     , style "cursor" "pointer"
     , style "width" "36px"
     , style "height" "36px"
-    , onClick Resume
+    , onClick (if playing then Pause else Resume)
     ]
     [ if playing
       then icon "M2 2h4v12h-4v-12z M10 2h4v12h-4v-12z"
@@ -789,9 +806,9 @@ viewExpando expandoMsg expandoModel layout =
     , style "user-select" block
     ]
     [ div [ style "color" "#ccc", style "padding" "0 0 1em 0" ] [ text "-- MESSAGE" ]
-    , Html.map TweakExpandoMsg <| Expando.view Nothing expandoMsg
+    , Html.map TweakExpandoMsg <| Expando.view [] expandoMsg
     , div [ style "color" "#ccc", style "padding" "1em 0" ] [ text "-- MODEL" ]
-    , Html.map TweakExpandoModel <| Expando.view Nothing expandoModel
+    , Html.map TweakExpandoModel <| Expando.view [] expandoModel
     ]
 
 

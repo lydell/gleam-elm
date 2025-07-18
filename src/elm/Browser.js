@@ -141,20 +141,16 @@ var _Browser_requestAnimationFrame_raw =
 		? requestAnimationFrame
 		: function(callback) { return setTimeout(callback, 1000 / 60); };
 
-// Whether `draw` is currently running. `draw` can cause side effects:
-// If the user renders a custom element, they can dispatch an event in
-// its `connectedCallback`, which happens synchronously. That causes
-// `update` to run while we’re in the middle of drawing, which then
-// causes another call to the returned function below. We can’t start
-// another draw while before the first one is finished.
-// Another thing you can do in `connectedCallback`, is to initialize
-// another Elm app. Even different app instances can conflict with each other,
-// since they all use the same `_VirtualDom_renderCount` variable.
-var _Browser_drawing = false;
-var _Browser_drawSync_queue = [];
-
 function _Browser_makeAnimator(model, draw)
 {
+	// Whether `draw` is currently running. `draw` can cause side effects:
+	// If the user renders a custom element, they can dispatch an event in
+	// its `connectedCallback`, which happens synchronously. That causes
+	// `update` to run while we’re in the middle of drawing, which then
+	// causes another call to the returned function below. We can’t start
+	// another draw while before the first one is finished.
+	var drawing = false;
+
 	// Whether we have already requested an animation frame for drawing.
 	var pendingFrame = false;
 
@@ -164,26 +160,21 @@ function _Browser_makeAnimator(model, draw)
 	function drawHelp()
 	{
 		// If we’re already drawing, wait until that draw is done.
-		if (_Browser_drawing)
+		if (drawing)
 		{
-			if (!pendingSync)
-			{
-				pendingSync = true;
-				_Browser_drawSync_queue.push(drawHelp);
-			}
+			pendingSync = true;
 			return;
 		}
 
 		pendingFrame = false;
 		pendingSync = false;
-		_Browser_drawing = true;
+		drawing = true;
 		draw(model);
-		_Browser_drawing = false;
+		drawing = false;
 
-		while (_Browser_drawSync_queue.length > 0)
+		if (pendingSync)
 		{
-			var callback = _Browser_drawSync_queue.shift();
-			callback();
+			drawHelp();
 		}
 	}
 

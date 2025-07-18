@@ -14,9 +14,9 @@ import Elm.Kernel.VirtualDom exposing (node, applyPatches, diff, doc, makeSteppe
 import Json.Decode as Json exposing (map)
 import List exposing (map, reverse)
 import Maybe exposing (Just, Nothing)
-import Set exposing (foldr)
-import Dict exposing (foldr, empty, insert)
-import Array exposing (foldr)
+import Set exposing (toList)
+import Dict exposing (toList, empty, insert)
+import Array exposing (toList)
 
 */
 
@@ -435,7 +435,7 @@ function _Debugger_init(value)
 
 	if (typeof value === 'boolean')
 	{
-		return new Constructor(new Some(value ? 'True' : 'False'), true, new Empty);
+		return new Constructor(new Some(value ? 'True' : 'False'), new Empty);
 	}
 
 	if (typeof value === 'number')
@@ -455,45 +455,34 @@ function _Debugger_init(value)
 
 	if (Array.isArray(value))
 	{
-		var list = [];
-		for (var i = 0; i < value.length; i++)
-		{
-			list[i] = _Debugger_init(value[i]);
-		}
-		return new Constructor(new None, true, List.fromArray(list));
+		return new Constructor(new None, List.fromArray(value));
 	}
 
 	if (typeof value === 'object')
 	{
 		if (value instanceof List)
 		{
-			return new Sequence(new ListSeq, true,
-				__List_map(value, _Debugger_init)
-			);
+			return new Sequence(new ListSeq, value);
 		}
 
 		if (value instanceof GleamSet)
 		{
-			return new Sequence(new SetSeq, true,
-				__List_map(Set_to_list(value), _Debugger_init)
-			);
+			return new Sequence(new SetSeq, Set_to_list(value));
 		}
 
 		if (value instanceof Dict)
 		{
-			return new Dictionary(true,
-				__List_map(Dict_to_list(value), function(tuple)
-				{
-					return [_Debugger_init(tuple[0]), _Debugger_init(tuple[1])];
-				})
-			);
+			return new Dictionary(Dict_to_list(value));
 		}
 
 		if (value instanceof ElmArray)
 		{
-			return new Sequence(new ArraySeq, true,
-				__List_map(Array_to_list(value), _Debugger_init)
-			);
+			return new Sequence(new ArraySeq, Array_to_list(value));
+		}
+
+		if (value instanceof Record)
+		{
+			return value;
 		}
 
 		if (Object.getPrototypeOf(value).constructor === Object)
@@ -507,22 +496,21 @@ function _Debugger_init(value)
 			var list = [];
 			for (var i in value)
 			{
-				list.push(_Debugger_init(value[i]));
+				list.push(value[i]);
 			}
 			children = List.fromArray(list);
 		}
 		else
 		{
 			var isEmpty = true;
-			var object = {};
 			for (var i in value)
 			{
 				isEmpty = false;
-				object[i] = _Debugger_init(value[i]);
+				break;
 			}
-			children = isEmpty ? new Empty : List.fromArray([new Record(true, Dict.fromObject(object))]);
+			children = isEmpty ? new Empty : new NonEmpty(new Record(Dict.fromObject(value)), new Empty);
 		}
-		return new Constructor(new Some(Object.getPrototypeOf(value).constructor.name), true, children);
+		return new Constructor(new Some(Object.getPrototypeOf(value).constructor.name), children);
 	}
 
 	return new Primitive('<internals>');
@@ -545,6 +533,11 @@ function _Debugger_addSlashes(str, isChar)
 	{
 		return s.replace(/\"/g, '\\"');
 	}
+}
+
+function _Debugger_toUnexpanded(value)
+{
+	return value;
 }
 
 
@@ -626,4 +619,5 @@ export {
 	_Debugger_openWindow,
 	_Debugger_scroll,
 	_Debugger_scrollTo,
+	_Debugger_toUnexpanded,
 };

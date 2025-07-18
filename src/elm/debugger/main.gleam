@@ -134,6 +134,7 @@ pub type Msg(msg) {
   UserMsg(msg)
   TweakExpandoMsg(expando.Msg)
   TweakExpandoModel(expando.Msg)
+  Pause
   Resume
   Jump(Int)
   SliderJump(Int)
@@ -200,6 +201,17 @@ pub fn wrap_update(
         ),
         cmd.none(),
       )
+      Pause ->
+        case model.state {
+          Running(_) -> {
+            let size = history.size(model.history)
+            case size == 0 {
+              True -> #(model, cmd.none())
+              False -> #(jump_update(update, size - 1, model), cmd.none())
+            }
+          }
+          Paused(_, _, _, _, _) -> #(model, cmd.none())
+        }
       Resume ->
         case model.state {
           Running(_) -> #(model, cmd.none())
@@ -556,7 +568,10 @@ fn view_play_button(playing: Bool) -> Html(Msg(msg)) {
       style("cursor", "pointer"),
       style("width", "36px"),
       style("height", "36px"),
-      on_click(Resume),
+      on_click(case playing {
+        True -> Pause
+        False -> Resume
+      }),
     ],
     [
       case playing {
@@ -663,11 +678,11 @@ fn view_expando(
       div([style("color", "#ccc"), style("padding", "0 0 1em 0")], [
         text("-- MESSAGE"),
       ]),
-      html.map(expando.view(option.None, expando_msg), TweakExpandoMsg),
+      html.map(expando.view([], expando_msg), TweakExpandoMsg),
       div([style("color", "#ccc"), style("padding", "1em 0")], [
         text("-- MODEL"),
       ]),
-      html.map(expando.view(option.None, expando_model), TweakExpandoModel),
+      html.map(expando.view([], expando_model), TweakExpandoModel),
     ],
   )
 }
