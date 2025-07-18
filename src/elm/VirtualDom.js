@@ -36,12 +36,6 @@ void { __2_TEXT: null, __text: null, __descendantsCount: null, __2_NODE: null, _
 // HELPERS
 
 
-// Increases by 1 before every render. Used to know if the DOM node index
-// on each virtual node needs to be reset.
-// Even if you render 10 000 times per second, this counter won't become
-// too big until after 25 000 years.
-var _VirtualDom_renderCount = 0;
-
 var _VirtualDom_everTranslated = false;
 
 var _VirtualDom_divertHrefToApp;
@@ -462,6 +456,24 @@ var _VirtualDom_mapEventRecord = F2(function(func, record)
 // ORGANIZE FACTS
 
 
+// This boolean is used to turn the `class` attribute into the `className` property only when needed for
+// backwards compatibility with elm-exploration/test (which only looks for `className` since `Html.Attributes.class` used to be implemented that way):
+// https://github.com/elm-explorations/test/blob/eef7f1aad0cc8c8b1434c678c757a1429fbcb9c7/src/Test/Html/Internal/ElmHtml/Query.elm#L265
+// Why not just keep `Html.Attributes.class` implemented as `className` then? Well, `Html.Attributes.class`
+// is better implemented as a `class` attribute rather than the `className` property because:
+// - In SVG, `className` is read only and throws an error if assigned. Setting the `class` attribute works.
+// - It’s easier to virtualize `class` since no special case mapping from `class` to `className` is needed.
+// - Properties are diffed against the actual DOM node. If a third-party script or browser extension add an
+//   extra class on an element, that would be removed the next time Elm renders, even if nothing changed
+//   about that element. Attributes are diffed against the previous virtual DOM, making it more likely that
+//   extra added classes survive for some time.
+// - Properties are applied every render, even for lazy nodes, to make sure that for example `value` is up-to-date
+//   (it might have been altered by the web page user by typing in some field). `Html.Attributes.class` is likely
+//   one of the most used `Html.Attributes` functions in view code, and does not need to be applied every render.
+//   So not doing that is a small performance win.
+var _VirtualDom_elmExplorationsTestBackwardsCompatibility = typeof _Test_runThunk === 'function';
+
+
 function _VirtualDom_organizeFacts(factList)
 {
 	var facts = {};
@@ -488,7 +500,9 @@ function _VirtualDom_organizeFacts(factList)
 
 		var subFacts = facts[tag] || (facts[tag] = {});
 		(tag === 'a__1_ATTR' && key === 'class')
-			? _VirtualDom_addClass(subFacts, key, value)
+			? _VirtualDom_elmExplorationsTestBackwardsCompatibility
+				? _VirtualDom_addClass(facts, 'className', value)
+				: _VirtualDom_addClass(subFacts, key, value)
 			: subFacts[key] = value;
 	}
 
@@ -1721,6 +1735,16 @@ var _VirtualDom_POSTFIX = '_elmW6BL';
 var _VirtualDom_instance = '';
 var _VirtualDom_instanceCount = 1;
 
+// Increases by 1 before every render. Used to know if the DOM node index
+// on each virtual node needs to be reset.
+// Even if you render 10 000 times per second, this counter won't become
+// too big until after 25 000 years.
+// `_VirtualDom_renderCount` is set to the count for the current app instance
+// in ` _VirtualDom_applyPatches`, and is stored at `rootDomNode.elmRenderCount`.
+// ``;
+var _VirtualDom_renderCount = 0;
+
+
 function _VirtualDom_wrap(object)
 {
 	if (Object.prototype.hasOwnProperty.call(object, _VirtualDom_instance))
@@ -1746,10 +1770,11 @@ function _VirtualDom_wrap(object)
 
 function _VirtualDom_applyPatches(rootDomNode, oldVirtualNode, newVirtualNode, eventNode)
 {
-	_VirtualDom_renderCount++;
-
-	var instance = rootDomNode.elmInstance || _VirtualDom_instanceCount++;
+	var instance = rootDomNode.elmInstance;
+	var previousInstance = _VirtualDom_instance;
+	var previousRenderCount = _VirtualDom_renderCount;
 	_VirtualDom_instance = '_' + instance;
+	_VirtualDom_renderCount = ++rootDomNode.elmRenderCount;
 
 	var diffReturn = _VirtualDom_diffHelp(oldVirtualNode, newVirtualNode, eventNode);
 	// We can’t do anything about `diffReturn.__translated` or
@@ -1762,7 +1787,14 @@ function _VirtualDom_applyPatches(rootDomNode, oldVirtualNode, newVirtualNode, e
 	var newDomNode = diffReturn.__domNode;
 
 	newDomNode.elmInstance = instance;
-	_VirtualDom_instance = '';
+	newDomNode.elmRenderCount = _VirtualDom_renderCount;
+
+	// `_VirtualDom_applyPatches` can be called during init of an Elm app
+	// inside `connectedCallback` of a custom element. So it’s important to set
+	// back `_VirtualDom_instance` and `_VirtualDom_renderCount` to the values
+	// that the parent Elm app is expecting.
+	_VirtualDom_instance = previousInstance;
+	_VirtualDom_renderCount = previousRenderCount;
 
 	return newDomNode;
 }
@@ -1892,12 +1924,23 @@ function _VirtualDom_virtualize(node)
 		node = _VirtualDom_doc.body;
 	}
 
+	if (node.elmInstance !== undefined)
+	{
+		// The `console.error` lets the user more easily identify which node they passed.
+		console.error('node.elmInstance already exists:', node.elmInstance, node);
+		throw new Error('node.elmInstance already exists: ' + node.elmInstance);
+	}
+
 	var instance = _VirtualDom_instanceCount++;
+
+	var previousInstance = _VirtualDom_instance;
 	_VirtualDom_instance = '_' + instance;
 	node.elmInstance = instance;
+	node.elmRenderCount = 0;
 
 	var vNode = _VirtualDom_virtualizeHelp(node);
-	_VirtualDom_instance = '';
+
+	_VirtualDom_instance = previousInstance;
 
 	if (vNode)
 	{
