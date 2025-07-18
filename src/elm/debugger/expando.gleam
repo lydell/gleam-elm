@@ -319,7 +319,10 @@ fn view_record_entry(
   entry: #(String, Unexpanded),
 ) -> Html(Msg) {
   let #(field, value) = entry
-  view([field, ..path], Expando(..expando, unexpanded: value))
+  view(
+    [string.replace(field, each: "$", with: ""), ..path],
+    Expando(..expando, unexpanded: value),
+  )
 }
 
 fn record_to_sorted_list(
