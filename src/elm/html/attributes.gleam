@@ -67,15 +67,15 @@ import gleam/string
 
 /// Specify a style.
 ///
-///     greeting : Node msg
-///     greeting =
-///       div
-///         [ style "background-color" "red"
-///         , style "height" "90px"
-///         , style "width" "100%"
-///         ]
-///         [ text "Hello!"
-///         ]
+///     fn greeting() -> Node(msg) {
+///       div([
+///         style("background-color", "red"),
+///         style("height", "90px"),
+///         style("width", "100%"),
+///       ], [
+///         text("Hello!"),
+///       ])
+///     }
 ///
 /// There is no `Html.Styles` module because best practices for working with HTML
 /// suggest that this should primarily be specified in CSS files. So the general
@@ -88,16 +88,17 @@ pub fn style(key: String, value: String) -> Attribute(msg) {
 /// Each class can easily be added and removed depending on the boolean value it
 /// is paired with. For example, maybe we want a way to view notices:
 ///
-///     viewNotice : Notice -> Html msg
-///     viewNotice notice =
-///       div
-///         [ classList
-///             [ ("notice", True)
-///             , ("notice-important", notice.isImportant)
-///             , ("notice-seen", notice.isSeen)
-///             ]
-///         ]
-///         [ text notice.content ]
+///     fn view_notice(notice: Notice) -> Html(msg) {
+///       div([
+///         class_list([
+///           #("notice", True),
+///           #("notice-important", notice.is_important),
+///           #("notice-seen", notice.is_seen),
+///         ]),
+///       ], [
+///         text(notice.content),
+///       ])
+///     }
 ///
 /// **Note:** You can have as many `class` and `classList` attributes as you want.
 /// They all get applied, so if you say `[ class "notice", class "notice-seen" ]`
@@ -114,11 +115,11 @@ pub fn class_list(classes: List(#(String, Bool))) -> Attribute(msg) {
 /// Create *properties*, like saying `domNode.className = 'greeting'` in
 /// JavaScript.
 ///
-///     import Json.Encode as Encode
+///     import elm/json/encode
 ///
-///     class : String -> Attribute msg
-///     class name =
-///       property "className" (Encode.string name)
+///     fn class(name: String) -> Attribute(msg) {
+///       property("className", encode.string(name))
+///     }
 ///
 /// Read more about the difference between properties and attributes [here][].
 ///
@@ -148,9 +149,9 @@ fn bool_property(key: String, bool: Bool) -> Attribute(msg) {
 /// Create *attributes*, like saying `domNode.setAttribute('class', 'greeting')`
 /// in JavaScript.
 ///
-///     class : String -> Attribute msg
-///     class name =
-///       attribute "class" name
+///     fn class(name: String) -> Attribute(msg) {
+///       attribute("class", name)
+///     }
 ///
 /// Read more about the difference between properties and attributes [here][].
 ///
@@ -202,7 +203,7 @@ pub fn accesskey(char: String) {
 ///
 /// Note: These days, the contenteditable attribute can take more values than a boolean, like "inherit" and "plaintext-only". You can set those values like this:
 ///
-///     attribute "contenteditable" "inherit"
+///     attribute("contenteditable", "inherit")
 pub fn contenteditable(bool: Bool) -> Attribute(msg) {
   // Note: `node.contentEditable = 'bad'` throws an error!
   attribute_raw("contenteditable", case bool {
@@ -411,7 +412,7 @@ pub fn action(uri: String) {
 ///
 /// Note: These days, the autocomplete attribute can take more values than a boolean. For example, you can use this to autocomplete a street address:
 ///
-///     attribute "autocomplete" "street-address"
+///     attribute("autocomplete", "street-address")
 pub fn autocomplete(bool: Bool) -> Attribute(msg) {
   attribute_raw("autocomplete", case bool {
     True -> "on"
@@ -626,9 +627,9 @@ pub fn target(value: String) {
 /// directly. The `String` argument determins the name of the downloaded file.
 /// Say the file you are serving is named `hats.json`.
 ///
-///     download ""               -- hats.json
-///     download "my-hats.json"   -- my-hats.json
-///     download "snakes.json"    -- snakes.json
+///     download("")               // hats.json
+///     download("my-hats.json")   // my-hats.json
+///     download("snakes.json")    // snakes.json
 ///
 /// The empty `String` says to just name it whatever it was called on the server.
 pub fn download(file_name: String) -> Attribute(msg) {

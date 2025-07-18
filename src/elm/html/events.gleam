@@ -137,11 +137,11 @@ pub fn on_focus(msg: msg) {
 /// Create a custom event listener. Normally this will not be necessary, but
 /// you have the power! Here is how `onClick` is defined for example:
 ///
-///     import Json.Decode as Decode
+///     import elm/json/decode
 ///
-///     onClick : msg -> Attribute msg
-///     onClick message =
-///       on "click" (Decode.succeed message)
+///     fn on_click(message: msg) -> Attribute(msg) {
+///       on("click", decode.succeed(message))
+///     }
 ///
 /// The first argument is the event name in the same format as with JavaScript's
 /// [`addEventListener`][aEL] function.
@@ -192,13 +192,13 @@ pub fn stop_propagation_on(
 ///
 /// [prevent]: https://developer.mozilla.org/en-US/docs/Web/API/Event/preventDefault
 ///
-///     onSubmit : msg -> Attribute msg
-///     onSubmit msg =
-///       preventDefaultOn "submit" (Json.map alwaysPreventDefault (Json.succeed msg))
+///     fn on_submit(msg: msg) -> Attribute(msg) {
+///       prevent_default_on("submit", decode.map(decode.succeed(msg), always_prevent_default))
+///     }
 ///
-///     alwaysPreventDefault : msg -> ( msg, Bool )
-///     alwaysPreventDefault msg =
-///       ( msg, True )
+///     fn always_prevent_default(msg: msg) -> #(msg, Bool) {
+///       #(msg, True)
+///     }
 pub fn prevent_default_on(
   event: String,
   decoder: Decoder(#(msg, Bool)),
@@ -228,16 +228,15 @@ pub fn custom(
 /// A `Json.Decoder` for grabbing `event.target.value`. We use this to define
 /// `onInput` as follows:
 ///
-///     import Json.Decode as Json
+///     import elm/json/decode
 ///
-///     onInput : (String -> msg) -> Attribute msg
-///     onInput tagger =
-///       stopPropagationOn "input" <|
-///         Json.map alwaysStop (Json.map tagger targetValue)
+///     fn on_input(tagger: fn(String) -> msg) -> Attribute(msg) {
+///       stop_propagation_on("input", decode.map(decode.map(target_value(), tagger), always_stop))
+///     }
 ///
-///     alwaysStop : a -> (a, Bool)
-///     alwaysStop x =
-///       (x, True)
+///     fn always_stop(x: a) -> #(a, Bool) {
+///       #(x, True)
+///     }
 ///
 /// You probably will never need this, but hopefully it gives some insights into
 /// how to make custom event handlers.
@@ -248,11 +247,11 @@ pub fn target_value() -> Decoder(String) {
 /// A `Json.Decoder` for grabbing `event.target.checked`. We use this to define
 /// `onCheck` as follows:
 ///
-///     import Json.Decode as Json
+///     import elm/json/decode
 ///
-///     onCheck : (Bool -> msg) -> Attribute msg
-///     onCheck tagger =
-///       on "input" (Json.map tagger targetChecked)
+///     fn on_check(tagger: fn(Bool) -> msg) -> Attribute(msg) {
+///       on("input", decode.map(target_checked(), tagger))
+///     }
 pub fn target_checked() -> Decoder(Bool) {
   decode.at(["target", "checked"], decode.bool())
 }
@@ -260,11 +259,11 @@ pub fn target_checked() -> Decoder(Bool) {
 /// A `Json.Decoder` for grabbing `event.keyCode`. This helps you define
 /// keyboard listeners like this:
 ///
-///     import Json.Decode as Json
+///     import elm/json/decode
 ///
-///     onKeyUp : (Int -> msg) -> Attribute msg
-///     onKeyUp tagger =
-///       on "keyup" (Json.map tagger keyCode)
+///     fn on_key_up(tagger: fn(Int) -> msg) -> Attribute(msg) {
+///       on("keyup", decode.map(key_code(), tagger))
+///     }
 ///
 /// **Note:** It looks like the spec is moving away from `event.keyCode` and
 /// towards `event.key`. Once this is supported in more browsers, we may add

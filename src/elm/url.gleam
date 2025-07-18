@@ -52,41 +52,47 @@ pub type Protocol {
 /// single-page apps when you want to parse certain chunks of a URL to figure out
 /// what to show on screen.
 ///
-///     fromString "https://example.com:443"
-///     -- Just
-///     --   { protocol = Https
-///     --   , host = "example.com"
-///     --   , port_ = Just 443
-///     --   , path = "/"
-///     --   , query = Nothing
-///     --   , fragment = Nothing
-///     --   }
+///     from_string("https://example.com:443")
+///     // Some(
+///     //   Url(
+///     //     protocol: Https,
+///     //     host: "example.com",
+///     //     port_: Some(443),
+///     //     path: "/",
+///     //     query: None,
+///     //     fragment: None,
+///     //   )
+///     // )
 ///
-///     fromString "https://example.com/hats?q=top%20hat"
-///     -- Just
-///     --   { protocol = Https
-///     --   , host = "example.com"
-///     --   , port_ = Nothing
-///     --   , path = "/hats"
-///     --   , query = Just "q=top%20hat"
-///     --   , fragment = Nothing
-///     --   }
+///     from_string("https://example.com/hats?q=top%20hat")
+///     // Some(
+///     //   Url(
+///     //     protocol: Https,
+///     //     host: "example.com",
+///     //     port_: None,
+///     //     path: "/hats",
+///     //     query: Some("q=top%20hat"),
+///     //     fragment: None,
+///     //   )
+///     // )
 ///
-///    fromString "http://example.com/core/List/#map"
-///    -- Just
-///    --   { protocol = Http
-///    --   , host = "example.com"
-///    --   , port_ = Nothing
-///    --   , path = "/core/List/"
-///    --   , query = Nothing
-///    --   , fragment = Just "map"
-///    --   }
+///    from_string("http://example.com/core/List/#map")
+///    // Some(
+///    //   Url(
+///    //     protocol: Http,
+///    //     host: "example.com",
+///    //     port_: None,
+///    //     path: "/core/List/",
+///    //     query: None,
+///    //     fragment: Some("map"),
+///    //   )
+///    // )
 ///
 /// The conversion to segments can fail in some cases as well:
 ///
-///     fromString "example.com:443"        == Nothing  -- no protocol
-///     fromString "http://tom@example.com" == Nothing  -- userinfo disallowed
-///     fromString "http://#cats"           == Nothing  -- no host
+///     from_string("example.com:443")        == None  // no protocol
+///     from_string("http://tom@example.com") == None  // userinfo disallowed
+///     from_string("http://#cats")           == None  // no host
 ///
 /// **Note:** This function does not use [`percentDecode`](#percentDecode) anything.
 /// It just splits things up. [`Url.Parser`](Url-Parser) actually _needs_ the raw
@@ -227,15 +233,15 @@ fn add_prefixed(
 /// This function exists in case you want to do something extra custom. Here are
 /// some examples:
 ///
-///     -- standard ASCII encoding
-///     percentEncode "hat"   == "hat"
-///     percentEncode "to be" == "to%20be"
-///     percentEncode "99%"   == "99%25"
+///     // standard ASCII encoding
+///     percent_encode("hat")   == "hat"
+///     percent_encode("to be") == "to%20be"
+///     percent_encode("99%")   == "99%25"
 ///
-///     -- non-standard, but widely accepted, UTF-8 encoding
-///     percentEncode "$" == "%24"
-///     percentEncode "¢" == "%C2%A2"
-///     percentEncode "€" == "%E2%82%AC"
+///     // non-standard, but widely accepted, UTF-8 encoding
+///     percent_encode("$") == "%24"
+///     percent_encode("¢") == "%C2%A2"
+///     percent_encode("€") == "%E2%82%AC"
 ///
 /// This is the same behavior as JavaScript's [`encodeURIComponent`][js] function,
 /// and the rules are described in more detail officially [here][s2] and with some
@@ -255,22 +261,22 @@ pub fn percent_encode(str: String) -> String
 /// Check out the `percentEncode` function to learn about percent-encoding.
 /// This function does the opposite! Here are the reverse examples:
 ///
-///     -- ASCII
-///     percentDecode "hat"       == Just "hat"
-///     percentDecode "to%20be"   == Just "to be"
-///     percentDecode "99%25"     == Just "99%"
+///     // ASCII
+///     percent_decode("hat")       == Some("hat")
+///     percent_decode("to%20be")   == Some("to be")
+///     percent_decode("99%25")     == Some("99%")
 ///
-///     -- UTF-8
-///     percentDecode "%24"       == Just "$"
-///     percentDecode "%C2%A2"    == Just "¢"
-///     percentDecode "%E2%82%AC" == Just "€"
+///     // UTF-8
+///     percent_decode("%24")       == Some("$")
+///     percent_decode("%C2%A2")    == Some("¢")
+///     percent_decode("%E2%82%AC") == Some("€")
 ///
 /// Why is it a `Maybe` though? Well, these strings come from strangers on the
 /// internet as a bunch of bits and may have encoding problems. For example:
 ///
-///     percentDecode "%"   == Nothing  -- not followed by two hex digits
-///     percentDecode "%XY" == Nothing  -- not followed by two HEX digits
-///     percentDecode "%C2" == Nothing  -- half of the "¢" encoding "%C2%A2"
+///     percent_decode("%")   == None  // not followed by two hex digits
+///     percent_decode("%XY") == None  // not followed by two HEX digits
+///     percent_decode("%C2") == None  // half of the "¢" encoding "%C2%A2"
 ///
 /// This is the same behavior as JavaScript's [`decodeURIComponent`][js] function.
 ///

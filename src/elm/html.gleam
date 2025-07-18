@@ -64,9 +64,9 @@ import elm/virtual_dom
 /// The core building block used to build up HTML. Here we create an `Html`
 /// value with no attributes and one child:
 ///
-///     hello : Html msg
-///     hello =
-///       div [] [ text "Hello!" ]
+///     fn hello() -> Html(msg) {
+///       div([], [text("Hello!")])
+///     }
 pub type Html(msg) =
   virtual_dom.Node(msg)
 
@@ -80,9 +80,9 @@ pub type Attribute(msg) =
 /// General way to create HTML nodes. It is used to define all of the helper
 /// functions in this library.
 ///
-///     div : List (Attribute msg) -> List (Html msg) -> Html msg
-///     div attributes children =
-///         node "div" attributes children
+///     fn div(attributes: List(Attribute(msg)), children: List(Html(msg))) -> Html(msg) {
+///       node("div", attributes, children)
+///     }
 ///
 /// You can use this to create custom nodes if you need to create something that
 /// is not covered by the helper functions in this library.
@@ -108,18 +108,21 @@ pub fn text(text: String) -> Html(msg) {
 /// we have `viewButton` that produces `()` messages, and we transform those values
 /// into `Msg` values in `view`.
 ///
-///     type Msg = Left | Right
+///     type Msg {
+///       Left
+///       Right
+///     }
 ///
-///     view : model -> Html Msg
-///     view model =
-///       div []
-///         [ map (\_ -> Left) (viewButton "Left")
-///         , map (\_ -> Right) (viewButton "Right")
-///         ]
+///     fn view(model: model) -> Html(Msg) {
+///       div([], [
+///         map(view_button("Left"), fn(_) { Left }),
+///         map(view_button("Right"), fn(_) { Right })
+///       ])
+///     }
 ///
-///     viewButton : String -> Html ()
-///     viewButton name =
-///       button [ onClick () ] [ text name ]
+///     fn view_button(name: String) -> Html(Nil) {
+///       button([on_click(Nil)], [text(name)])
+///     }
 ///
 /// If you are growing your project as recommended in [the official
 /// guide](https://guide.elm-lang.org/), this should not come in handy in most

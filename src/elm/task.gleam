@@ -46,12 +46,12 @@ pub type Task(x, a) =
 /// A task that succeeds immediately when run. It is usually used with
 /// [`andThen`](#andThen). You can use it like `map` if you want:
 /// 
-///     import Time -- elm install elm/time
+///     import elm/time
 /// 
-///     timeInMillis : Task x Int
-///     timeInMillis =
-///       Time.now
-///         |> andThen (\t -> succeed (Time.posixToMillis t))
+///     fn time_in_millis() -> Task(x, Int) {
+///       time.now()
+///       |> and_then(fn(t) { succeed(time.posix_to_millis(t)) })
+///     }
 /// 
 @external(javascript, "./scheduler.ffi.mjs", "_Scheduler_succeed")
 pub fn succeed(value: a) -> Task(x, a)
@@ -59,11 +59,13 @@ pub fn succeed(value: a) -> Task(x, a)
 /// A task that fails immediately when run. Like with `succeed`, this can be
 /// used with `andThen` to check on the outcome of another task.
 /// 
-///     type Error = NotFound
+///     type Error {
+///       NotFound
+///     }
 /// 
-///     notFound : Task Error a
-///     notFound =
-///       fail NotFound
+///     fn not_found() -> Task(Error, a) {
+///       fail(NotFound)
+///     }
 @external(javascript, "./scheduler.ffi.mjs", "_Scheduler_fail")
 pub fn fail(error: x) -> Task(x, a)
 
@@ -72,16 +74,16 @@ pub fn fail(error: x) -> Task(x, a)
 /// Transform a task. Maybe you want to use [`elm/time`][time] to figure
 /// out what time it will be in one hour:
 /// 
-///     import Task exposing (Task)
-///     import Time -- elm install elm/time
+///     import elm/task.{type Task}
+///     import elm/time
 /// 
-///     timeInOneHour : Task x Time.Posix
-///     timeInOneHour =
-///       Task.map addAnHour Time.now
+///     fn time_in_one_hour() -> Task(x, time.Posix) {
+///       task.map(time.now(), add_an_hour)
+///     }
 /// 
-///     addAnHour : Time.Posix -> Time.Posix
-///     addAnHour time =
-///       Time.millisToPosix (Time.posixToMillis time + 60 * 60 * 1000)
+///     fn add_an_hour(time: time.Posix) -> time.Posix {
+///       time.millis_to_posix(time.posix_to_millis(time) + 60 * 60 * 1000)
+///     }
 /// 
 /// [time]: /packages/elm/time/latest/
 pub fn map(task_a: Task(x, a), func: fn(a) -> b) -> Task(x, b) {
@@ -92,12 +94,12 @@ pub fn map(task_a: Task(x, a), func: fn(a) -> b) -> Task(x, b) {
 /// Put the results of two tasks together. For example, if we wanted to know
 /// the current month, we could use [`elm/time`][time] to ask:
 /// 
-///     import Task exposing (Task)
-///     import Time -- elm install elm/time
+///     import elm/task.{type Task}
+///     import elm/time
 /// 
-///     getMonth : Task x Int
-///     getMonth =
-///       Task.map2 Time.toMonth Time.here Time.now
+///     fn get_month() -> Task(x, Int) {
+///       task.map2(time.to_month, time.here(), time.now())
+///     }
 /// 
 /// **Note:** Say we were doing HTTP requests instead. `map2` does each task in
 /// order, so it would try the first request and only continue after it succeeds.
@@ -183,7 +185,7 @@ pub fn map5(
 /// list. The tasks will be run in order one-by-one and if any task fails the whole
 /// sequence fails.
 /// 
-///     sequence [ succeed 1, succeed 2 ] == succeed [ 1, 2 ]
+///     sequence([succeed(1), succeed(2)]) == succeed([1, 2])
 pub fn sequence(tasks: List(Task(x, a))) -> Task(x, List(a)) {
   list.fold(tasks, succeed([]), fn(acc, task) {
     map2(fn(value, values) { [value, ..values] }, task, acc)
@@ -197,13 +199,13 @@ pub fn sequence(tasks: List(Task(x, a))) -> Task(x, List(a)) {
 /// task then gets run. We could use this to make a task that resolves an hour from
 /// now:
 /// 
-///     import Time -- elm install elm/time
-///     import Process
+///     import elm/time
+///     import elm/process
 /// 
-///     timeInOneHour : Task x Time.Posix
-///     timeInOneHour =
-///       Process.sleep (60 * 60 * 1000)
-///         |> andThen (\_ -> Time.now)
+///     fn time_in_one_hour() -> Task(x, time.Posix) {
+///       process.sleep(60 * 60 * 1000)
+///       |> and_then(fn(_) { time.now() })
+///     }
 /// 
 /// First the process sleeps for an hour **and then** it tells us what time it is.
 pub fn and_then(task: Task(x, a), f: fn(a) -> Task(x, b)) -> Task(x, b) {
@@ -218,13 +220,13 @@ fn and_then_raw(f: fn(a) -> Task(x, b), task: Task(x, a)) -> Task(x, b)
 /// Recover from a failure in a task. If the given task fails, we use the
 /// callback to recover.
 /// 
-///     fail "file not found"
-///       |> onError (\msg -> succeed 42)
-///       -- succeed 42
+///     fail("file not found")
+///     |> on_error(fn(msg) { succeed(42) })
+///     // succeed(42)
 /// 
-///     succeed 9
-///       |> onError (\msg -> succeed 42)
-///       -- succeed 9
+///     succeed(9)
+///     |> on_error(fn(msg) { succeed(42) })
+///     // succeed(9)
 pub fn on_error(task: Task(x, a), f: fn(x) -> Task(y, a)) -> Task(y, a) {
   on_error_raw(f, task)
 }
@@ -235,16 +237,17 @@ fn on_error_raw(f: fn(x) -> Task(y, a), task: Task(x, a)) -> Task(y, a)
 /// Transform the error value. This can be useful if you need a bunch of error
 /// types to match up.
 /// 
-///     type Error
-///       = Http Http.Error
-///       | WebGL WebGL.Error
+///     type Error {
+///       Http(http.Error)
+///       WebGL(webgl.Error)
+///     }
 /// 
-///     getResources : Task Error Resource
-///     getResources =
-///       sequence
-///         [ mapError Http serverTask
-///         , mapError WebGL textureTask
-///         ]
+///     fn get_resources() -> Task(Error, Resource) {
+///       sequence([
+///         map_error(server_task, Http),
+///         map_error(texture_task, WebGL),
+///       ])
+///     }
 pub fn map_error(task: Task(x, a), convert: fn(x) -> y) -> Task(y, a) {
   task |> on_error(fn(error) { fail(convert(error)) })
 }
@@ -264,17 +267,18 @@ fn command(value: a) -> Cmd(msg) {
 /// Like I was saying in the [`Task`](#Task) documentation, just having a
 /// `Task` does not mean it is done. We must command Elm to `perform` the task:
 /// 
-///     import Time  -- elm install elm/time
-///     import Task
+///     import elm/time
+///     import elm/task
 /// 
-///     type Msg
-///       = Click
-///       | Search String
-///       | NewTime Time.Posix
+///     type Msg {
+///       Click
+///       Search(String)
+///       NewTime(time.Posix)
+///     }
 /// 
-///     getNewTime : Cmd Msg
-///     getNewTime =
-///       Task.perform NewTime Time.now
+///     fn get_new_time() -> Cmd(Msg) {
+///       task.perform(NewTime, time.now())
+///     }
 /// 
 /// If you have worked through [`guide.elm-lang.org`][guide] (highly recommended!)
 /// you will recognize `Cmd` from the section on The Elm Architecture. So we have
@@ -289,17 +293,18 @@ pub fn perform(to_message: fn(a) -> msg, task: Task(Never, a)) -> Cmd(msg) {
 /// This is very similar to [`perform`](#perform) except it can handle failures!
 /// So we could _attempt_ to focus on a certain DOM node like this:
 /// 
-///     import Browser.Dom  -- elm install elm/browser
-///     import Task
+///     import elm/browser/dom
+///     import elm/task
 /// 
-///     type Msg
-///       = Click
-///       | Search String
-///       | Focus (Result Browser.DomError ())
+///     type Msg {
+///       Click
+///       Search(String)
+///       Focus(Result(dom.Error, Nil))
+///     }
 /// 
-///     focus : Cmd Msg
-///     focus =
-///       Task.attempt Focus (Browser.Dom.focus "my-app-search-box")
+///     fn focus() -> Cmd(Msg) {
+///       task.attempt(Focus, dom.focus("my-app-search-box"))
+///     }
 /// 
 /// So the task is "focus on this DOM node" and we are turning it into the command
 /// "Hey Elm, attempt to focus on this DOM node and give me a `Msg` about whether

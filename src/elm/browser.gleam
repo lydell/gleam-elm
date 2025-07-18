@@ -216,27 +216,25 @@ pub fn application(
 ///
 /// Having a `UrlRequest` requires a case in your `update` like this:
 ///
-///     import Browser exposing (..)
-///     import Browser.Navigation as Nav
-///     import Url
+///     import elm/browser
+///     import elm/browser/navigation as nav
+///     import elm/url
 ///
-///     type Msg
-///         = ClickedLink UrlRequest
+///     type Msg {
+///       ClickedLink(browser.UrlRequest)
+///     }
 ///
-///     update : Msg -> Model -> ( Model, Cmd msg )
-///     update msg model =
-///         case msg of
-///             ClickedLink urlRequest ->
-///                 case urlRequest of
-///                     Internal url ->
-///                         ( model
-///                         , Nav.pushUrl model.key (Url.toString url)
-///                         )
-///
-///                     External url ->
-///                         ( model
-///                         , Nav.load url
-///                         )
+///     fn update(msg: Msg, model: Model) -> #(Model, platform.Cmd(msg)) {
+///       case msg {
+///         ClickedLink(url_request) ->
+///           case url_request {
+///             browser.Internal(url) ->
+///               #(model, nav.push_url(model.key, url.to_string(url)))
+///             browser.External(url) ->
+///               #(model, nav.load(url))
+///           }
+///       }
+///     }
 ///
 /// This is useful because it gives you a chance to customize the behavior in each
 /// case. Maybe on some `Internal` links you save the scroll position with

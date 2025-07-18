@@ -21,41 +21,41 @@ pub type Decoder(a)
 
 /// Decode a JSON string into an Elm `String`.
 ///
-///     decodeString string "true"              == Err ...
-///     decodeString string "42"                == Err ...
-///     decodeString string "3.14"              == Err ...
-///     decodeString string "\"hello\""         == Ok "hello"
-///     decodeString string "{ \"hello\": 42 }" == Err ...
+///     decode_string(string(), "true")              == Error(...)
+///     decode_string(string(), "42")                == Error(...)
+///     decode_string(string(), "3.14")              == Error(...)
+///     decode_string(string(), "\"hello\"")         == Ok("hello")
+///     decode_string(string(), "{ \"hello\": 42 }") == Error(...)
 @external(javascript, "../json.ffi.mjs", "_Json_decodeString")
 pub fn string() -> Decoder(String)
 
 /// Decode a JSON boolean into an Elm `Bool`.
 ///
-///     decodeString bool "true"              == Ok True
-///     decodeString bool "42"                == Err ...
-///     decodeString bool "3.14"              == Err ...
-///     decodeString bool "\"hello\""         == Err ...
-///     decodeString bool "{ \"hello\": 42 }" == Err ...
+///     decode_string(bool(), "true")              == Ok(True)
+///     decode_string(bool(), "42")                == Error(...)
+///     decode_string(bool(), "3.14")              == Error(...)
+///     decode_string(bool(), "\"hello\"")         == Error(...)
+///     decode_string(bool(), "{ \"hello\": 42 }") == Error(...)
 @external(javascript, "../json.ffi.mjs", "_Json_decodeBool")
 pub fn bool() -> Decoder(Bool)
 
 /// Decode a JSON number into an Elm `Int`.
 ///
-///     decodeString int "true"              == Err ...
-///     decodeString int "42"                == Ok 42
-///     decodeString int "3.14"              == Err ...
-///     decodeString int "\"hello\""         == Err ...
-///     decodeString int "{ \"hello\": 42 }" == Err ...
+///     decode_string(int(), "true")              == Error(...)
+///     decode_string(int(), "42")                == Ok(42)
+///     decode_string(int(), "3.14")              == Error(...)
+///     decode_string(int(), "\"hello\"")         == Error(...)
+///     decode_string(int(), "{ \"hello\": 42 }") == Error(...)
 @external(javascript, "../json.ffi.mjs", "_Json_decodeInt")
 pub fn int() -> Decoder(Int)
 
 /// Decode a JSON number into an Elm `Float`.
 ///
-///     decodeString float "true"              == Err ..
-///     decodeString float "42"                == Ok 42
-///     decodeString float "3.14"              == Ok 3.14
-///     decodeString float "\"hello\""         == Err ...
-///     decodeString float "{ \"hello\": 42 }" == Err ...
+///     decode_string(float(), "true")              == Error(...)
+///     decode_string(float(), "42")                == Ok(42.0)
+///     decode_string(float(), "3.14")              == Ok(3.14)
+///     decode_string(float(), "\"hello\"")         == Error(...)
+///     decode_string(float(), "{ \"hello\": 42 }") == Error(...)
 @external(javascript, "../json.ffi.mjs", "_Json_decodeFloat")
 pub fn float() -> Decoder(Float)
 
@@ -63,69 +63,67 @@ pub fn float() -> Decoder(Float)
 
 /// Decode a nullable JSON value into an Elm value.
 ///
-///     decodeString (nullable int) "13"    == Ok (Some(13))
-///     decodeString (nullable int) "42"    == Ok (Some(42))
-///     decodeString (nullable int) "null"  == Ok None
-///     decodeString (nullable int) "true"  == Err ..
+///     decode_string(nullable(int()), "13")    == Ok(Some(13))
+///     decode_string(nullable(int()), "42")    == Ok(Some(42))
+///     decode_string(nullable(int()), "null")  == Ok(None)
+///     decode_string(nullable(int()), "true")  == Error(...)
 pub fn nullable(decoder: Decoder(a)) -> Decoder(Option(a)) {
   one_of([null(option.None), map(decoder, option.Some)])
 }
 
 /// Decode a JSON array into an Elm `List`.
 ///
-///     decodeString (list int) "[1,2,3]" == Ok [1, 2, 3]
-///     decodeString (list bool) "[true,false]" == Ok [True, False]
+///     decode_string(list(int()), "[1,2,3]") == Ok([1, 2, 3])
+///     decode_string(list(bool()), "[true,false]") == Ok([True, False])
 @external(javascript, "../json.ffi.mjs", "_Json_decodeList")
 pub fn list(decoder: Decoder(a)) -> Decoder(List(a))
 
 /// Decode a JSON array into an Elm `Array`.
 ///
-///     decodeString (array int) "[1,2,3]" == Ok (Array.fromList [1, 2, 3])
-///     decodeString (array bool) "[true,false]" == Ok (Array.fromList [True, False])
+///     decode_string(array(int()), "[1,2,3]") == Ok(array.from_list([1, 2, 3]))
+///     decode_string(array(bool()), "[true,false]") == Ok(array.from_list([True, False]))
 @external(javascript, "../json.ffi.mjs", "_Json_decodeArray")
 pub fn array(decoder: Decoder(a)) -> Decoder(array.Array(a))
 
 /// Decode a JSON object into an Elm `Dict`.
 ///
-///     decodeString (dict int) "{ \"alice\": 42, \"bob\": 99 }"
-///         == Ok (Dict.fromList [#("alice", 42), #("bob", 99)])
+///     decode_string(dict(int()), "{ \"alice\": 42, \"bob\": 99 }")
+///         == Ok(dict.from_list([#("alice", 42), #("bob", 99)]))
 ///
 /// If you need the keys (like `"alice"` and `"bob"`) available in the `Dict`
 /// values as well, I recommend using a (private) intermediate data structure like
 /// `Info` in this example:
 ///
-///     module User exposing (User, decoder)
+///     import gleam/dict
+///     import elm/json/decode
 ///
-///     import Dict
-///     import Json.Decode exposing (..)
+///     type User {
+///       User(name: String, height: Float, age: Int)
+///     }
 ///
-///     type alias User =
-///         { name : String
-///         , height : Float
-///         , age : Int
-///         }
+///     fn decoder() -> decode.Decoder(dict.Dict(String, User)) {
+///       decode.map(decode.dict(info_decoder()), dict.map_values(_, info_to_user))
+///     }
 ///
-///     decoder : Decoder (Dict.Dict String User)
-///     decoder =
-///         map (Dict.map infoToUser) (dict infoDecoder)
+///     type Info {
+///       Info(height: Float, age: Int)
+///     }
 ///
-///     type alias Info =
-///         { height : Float
-///         , age : Int
-///         }
+///     fn info_decoder() -> decode.Decoder(Info) {
+///       decode.map2(
+///         Info,
+///         decode.field("height", decode.float()),
+///         decode.field("age", decode.int())
+///       )
+///     }
 ///
-///     infoDecoder : Decoder Info
-///     infoDecoder =
-///         map2 Info
-///             (field "height" float)
-///             (field "age" int)
-///
-///     infoToUser : String -> Info -> User
-///     infoToUser name { height, age } =
-///         User name height age
+///     fn info_to_user(name: String, info: Info) -> User {
+///       let Info(height, age) = info
+///       User(name, height, age)
+///     }
 ///
 /// So now JSON like `{ "alice": { height: 1.6, age: 33 }}` are turned into
-/// dictionary values like `Dict.singleton "alice" (User "alice" 1.6 33)` if
+/// dictionary values like `dict.from_list([#("alice", User("alice", 1.6, 33))])` if
 /// you need that.
 pub fn dict(decoder: Decoder(a)) -> Decoder(Dict(String, a)) {
   map(key_value_pairs(decoder), dict.from_list)
@@ -133,8 +131,8 @@ pub fn dict(decoder: Decoder(a)) -> Decoder(Dict(String, a)) {
 
 /// Decode a JSON object into an Elm `List` of pairs.
 ///
-///     decodeString (keyValuePairs int) "{ \"alice\": 42, \"bob\": 99 }"
-///         == Ok [#("alice", 42), #("bob", 99)]
+///     decode_string(key_value_pairs(int()), "{ \"alice\": 42, \"bob\": 99 }")
+///         == Ok([#("alice", 42), #("bob", 99)])
 @external(javascript, "../json.ffi.mjs", "_Json_decodeKeyValuePairs")
 pub fn key_value_pairs(decoder: Decoder(a)) -> Decoder(List(#(String, a)))
 
@@ -142,15 +140,16 @@ pub fn key_value_pairs(decoder: Decoder(a)) -> Decoder(List(#(String, a)))
 /// want to enable drag-and-drop of files into your application. You would pair
 /// this function with [`elm/file`]() to write a `dropDecoder` like this:
 ///
-///     import File exposing (File)
-///     import Json.Decoder as D
+///     import file
+///     import elm/json/decode as d
 ///
-///     type Msg
-///         = GotFiles File (List Files)
+///     type Msg {
+///       GotFiles(file.File, List(file.File))
+///     }
 ///
-///     inputDecoder : D.Decoder Msg
-///     inputDecoder =
-///         D.at ["dataTransfer", "files"] (D.oneOrMore GotFiles File.decoder)
+///     fn input_decoder() -> d.Decoder(Msg) {
+///       d.at(["dataTransfer", "files"], d.one_or_more(GotFiles, file.decoder()))
+///     }
 ///
 /// This captures the fact that you can never drag-and-drop zero files.
 pub fn one_or_more(
@@ -175,11 +174,11 @@ fn one_or_more_help(
 
 /// Decode a JSON object, requiring a particular field.
 ///
-///     decodeString (field "x" int) "{ \"x\": 3 }" == Ok 3
-///     decodeString (field "x" int) "{ \"x\": 3, \"y\": 4 }" == Ok 3
-///     decodeString (field "x" int) "{ \"x\": true }" == Err ...
-///     decodeString (field "x" int) "{ \"y\": 4 }" == Err ...
-///     decodeString (field "name" string) "{ \"name\": \"tom\" }" == Ok "tom"
+///     decode_string(field("x", int()), "{ \"x\": 3 }") == Ok(3)
+///     decode_string(field("x", int()), "{ \"x\": 3, \"y\": 4 }") == Ok(3)
+///     decode_string(field("x", int()), "{ \"x\": true }") == Error(...)
+///     decode_string(field("x", int()), "{ \"y\": 4 }") == Error(...)
+///     decode_string(field("name", string()), "{ \"name\": \"tom\" }") == Ok("tom")
 ///
 /// The object _can_ have other fields. Lots of them! The only thing this decoder
 /// cares about is if `x` is present and that the value there is an `Int`.
@@ -190,14 +189,14 @@ pub fn field(name: String, decoder: Decoder(a)) -> Decoder(a)
 
 /// Decode a nested JSON object, requiring certain fields.
 ///
-///     json = """{ "person": { "name": "tom", "age": 42 } }"""
+///     let json = """{ "person": { "name": "tom", "age": 42 } }"""
 ///
-///     decodeString (at ["person", "name"] string) json  == Ok "tom"
-///     decodeString (at ["person", "age" ] int   ) json  == Ok 42
+///     decode_string(at(["person", "name"], string()), json)  == Ok("tom")
+///     decode_string(at(["person", "age"], int()), json)  == Ok(42)
 ///
 /// This is really just a shorthand for saying things like:
 ///
-///     field "person" (field "name" string) == at ["person", "name"] string
+///     field("person", field("name", string())) == at(["person", "name"], string())
 pub fn at(fields: List(String), decoder: Decoder(a)) -> Decoder(a) {
   list.fold_right(fields, decoder, fn(acc, field_name) {
     field(field_name, acc)
@@ -206,12 +205,12 @@ pub fn at(fields: List(String), decoder: Decoder(a)) -> Decoder(a) {
 
 /// Decode a JSON array, requiring a particular index.
 ///
-///     json = """[ "alice", "bob", "chuck" ]"""
+///     let json = """[ "alice", "bob", "chuck" ]"""
 ///
-///     decodeString (index 0 string) json  == Ok "alice"
-///     decodeString (index 1 string) json  == Ok "bob"
-///     decodeString (index 2 string) json  == Ok "chuck"
-///     decodeString (index 3 string) json  == Err ...
+///     decode_string(index(0, string()), json)  == Ok("alice")
+///     decode_string(index(1, string()), json)  == Ok("bob")
+///     decode_string(index(2, string()), json)  == Ok("chuck")
+///     decode_string(index(3, string()), json)  == Error(...)
 @external(javascript, "../json.ffi.mjs", "_Json_decodeIndex")
 pub fn index(index: Int, decoder: Decoder(a)) -> Decoder(a)
 
@@ -220,15 +219,15 @@ pub fn index(index: Int, decoder: Decoder(a)) -> Decoder(a)
 /// Helpful for dealing with optional fields. Here are a few slightly different
 /// examples:
 ///
-///     json = """{ "name": "tom", "age": 42 }"""
+///     let json = """{ "name": "tom", "age": 42 }"""
 ///
-///     decodeString (maybe (field "age"    int  )) json == Ok (Some(42))
-///     decodeString (maybe (field "name"   int  )) json == Ok None
-///     decodeString (maybe (field "height" float)) json == Ok None
+///     decode_string(maybe(field("age", int())), json) == Ok(Some(42))
+///     decode_string(maybe(field("name", int())), json) == Ok(None)
+///     decode_string(maybe(field("height", float())), json) == Ok(None)
 ///
-///     decodeString (field "age"    (maybe int  )) json == Ok (Some(42))
-///     decodeString (field "name"   (maybe int  )) json == Ok None
-///     decodeString (field "height" (maybe float)) json == Err ...
+///     decode_string(field("age", maybe(int())), json) == Ok(Some(42))
+///     decode_string(field("name", maybe(int())), json) == Ok(None)
+///     decode_string(field("height", maybe(float())), json) == Error(...)
 ///
 /// Notice the last example! It is saying we _must_ have a field named `height` and
 /// the content _may_ be a float. There is no `height` field, so the decoder fails.
@@ -243,13 +242,13 @@ pub fn maybe(decoder: Decoder(a)) -> Decoder(Option(a)) {
 /// in a couple different formats. For example, say you want to read an array of
 /// numbers, but some of them are `null`.
 ///
-///     import String
+///     import gleam/string
 ///
-///     badInt : Decoder Int
-///     badInt =
-///         oneOf [ int, null 0 ]
+///     fn bad_int() -> Decoder(Int) {
+///       one_of([int(), null(0)])
+///     }
 ///
-///     -- decodeString (list badInt) "[1,2,null,4]" == Ok [1,2,0,4]
+///     // decode_string(list(bad_int()), "[1,2,null,4]") == Ok([1,2,0,4])
 ///
 /// Why would someone generate JSON like this? Questions like this are not good
 /// for your health. The point is that you can use `oneOf` to handle situations
@@ -265,36 +264,39 @@ pub fn one_of(decoders: List(Decoder(a))) -> Decoder(a)
 
 /// Transform a decoder. Maybe you just want to know the length of a string:
 ///
-///     import String
+///     import gleam/string
 ///
-///     stringLength : Decoder Int
-///     stringLength =
-///         map String.length string
+///     fn string_length() -> Decoder(Int) {
+///       map(string(), string.length)
+///     }
 ///
 /// It is often helpful to use `map` with `oneOf`, like when defining `nullable`:
 ///
-///     nullable : Decoder a -> Decoder (Maybe a)
-///     nullable decoder =
-///         oneOf
-///             [ null Nothing
-///             , map Just decoder
-///             ]
+///     fn nullable(decoder: Decoder(a)) -> Decoder(Option(a)) {
+///       one_of([
+///         null(None),
+///         map(decoder, Some)
+///       ])
+///     }
 @external(javascript, "../json.ffi.mjs", "_Json_map")
 pub fn map(decoder: Decoder(a), tagger: fn(a) -> value) -> Decoder(value)
 
 /// Try two decoders and then combine the result. We can use this to decode
 /// objects with many fields:
 ///
-///     type alias Point =
-///         { x : Float, y : Float }
+///     type Point {
+///       Point(x: Float, y: Float)
+///     }
 ///
-///     point : Decoder Point
-///     point =
-///         map2 Point
-///             (field "x" float)
-///             (field "y" float)
+///     fn point() -> Decoder(Point) {
+///       map2(
+///         Point,
+///         field("x", float()),
+///         field("y", float())
+///       )
+///     }
 ///
-///     -- decodeString point """{ "x": 3, "y": 4 }""" == Ok { x = 3, y = 4 }
+///     // decode_string(point(), """{ "x": 3, "y": 4 }""") == Ok(Point(3.0, 4.0))
 ///
 /// It tries each individual decoder and puts the result together with the `Point`
 /// constructor.
@@ -308,18 +310,21 @@ pub fn map2(
 /// Try three decoders and then combine the result. We can use this to decode
 /// objects with many fields:
 ///
-///     type alias Person =
-///         { name : String, age : Int, height : Float }
+///     type Person {
+///       Person(name: String, age: Int, height: Float)
+///     }
 ///
-///     person : Decoder Person
-///     person =
-///         map3 Person
-///             (at [ "name" ] string)
-///             (at [ "info", "age" ] int)
-///             (at [ "info", "height" ] float)
+///     fn person() -> Decoder(Person) {
+///       map3(
+///         Person,
+///         at(["name"], string()),
+///         at(["info", "age"], int()),
+///         at(["info", "height"], float())
+///       )
+///     }
 ///
-///     -- json = """{ "name": "tom", "info": { "age": 42, "height": 1.8 } }"""
-///     -- decodeString person json == Ok { name = "tom", age = 42, height = 1.8 }
+///     // let json = """{ "name": "tom", "info": { "age": 42, "height": 1.8 } }"""
+///     // decode_string(person(), json) == Ok(Person("tom", 42, 1.8))
 ///
 /// Like `map2` it tries each decoder in order and then give the results to the
 /// `Person` constructor. That can be any function though!
@@ -397,8 +402,8 @@ pub fn map8(
 /// This will fail if the string is not well-formed JSON or if the `Decoder`
 /// fails for some reason.
 ///
-///     decodeString int "4"     == Ok 4
-///     decodeString int "1 + 2" == Err ...
+///     decode_string(int(), "4")     == Ok(4)
+///     decode_string(int(), "1 + 2") == Error(...)
 @external(javascript, "../json.ffi.mjs", "_Json_runOnString")
 pub fn decode_string(
   decoder: Decoder(a),
@@ -430,12 +435,12 @@ pub type Error {
 /// It produces multiple lines of output, so you may want to peek at it with
 /// something like this:
 ///
-///     import Html
-///     import Json.Decode as Decode
+///     import elm/html
+///     import elm/json/decode
 ///
-///     errorToHtml : Decode.Error -> Html.Html msg
-///     errorToHtml error =
-///         Html.pre [] [ Html.text (Decode.errorToString error) ]
+///     fn error_to_html(error: decode.Error) -> html.Html(msg) {
+///       html.pre([], [html.text(decode.error_to_string(error))])
+///     }
 ///
 /// **Note:** It would be cool to do nicer coloring and fancier HTML, but I wanted
 /// to avoid having an `elm/html` dependency for now. It is totally possible to
@@ -514,9 +519,9 @@ fn is_simple(name: String) -> Bool
 
 /// Ignore the JSON and produce a certain Elm value.
 ///
-///     decodeString (succeed 42) "true"    == Ok 42
-///     decodeString (succeed 42) "[1,2,3]" == Ok 42
-///     decodeString (succeed 42) "hello"   == Err ... -- this is not a valid JSON string
+///     decode_string(succeed(42), "true")    == Ok(42)
+///     decode_string(succeed(42), "[1,2,3]") == Ok(42)
+///     decode_string(succeed(42), "hello")   == Error(...) // this is not a valid JSON string
 ///
 /// This is handy when used with `oneOf` or `andThen`.
 @external(javascript, "../json.ffi.mjs", "_Json_succeed")
@@ -533,53 +538,52 @@ pub fn fail(message: String) -> Decoder(a)
 /// Create decoders that depend on previous results. If you are creating
 /// versioned data, you might do something like this:
 ///
-///     info : Decoder Info
-///     info =
-///         field "version" int
-///             |> andThen infoHelp
+///     fn info() -> Decoder(Info) {
+///       field("version", int())
+///       |> and_then(info_help)
+///     }
 ///
-///     infoHelp : Int -> Decoder Info
-///     infoHelp version =
-///         case version of
-///             4 ->
-///                 infoDecoder4
+///     fn info_help(version: Int) -> Decoder(Info) {
+///       case version {
+///         4 -> info_decoder4()
+///         3 -> info_decoder3()
+///         _ -> fail(
+///           "Trying to decode info, but version "
+///           <> string.inspect(version)
+///           <> " is not supported."
+///         )
+///       }
+///     }
 ///
-///             3 ->
-///                 infoDecoder3
-///
-///             _ ->
-///                 fail <|
-///                     "Trying to decode info, but version "
-///                         ++ toString version
-///                         ++ " is not supported."
-///
-///     -- infoDecoder4 : Decoder Info
-///     -- infoDecoder3 : Decoder Info
+///     // fn info_decoder4() -> Decoder(Info)
+///     // fn info_decoder3() -> Decoder(Info)
 @external(javascript, "../json.ffi.mjs", "_Json_andThen")
 pub fn and_then(decoder: Decoder(a), f: fn(a) -> Decoder(b)) -> Decoder(b)
 
 /// Sometimes you have JSON with recursive structure, like nested comments.
 /// You can use `lazy` to make sure your decoder unrolls lazily.
 ///
-///     type alias Comment =
-///         { message : String
-///         , responses : Responses
-///         }
+///     type Comment {
+///       Comment(message: String, responses: Responses)
+///     }
 ///
-///     type Responses
-///         = Responses (List Comment)
+///     type Responses {
+///       Responses(List(Comment))
+///     }
 ///
-///     comment : Decoder Comment
-///     comment =
-///         map2 Comment
-///             (field "message" string)
-///             (field "responses" (map Responses (list (lazy (\_ -> comment)))))
+///     fn comment() -> Decoder(Comment) {
+///       map2(
+///         Comment,
+///         field("message", string()),
+///         field("responses", map(list(lazy(fn() { comment() })), Responses))
+///       )
+///     }
 ///
 /// If we had said `list comment` instead, we would start expanding the value
 /// infinitely. What is a `comment`? It is a decoder for objects where the
 /// `responses` field contains comments. What is a `comment` though? Etc.
 ///
-/// By using `list (lazy (\_ -> comment))` we make sure the decoder only expands
+/// By using `list(lazy(fn() { comment() }))` we make sure the decoder only expands
 /// to be as deep as the JSON we are given. You can read more about recursive data
 /// structures [here].
 ///
@@ -597,10 +601,10 @@ pub fn value() -> Decoder(Value)
 
 /// Decode a `null` value into some Elm value.
 ///
-///     decodeString (null False) "null" == Ok False
-///     decodeString (null 42) "null"    == Ok 42
-///     decodeString (null 42) "42"      == Err ..
-///     decodeString (null 42) "false"   == Err ..
+///     decode_string(null(False), "null") == Ok(False)
+///     decode_string(null(42), "null")    == Ok(42)
+///     decode_string(null(42), "42")      == Error(...)
+///     decode_string(null(42), "false")   == Error(...)
 ///
 /// So if you ever see a `null`, this will return whatever value you specified.
 @external(javascript, "../json.ffi.mjs", "_Json_decodeNull")

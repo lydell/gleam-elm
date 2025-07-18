@@ -30,17 +30,19 @@ pub type Node(msg)
 /// include styles and event listeners, a list of CSS properties like `color`, and
 /// a list of child nodes.
 ///
-///     import Json.Encode as Json
+///     import elm/json/encode as json
 ///
-///     hello : Node msg
-///     hello =
-///       node "div" [] [ text "Hello!" ]
+///     fn hello() -> Node(msg) {
+///       node("div", [], [text("Hello!")])
+///     }
 ///
-///     greeting : Node msg
-///     greeting =
-///       node "div"
-///         [ property "id" (Json.string "greeting") ]
-///         [ text "Hello!" ]
+///     fn greeting() -> Node(msg) {
+///       node("div", [
+///         property("id", json.string("greeting")),
+///       ], [
+///         text("Hello!"),
+///       ])
+///     }
 pub fn node(
   tag: String,
   attributes: List(Attribute(msg)),
@@ -59,9 +61,9 @@ fn node_raw(
 /// Create a namespaced DOM node. For example, an SVG `<path>` node could be
 /// defined like this:
 ///
-///     path : List (Attribute msg) -> List (Node msg) -> Node msg
-///     path attrubutes children =
-///       nodeNS "http://www.w3.org/2000/svg" "path" attributes children
+///     fn path(attributes: List(Attribute(msg)), children: List(Node(msg))) -> Node(msg) {
+///       node_ns("http://www.w3.org/2000/svg", "path", attributes, children)
+///     }
 pub fn node_ns(
   namespace: String,
   tag: String,
@@ -82,7 +84,7 @@ fn node_ns_raw(
 /// Just put plain text in the DOM. It will escape the string so that it appears
 /// exactly as you specify.
 ///
-///     text "Hello World!"
+///     text("Hello World!")
 @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_text")
 pub fn text(text: String) -> Node(msg)
 
@@ -94,15 +96,22 @@ pub fn text(text: String) -> Node(msg)
 /// clicked. To get your model updating properly, you will probably want to tag
 /// this `()` value like this:
 ///
-///     type Msg = Click | ...
+///     type Msg {
+///       Click
+///       // ...
+///     }
 ///
-///     update msg model =
-///       case msg of
-///         Click ->
-///           ...
+///     fn update(msg: Msg, model: Model) -> Model {
+///       case msg {
+///         Click -> {
+///           // ...
+///         }
+///       }
+///     }
 ///
-///     view model =
-///       map (\_ -> Click) button
+///     fn view(model: Model) -> Node(Msg) {
+///       map(button, fn(_) { Click })
+///     }
 ///
 /// So now all the events produced by `button` will be transformed to be of type
 /// `Msg` so they can be handled by your update function!
@@ -130,25 +139,25 @@ pub type Attribute(msg)
 
 /// Specify a style.
 ///
-///     greeting : Node msg
-///     greeting =
-///       node "div"
-///         [ style "backgroundColor" "red"
-///         , style "height" "90px"
-///         , style "width" "100%"
-///         ]
-///         [ text "Hello!"
-///         ]
+///     fn greeting() -> Node(msg) {
+///       node("div", [
+///         style("backgroundColor", "red"),
+///         style("height", "90px"),
+///         style("width", "100%"),
+///       ], [
+///         text("Hello!"),
+///       ])
+///     }
 @external(javascript, "./virtual_dom.ffi.mjs", "_VirtualDom_style")
 pub fn style(key: String, value: String) -> Attribute(msg)
 
 /// Create a property.
 ///
-///     import Json.Encode as Encode
+///     import elm/json/encode
 ///
-///     buttonLabel : Node msg
-///     buttonLabel =
-///       node "label" [ property "htmlFor" (Encode.string "button") ] [ text "Label" ]
+///     fn button_label() -> Node(msg) {
+///       node("label", [property("htmlFor", encode.string("button"))], [text("Label")])
+///     }
 ///
 /// Notice that you must give the *property* name, so we use `htmlFor` as it
 /// would be in JavaScript, not `for` as it would appear in HTML.
@@ -165,9 +174,9 @@ fn property_raw(key: String, value: encode.Value) -> Attribute(msg)
 /// Create an attribute. This uses JavaScript’s `setAttribute` function
 /// behind the scenes.
 ///
-///     buttonLabel : Node msg
-///     buttonLabel =
-///       node "label" [ attribute "for" "button" ] [ text "Label" ]
+///     fn button_label() -> Node(msg) {
+///       node("label", [attribute("for", "button")], [text("Label")])
+///     }
 ///
 /// Notice that you must give the *attribute* name, so we use `for` as it would
 /// be in HTML, not `htmlFor` as it would appear in JS.
@@ -184,9 +193,9 @@ fn attribute_raw(key: String, value: String) -> Attribute(msg)
 /// attributes. As an example, the `elm/svg` package defines an attribute
 /// like this:
 ///
-///     xlinkHref : String -> Attribute msg
-///     xlinkHref value =
-///       attributeNS "http://www.w3.org/1999/xlink" "xlink:href" value
+///     fn xlink_href(value: String) -> Attribute(msg) {
+///       attribute_ns("http://www.w3.org/1999/xlink", "xlink:href", value)
+///     }
 pub fn attribute_ns(
   namespace: String,
   key: String,
@@ -219,11 +228,11 @@ pub fn map_attribute(
 ///
 /// You can define `onClick` like this:
 ///
-///     import Json.Decode as Decode
+///     import elm/json/decode
 ///
-///     onClick : msg -> Attribute msg
-///     onClick msg =
-///       on "click" (Normal (Decode.succeed msg))
+///     fn on_click(msg: msg) -> Attribute(msg) {
+///       on("click", Normal(decode.succeed(msg)))
+///     }
 ///
 /// **Note:** These event handlers trigger in the bubble phase. You can learn more
 /// about what that means [here][]. There is not support within Elm for doing
@@ -385,9 +394,9 @@ fn keyed_node_raw(
 /// Create a keyed and namespaced DOM node. For example, an SVG `<g>` node
 /// could be defined like this:
 ///
-///     g : List (Attribute msg) -> List ( String, Node msg ) -> Node msg
-///     g =
-///       keyedNodeNS "http://www.w3.org/2000/svg" "g"
+///     fn g(attributes: List(Attribute(msg)), children: List(#(String, Node(msg)))) -> Node(msg) {
+///       keyed_node_ns("http://www.w3.org/2000/svg", "g", attributes, children)
+///     }
 pub fn keyed_node_ns(
   namespace: String,
   tag: String,

@@ -182,7 +182,7 @@ fn outgoing_port_raw(encoder: fn(a) -> encode.Value) -> RawEffectManager
 ///
 ///     // Definition:
 ///     fn port_my_port_name() {
-///         platform.outgoing_port("myPortName", encodeSomeType)
+///         platform.outgoing_port("myPortName", encode_some_type)
 ///     }
 ///
 ///     // Call:
@@ -237,11 +237,11 @@ fn incoming_port_raw(decoder: Decoder(a)) -> RawEffectManager
 ///
 ///     // Definition:
 ///     fn port_my_port_name() {
-///         platform.incoming_port("myPortName", decodeSomeType)
+///         platform.incoming_port("myPortName", decode_some_type)
 ///     }
 ///
-///     // Call:
-///     platform.call_incoming_port(port_my_port_name, SomeMsgConstructor)
+///     // Subscribe:
+///     platform.subscribe_incoming_port(port_my_port_name, SomeMsgConstructor)
 ///
 ///     // Setup:
 ///     platform.incoming_port_to_effect_manager(port_my_port_name)

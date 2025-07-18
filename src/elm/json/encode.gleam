@@ -22,17 +22,14 @@ pub type Value
 ///             , ( "age", Encode.int 42 )
 ///             ]
 ///
-///     compact =
-///         Encode.encode 0 tom
+///     let compact = encode.encode(tom, 0)
+///     // {"name":"Tom","age":42}
 ///
-///     -- {"name":"Tom","age":42}
-///     readable =
-///         Encode.encode 4 tom
-///
-///     -- {
-///     --     "name": "Tom",
-///     --     "age": 42
-///     -- }
+///     let readable = encode.encode(tom, 4)
+///     // {
+///     //     "name": "Tom",
+///     //     "age": 42
+///     // }
 @external(javascript, "../json.ffi.mjs", "_Json_encode")
 pub fn encode(value: Value, indent: Int) -> String
 
@@ -40,33 +37,33 @@ pub fn encode(value: Value, indent: Int) -> String
 
 /// Turn a `String` into a JSON string.
 ///
-///     import Json.Encode exposing (encode, string)
+///     import elm/json/encode
 ///
-///     -- encode 0 (string "")      == "\"\""
-///     -- encode 0 (string "abc")   == "\"abc\""
-///     -- encode 0 (string "hello") == "\"hello\""
+///     // encode.encode(encode.string(""), 0)      == "\"\""
+///     // encode.encode(encode.string("abc"), 0)   == "\"abc\""
+///     // encode.encode(encode.string("hello"), 0) == "\"hello\""
 @external(javascript, "../json.ffi.mjs", "_Json_wrap")
 pub fn string(value: String) -> Value
 
 /// Turn an `Int` into a JSON number.
 ///
-///     import Json.Encode exposing (encode, int)
+///     import elm/json/encode
 ///
-///     -- encode 0 (int 42) == "42"
-///     -- encode 0 (int -7) == "-7"
-///     -- encode 0 (int 0)  == "0"
+///     // encode.encode(encode.int(42), 0) == "42"
+///     // encode.encode(encode.int(-7), 0) == "-7"
+///     // encode.encode(encode.int(0), 0)  == "0"
 @external(javascript, "../json.ffi.mjs", "_Json_wrap")
 pub fn int(value: Int) -> Value
 
 /// Turn a `Float` into a JSON number.
 ///
-///     import Json.Encode exposing (encode, float)
+///     import elm/json/encode
 ///
-///     -- encode 0 (float 3.14)     == "3.14"
-///     -- encode 0 (float 1.618)    == "1.618"
-///     -- encode 0 (float -42)      == "-42"
-///     -- encode 0 (float NaN)      == "null"
-///     -- encode 0 (float Infinity) == "null"
+///     // encode.encode(encode.float(3.14), 0)     == "3.14"
+///     // encode.encode(encode.float(1.618), 0)    == "1.618"
+///     // encode.encode(encode.float(-42.0), 0)      == "-42"
+///     // encode.encode(encode.float(nanf()), 0)      == "null"
+///     // encode.encode(encode.float(infinityf()), 0) == "null"
 ///
 /// **Note:** Floating point numbers are defined in the [IEEE 754 standard][ieee]
 /// which is hardcoded into almost all CPUs. This standard allows `Infinity` and
@@ -80,10 +77,10 @@ pub fn float(value: Float) -> Value
 
 /// Turn a `Bool` into a JSON boolean.
 ///
-///     import Json.Encode exposing (bool, encode)
+///     import elm/json/encode
 ///
-///     -- encode 0 (bool True)  == "true"
-///     -- encode 0 (bool False) == "false"
+///     // encode.encode(encode.bool(True), 0)  == "true"
+///     // encode.encode(encode.bool(False), 0) == "false"
 @external(javascript, "../json.ffi.mjs", "_Json_wrap")
 pub fn bool(value: Bool) -> Value
 
@@ -91,9 +88,9 @@ pub fn bool(value: Bool) -> Value
 
 /// Create a JSON `null` value.
 ///
-///     import Json.Encode exposing (encode, null)
+///     import elm/json/encode
 ///
-///     -- encode 0 null == "null"
+///     // encode.encode(encode.null(), 0) == "null"
 @external(javascript, "../json.ffi.mjs", "_Json_encodeNull")
 pub fn null() -> Value
 
@@ -101,11 +98,11 @@ pub fn null() -> Value
 
 /// Turn a `List` into a JSON array.
 ///
-///     import Json.Encode as Encode exposing (bool, encode, int, list, string)
+///     import elm/json/encode
 ///
-///     -- encode 0 (list int [1,3,4])       == "[1,3,4]"
-///     -- encode 0 (list bool [True,False]) == "[true,false]"
-///     -- encode 0 (list string ["a","b"])  == """["a","b"]"""
+///     // encode.encode(encode.list(encode.int, [1,3,4]), 0)       == "[1,3,4]"
+///     // encode.encode(encode.list(encode.bool, [True,False]), 0) == "[true,false]"
+///     // encode.encode(encode.list(encode.string, ["a","b"]), 0)  == """["a","b"]"""
 pub fn list(func: fn(a) -> Value, entries: List(a)) -> Value {
   list.fold(entries, empty_array(), fn(acc, entry) {
     add_entry(func(entry), acc)
@@ -153,15 +150,14 @@ pub fn object(pairs: List(#(String, Value))) -> Value {
 
 /// Turn a `Dict` into a JSON object.
 ///
-///     import Dict exposing (Dict)
-///     import Json.Encode as Encode
+///     import gleam/dict
+///     import elm/json/encode
 ///
-///     people : Dict String Int
-///     people =
-///         Dict.fromList [ ( "Tom", 42 ), ( "Sue", 38 ) ]
+///     let people: dict.Dict(String, Int) = 
+///       dict.from_list([("Tom", 42), ("Sue", 38)])
 ///
-///     -- Encode.encode 0 (Encode.dict identity Encode.int people)
-///     --   == """{"Tom":42,"Sue":38}"""
+///     // encode.encode(encode.dict(fn(x) { x }, encode.int, people), 0)
+///     //   == """{"Tom":42,"Sue":38}"""
 pub fn dict(
   to_key: fn(k) -> String,
   to_value: fn(v) -> Value,
