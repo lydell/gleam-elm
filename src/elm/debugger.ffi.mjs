@@ -480,17 +480,12 @@ function _Debugger_init(value)
 			return new Sequence(new ArraySeq, Array_to_list(value));
 		}
 
-		if (value instanceof Record)
-		{
-			return value;
-		}
-
 		if (Object.getPrototypeOf(value).constructor === Object)
 		{
 			return new Primitive('<internals>');
 		}
 
-		var children;
+		var name = Object.getPrototypeOf(value).constructor.name;
 		if ('0' in value)
 		{
 			var list = [];
@@ -498,19 +493,16 @@ function _Debugger_init(value)
 			{
 				list.push(value[i]);
 			}
-			children = List.fromArray(list);
+			return new Constructor(new Some(name), List.fromArray(list));
 		}
 		else
 		{
-			var isEmpty = true;
 			for (var i in value)
 			{
-				isEmpty = false;
-				break;
+				return new Record(name, Dict.fromObject(value));
 			}
-			children = isEmpty ? new Empty : new NonEmpty(new Record(Dict.fromObject(value)), new Empty);
+			return new Constructor(new Some(name), new Empty);
 		}
-		return new Constructor(new Some(Object.getPrototypeOf(value).constructor.name), children);
 	}
 
 	return new Primitive('<internals>');

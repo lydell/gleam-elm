@@ -30,7 +30,7 @@ pub type Expanded {
   Primitive(String)
   Sequence(SeqType, List(Unexpanded))
   Dictionary(List(#(Unexpanded, Unexpanded)))
-  Record(Dict(String, Unexpanded))
+  Record(String, Dict(String, Unexpanded))
   Constructor(Option(String), List(Unexpanded))
 }
 
@@ -130,7 +130,7 @@ pub fn view(path: Path, expando: Expando) -> Html(Msg) {
     Dictionary(key_value_pairs) ->
       view_dictionary(path, expando, key_value_pairs)
 
-    Record(value_dict) -> view_record(path, expando, value_dict)
+    Record(name, value_dict) -> view_record(path, expando, name, value_dict)
 
     Constructor(maybe_name, value_list) ->
       view_constructor(path, maybe_name, expando, value_list)
@@ -271,11 +271,10 @@ fn view_dictionary_entry(
 
 // VIEW RECORD
 
-/// Note: This function is never reached in Gleam. A `Record` is always
-/// a single child of a `Constructor`. `view_constructor` renders that by itself.
 fn view_record(
   path: Path,
   expando: Expando,
+  name: String,
   record: Dict(String, Unexpanded),
 ) -> Html(Msg) {
   let maybe_key = list_first(path)
@@ -283,13 +282,13 @@ fn view_record(
 
   let #(start, middle, end) = case is_closed {
     True -> {
-      let #(_, tiny_html) = view_tiny_record(record)
+      let #(_, tiny_html) = view_tiny_record(name, record)
       #(tiny_html, text(""), text(""))
     }
     False -> #(
-      [text("{")],
+      [text(name <> "(")],
       view_record_open(path, expando, record),
-      div(left_pad(Some(Nil)), [text("}")]),
+      div(left_pad(Some(Nil)), [text(")")]),
     )
   }
 
@@ -357,12 +356,10 @@ fn view_constructor(
       |> list.append([text(")")])
     Some(name), [] -> [text(name)]
     Some(name), [x, ..xs] ->
-      list.append(
-        list.fold(xs, [text(name <> "("), span([], x)], fn(acc, args) {
-          list.append(acc, [text(", "), span([], args)])
-        }),
-        [text(")")],
-      )
+      list.fold(xs, [text(name <> "("), span([], x)], fn(acc, args) {
+        list.append(acc, [text(", "), span([], args)])
+      })
+      |> list.append([text(")")])
   }
 
   let #(maybe_is_closed, open_html) = case value_list {
@@ -379,7 +376,7 @@ fn view_constructor(
           True -> div([], [])
           False -> view_dictionary_open(["0", ..path], expando, key_value_pairs)
         })
-        Record(record) -> #(Some(is_closed), case is_closed {
+        Record(_, record) -> #(Some(is_closed), case is_closed {
           True -> div([], [])
           False -> view_record_open(["0", ..path], expando, record)
         })
@@ -442,7 +439,7 @@ fn view_tiny(value: Unexpanded) -> #(Int, List(Html(msg))) {
       view_tiny_help(
         "Dict(" <> int.to_string(list.length(key_value_pairs)) <> ")",
       )
-    Record(record) -> view_tiny_record(record)
+    Record(name, record) -> view_tiny_record(name, record)
     Constructor(maybe_name, []) ->
       view_tiny_help(option.unwrap(maybe_name, "#()"))
     Constructor(maybe_name, value_list) ->
@@ -466,10 +463,14 @@ fn elide_middle(str: String) -> String {
 
 // VIEW TINY RECORDS
 
-fn view_tiny_record(record: Dict(String, Unexpanded)) -> #(Int, List(Html(msg))) {
+fn view_tiny_record(
+  name: String,
+  record: Dict(String, Unexpanded),
+) -> #(Int, List(Html(msg))) {
   case dict.is_empty(record) {
-    True -> #(2, [text("()")])
-    False -> view_tiny_record_help(0, "( ", record_to_sorted_list(record))
+    True -> #(2, [text(name <> "()")])
+    False ->
+      view_tiny_record_help(0, name <> "(", record_to_sorted_list(record))
   }
 }
 
@@ -479,14 +480,14 @@ fn view_tiny_record_help(
   entries: List(#(String, Unexpanded)),
 ) -> #(Int, List(Html(msg))) {
   case entries {
-    [] -> #(length + 2, [text(" )")])
+    [] -> #(length + 1, [text(")")])
     [#(field, value), ..rest] -> {
       let field_len = string.length(field)
       let #(value_len, value_htmls) = view_extra_tiny(value)
       let new_length = length + field_len + value_len + 5
 
       case new_length > 60 {
-        True -> #(length + 4, [text(", … )")])
+        True -> #(length + 3, [text(", …)")])
         False -> {
           let #(final_length, other_htmls) =
             view_tiny_record_help(new_length, ", ", rest)
@@ -505,10 +506,10 @@ fn view_tiny_record_help(
 
 fn view_extra_tiny(value: Unexpanded) -> #(Int, List(Html(msg))) {
   case debugger_init(value) {
-    Record(record) ->
+    Record(name, record) ->
       view_extra_tiny_record(
         0,
-        "",
+        name <> "(",
         list.map(record_to_sorted_list(record), fn(a) { a.0 }),
       )
     _ -> view_tiny(value)

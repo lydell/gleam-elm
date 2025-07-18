@@ -39,17 +39,22 @@ pub type Model {
     dict: dict.Dict(String, Int),
     nil: Nil,
     html: html.Html(String),
-    custom: Custom,
-    record: Wrapper,
+    constructor: Constructor,
+    wrapped_string: Wrapper(String),
+    wrapped_prim: Wrapper(Int),
+    wrapped_list: Wrapper(List(Int)),
+    wrapped_dict: Wrapper(dict.Dict(String, Int)),
+    wrapped_record: Wrapper(Record),
+    wrapped_constructor: Wrapper(Constructor),
   )
 }
 
-pub type Custom {
-  Custom(Int)
+pub type Constructor {
+  Constructor(Int, String, List(Int))
 }
 
-pub type Wrapper {
-  Wrapper(Record, Int)
+pub type Wrapper(a) {
+  Wrapper(a)
 }
 
 pub type Record {
@@ -72,8 +77,13 @@ fn init(_) -> #(Model, cmd.Cmd(Msg)) {
       dict: dict.from_list([#("one", 1), #("two", 2)]),
       nil: Nil,
       html: html.div([], []),
-      custom: Custom(1),
-      record: Wrapper(Record(1, "two"), 0),
+      constructor: Constructor(0, "one", [1, 2]),
+      wrapped_string: Wrapper("str"),
+      wrapped_prim: Wrapper(123),
+      wrapped_list: Wrapper([1, 2, 3]),
+      wrapped_dict: Wrapper(dict.from_list([#("one", 1), #("two", 2)])),
+      wrapped_record: Wrapper(Record(1, "two")),
+      wrapped_constructor: Wrapper(Constructor(0, "one", [1, 2])),
     ),
     cmd.none(),
   )
