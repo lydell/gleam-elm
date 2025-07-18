@@ -103,4 +103,6 @@ This package is intended for migrating existing Elm applications to Gleam. For n
 
 ## Elm and Gleam differences
 
-- In Elm, `a |> f b` pipes `a` as the _last_ argument: `f b a`. In Gleam, `a |> f(b)` pipes `a` as the _first_ argument: `f(a, b)`. For `map` and `and_then` function definitions, move the last parameter first, so that it fits better with Gleam pipelines.
+- In Elm, `a |> f b` pipes `a` as the _last_ argument: `f b a`. In Gleam, `a |> f(b)` pipes `a` as the _first_ argument: `f(a, b)`. For function definitions where it makes sense, like `map` and `and_then`, move the last parameter first, so that it fits better with Gleam pipelines. Document this in README.md.
+- In Elm, top-level values can be anything. In Gleam, they sometimes need to be functions that take zero parameters. Document these in README.md.
+- Always translate example Elm code in comments to Gleam.

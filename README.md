@@ -112,9 +112,51 @@ In Elm, it’s common to put the “interesting” argument _last_ in functions,
 
 In Gleam, it’s instead common to put the “interesting” argument _first_ in function, to allow for pipelining with Gleam’s rules.
 
-This means that if you translate Elm function one to one, your pipelines won’t compile.
+This means that if you translate Elm functions one to one, your pipelines won’t compile.
 
-So far, I’ve flipped some `map` and `and_then` functions around to the Gleam style. But I’m not sure that’s the best idea. It might be better to let all functions be, and simply have you add some `_` in pipelines. If we go with flipping functions to the Gleam style, we should document which functions have been flipped here, and go through _all_ functions to see which ones should be changed.
+Some functions in this package have been changed to follow the Gleam style where the data structure is the first parameter, enabling use of the pipe operator. Here are the functions that have been changed, by moving the last parameter first:
+
+- `array.filter`
+- `array.foldl`
+- `array.foldr`
+- `array.get`
+- `array.indexed_map`
+- `array.map`
+- `array.push`
+- `array.set`
+- `array.slice`
+- `html.map`
+- `html/attributes.map`
+- `json/decode.and_then`
+- `json/decode.map`
+- `platform/cmd.map`
+- `platform/sub.map`
+- `task.and_then`
+- `task.map_error`
+- `task.map`
+- `task.on_error`
+- `virtual_dom.map`
+
+The alternative to this would be using the `_` more. The downside to that approach, is that this package does not ship a ported-from-Elm `list.map` – it instead uses Gleam’s own `list.map`, which of course has the Gleam-style parameter order. To avoid confusion on when to use `_` and when not to, I’ve updated functions so that they should always fit into Gleam pipelines.
+
+### Top-level constants
+
+In Gleam modules, top-level values can be functions or constants. Constants can only be of certain types, like integers and strings, and can’t be the result of a function call. For this reason, some things that are constants in Elm are functions that take zero parameters in Gleam. For example, `Cmd.none` in Elm is `cmd.none()` in Gleam. Here are the values that are now functions that take zero arguments:
+
+- `array.empty`
+- `array.empty`
+- `html/events.key_code`
+- `html/events.target_checked`
+- `html/events.target_value`
+- `json/decode.bool`
+- `json/decode.float`
+- `json/decode.int`
+- `json/decode.string`
+- `json/decode.value`
+- `json/encode.null`
+- `platform/cmd.none`
+- `platform/sub.none`
+- `time.now`
 
 ## Ported packages and modules
 
