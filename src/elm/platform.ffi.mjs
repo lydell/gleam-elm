@@ -48,7 +48,7 @@ var __2_MAP = 3;
 // PROGRAMS
 
 
-var _Platform_worker = function(flagDecoder, init, update, subscriptions, effectManagers) { return function(args)
+var _Platform_worker = function(flagDecoder, init, update, subscriptions, passedEffectManagers) { return function(args)
 {
 	return _Platform_initialize(
 		flagDecoder,
@@ -56,7 +56,7 @@ var _Platform_worker = function(flagDecoder, init, update, subscriptions, effect
 		init,
 		update,
 		subscriptions,
-		effectManagers,
+		passedEffectManagers,
 		function() { return function() {} }
 	);
 }};
@@ -66,13 +66,16 @@ var _Platform_worker = function(flagDecoder, init, update, subscriptions, effect
 // INITIALIZE A PROGRAM
 
 
-function _Platform_initialize(flagDecoder, args, init, update, subscriptions, effectManagers, stepperBuilder)
+function _Platform_initialize(flagDecoder, args, init, update, subscriptions, passedEffectManagers, stepperBuilder)
 {
-	// TODO: This leaks effect managers between apps.
-	for (var manager of effectManagers)
+	var effectManagers = {};
+	var taskEffectManager = task_automatically_registered_effect_manager();
+	effectManagers[taskEffectManager.home] = taskEffectManager.raw_effect_manager;
+
+	for (var manager of passedEffectManagers)
 	{
-		_Platform_checkPortName(manager.home);
-		_Platform_effectManagers[manager.home] = manager.raw_effect_manager;
+		_Platform_checkPortName(manager.home, effectManagers);
+		effectManagers[manager.home] = manager.raw_effect_manager;
 	}
 
 	var result = __Json_run(flagDecoder, __Json_wrap(args ? args['flags'] : undefined));
@@ -81,16 +84,16 @@ function _Platform_initialize(flagDecoder, args, init, update, subscriptions, ef
 	var initPair = init(result[0]);
 	var model = initPair[0];
 	var stepper = stepperBuilder(sendToApp, model);
-	var ports = _Platform_setupEffects(managers, sendToApp);
+	var ports = _Platform_setupEffects(managers, sendToApp, effectManagers);
 
 	function sendToApp(msg, viewMetadata)
 	{
 		var pair = update(msg, model);
 		stepper(model = pair[0], viewMetadata);
-		_Platform_enqueueEffects(managers, pair[1], subscriptions(model));
+		_Platform_enqueueEffects(managers, pair[1], subscriptions(model), effectManagers);
 	}
 
-	_Platform_enqueueEffects(managers, initPair[1], subscriptions(model));
+	_Platform_enqueueEffects(managers, initPair[1], subscriptions(model), effectManagers);
 
 	return ports ? { ports: ports } : {};
 }
@@ -117,24 +120,19 @@ function _Platform_registerPreload(url)
 // EFFECT MANAGERS
 
 
-var _Platform_effectManagers = {};
-var taskEffectManager = task_automatically_registered_effect_manager();
-_Platform_effectManagers[taskEffectManager.home] = taskEffectManager.raw_effect_manager;
-
-
-function _Platform_setupEffects(managers, sendToApp)
+function _Platform_setupEffects(managers, sendToApp, effectManagers)
 {
 	var ports;
 
 	// setup all necessary effect managers
-	for (var key in _Platform_effectManagers)
+	for (var key in effectManagers)
 	{
-		var manager = _Platform_effectManagers[key];
+		var manager = effectManagers[key];
 
 		if (manager.__portSetup)
 		{
 			ports = ports || {};
-			ports[key] = manager.__portSetup(key, sendToApp);
+			ports[key] = manager.__portSetup(key, sendToApp, effectManagers);
 		}
 
 		managers[key] = _Platform_instantiateManager(manager, sendToApp);
@@ -279,26 +277,26 @@ var _Platform_effectsQueue = [];
 var _Platform_effectsActive = false;
 
 
-function _Platform_enqueueEffects(managers, cmdBag, subBag)
+function _Platform_enqueueEffects(managers, cmdBag, subBag, effectManagers)
 {
-	_Platform_effectsQueue.push({ __managers: managers, __cmdBag: cmdBag, __subBag: subBag });
+	_Platform_effectsQueue.push({ __managers: managers, __cmdBag: cmdBag, __subBag: subBag, __effectManagers: effectManagers });
 
 	if (_Platform_effectsActive) return;
 
 	_Platform_effectsActive = true;
 	for (var fx; fx = _Platform_effectsQueue.shift(); )
 	{
-		_Platform_dispatchEffects(fx.__managers, fx.__cmdBag, fx.__subBag);
+		_Platform_dispatchEffects(fx.__managers, fx.__cmdBag, fx.__subBag, fx.__effectManagers);
 	}
 	_Platform_effectsActive = false;
 }
 
 
-function _Platform_dispatchEffects(managers, cmdBag, subBag)
+function _Platform_dispatchEffects(managers, cmdBag, subBag, effectManagers)
 {
 	var effectsDict = {};
-	_Platform_gatherEffects(true, cmdBag, effectsDict, null);
-	_Platform_gatherEffects(false, subBag, effectsDict, null);
+	_Platform_gatherEffects(true, cmdBag, effectsDict, null, effectManagers);
+	_Platform_gatherEffects(false, subBag, effectsDict, null, effectManagers);
 
 	for (var home in managers)
 	{
@@ -310,20 +308,20 @@ function _Platform_dispatchEffects(managers, cmdBag, subBag)
 }
 
 
-function _Platform_gatherEffects(isCmd, bag, effectsDict, taggers)
+function _Platform_gatherEffects(isCmd, bag, effectsDict, taggers, effectManagers)
 {
 	switch (bag.$)
 	{
 		case __2_LEAF:
 			var home = bag.__home;
-			var effect = _Platform_toEffect(isCmd, home, taggers, bag.__value);
+			var effect = _Platform_toEffect(isCmd, home, taggers, bag.__value, effectManagers);
 			effectsDict[home] = _Platform_insert(isCmd, effect, effectsDict[home]);
 			return;
 
 		case __2_NODE:
 			for (var subBag of bag.__bags)
 			{
-				_Platform_gatherEffects(isCmd, subBag, effectsDict, taggers);
+				_Platform_gatherEffects(isCmd, subBag, effectsDict, taggers, effectManagers);
 			}
 			return;
 
@@ -331,13 +329,13 @@ function _Platform_gatherEffects(isCmd, bag, effectsDict, taggers)
 			_Platform_gatherEffects(isCmd, bag.__bag, effectsDict, {
 				__tagger: bag.__func,
 				__rest: taggers
-			});
+			}, effectManagers);
 			return;
 	}
 }
 
 
-function _Platform_toEffect(isCmd, home, taggers, value)
+function _Platform_toEffect(isCmd, home, taggers, value, effectManagers)
 {
 	function applyTaggers(x)
 	{
@@ -349,8 +347,8 @@ function _Platform_toEffect(isCmd, home, taggers, value)
 	}
 
 	var map = isCmd
-		? _Platform_effectManagers[home].__cmdMap
-		: _Platform_effectManagers[home].__subMap;
+		? effectManagers[home].__cmdMap
+		: effectManagers[home].__subMap;
 
 	return map(applyTaggers, value)
 }
@@ -372,9 +370,9 @@ function _Platform_insert(isCmd, newEffect, effects)
 // PORTS
 
 
-function _Platform_checkPortName(name)
+function _Platform_checkPortName(name, effectManagers)
 {
-	if (_Platform_effectManagers[name])
+	if (effectManagers[name])
 	{
 		__Debug_crash(3, name)
 	}
@@ -398,7 +396,7 @@ function _Platform_outgoingPort(converter)
 var _Platform_outgoingPortMap = function(tagger, value) { return value; };
 
 
-function _Platform_setupOutgoingPort(name)
+function _Platform_setupOutgoingPort(name, sendToApp, effectManagers)
 {
 	var subs = [];
 
@@ -406,8 +404,8 @@ function _Platform_setupOutgoingPort(name)
 
 	var init = __Process_sleep(0);
 
-	_Platform_effectManagers[name].__init = init;
-	_Platform_effectManagers[name].__onEffects = function(router, cmdList, state)
+	effectManagers[name].__init = init;
+	effectManagers[name].__onEffects = function(router, cmdList, state)
 	{
 		for (var cmd of cmdList)
 		{
@@ -471,17 +469,17 @@ var _Platform_incomingPortMap = function(tagger, finalTagger)
 };
 
 
-function _Platform_setupIncomingPort(name, sendToApp)
+function _Platform_setupIncomingPort(name, sendToApp, effectManagers)
 {
 	var subs = new Empty;
-	var converter = _Platform_effectManagers[name].__converter;
+	var converter = effectManagers[name].__converter;
 
 	// CREATE MANAGER
 
 	var init = __Scheduler_succeed(null);
 
-	_Platform_effectManagers[name].__init = init;
-	_Platform_effectManagers[name].__onEffects = function(router, subList, state)
+	effectManagers[name].__init = init;
+	effectManagers[name].__onEffects = function(router, subList, state)
 	{
 		subs = subList;
 		return init;
