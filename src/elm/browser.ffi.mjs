@@ -592,7 +592,9 @@ export {
 	_Browser_go,
 	_Browser_load,
 	_Browser_makeAnimator,
+	_Browser_now,
 	_Browser_pushUrl,
+	_Browser_rAF,
 	_Browser_reload,
 	_Browser_replaceUrl,
 };

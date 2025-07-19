@@ -48,7 +48,7 @@ import elm/task.{type Task}
 /// [time-sharing system](https://en.wikipedia.org/wiki/Time-sharing) is definitely
 /// concurrent, but not necessarily parallel. So even though JS runs within a
 /// single OS-level thread, Elm can still run things concurrently.
-type Id =
+pub type Id =
   platform.ProcessId
 
 /// Run a task in its own light-weight process. In the following example,
