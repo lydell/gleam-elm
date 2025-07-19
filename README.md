@@ -145,6 +145,8 @@ In Gleam modules, top-level values can be functions or constants. Constants can 
 
 - `array.empty`
 - `array.empty`
+- `browser/navigation.reload`
+- `browser/navigation.reload_and_skip_cache`
 - `html/events.key_code`
 - `html/events.target_checked`
 - `html/events.target_value`
