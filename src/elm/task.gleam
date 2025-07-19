@@ -1,17 +1,6 @@
 //// Tasks make it easy to describe asynchronous operations that may fail, like
 //// HTTP requests or writing to a database.
 //// 
-//// # Tasks
-//// @docs Task, perform, attempt
-//// 
-//// # Chains
-//// @docs andThen, succeed, fail, sequence
-//// 
-//// # Maps
-//// @docs map, map2, map3, map4, map5
-//// 
-//// # Errors
-//// @docs onError, mapError
 
 import elm/basics.{type Never}
 import elm/platform

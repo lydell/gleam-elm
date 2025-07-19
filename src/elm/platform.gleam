@@ -1,11 +1,4 @@
-//// # Programs
-//// @docs Program, worker
-////
 //// # Platform Internals
-////
-//// ## Tasks and Processes
-//// @docs Task, ProcessId
-////
 //// ## Effect Manager Helpers
 ////
 //// An extremely tiny portion of library authors should ever write effect managers.
@@ -14,7 +7,6 @@
 //// effect manager. Do you have an *organic need* this fills? Or are you just
 //// curious? Public discussions of your explorations should be framed accordingly.
 ////
-//// @docs Router, sendToApp, sendToSelf
 
 import elm/basics.{type Never}
 import elm/json/decode.{type Decoder}

@@ -7,11 +7,6 @@
 //// >
 //// > Elm has two kinds of managed effects: commands and subscriptions.
 ////
-//// # Subscriptions
-//// @docs Sub, none, batch
-////
-//// # Fancy Stuff
-//// @docs map
 
 // SUBSCRIPTIONS
 

@@ -1,9 +1,3 @@
-//// # URLs
-//// @docs Url, Protocol, toString, fromString
-////
-//// # Percent-Encoding
-//// @docs percentEncode, percentDecode
-
 import gleam/int
 import gleam/option.{type Option, None, Some}
 import gleam/string

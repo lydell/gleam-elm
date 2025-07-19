@@ -4,23 +4,6 @@
 //// [Custom Type]: https://guide.elm-lang.org/types/custom_types.html
 //// [TodoMVC]: https://github.com/evancz/elm-todomvc/blob/master/Todo.elm
 ////
-//// # Mouse
-//// @docs onClick, onDoubleClick,
-////       onMouseDown, onMouseUp,
-////       onMouseEnter, onMouseLeave,
-////       onMouseOver, onMouseOut
-////
-//// # Forms
-//// @docs onInput, onCheck, onSubmit
-////
-//// # Focus
-//// @docs onBlur, onFocus
-////
-//// # Custom
-//// @docs on, stopPropagationOn, preventDefaultOn, custom
-////
-//// ## Custom Decoders
-//// @docs targetValue, targetChecked, keyCode
 
 import elm/html.{type Attribute}
 import elm/json/decode.{type Decoder}

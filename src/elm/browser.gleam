@@ -1,25 +1,6 @@
 //// This module helps you set up an Elm `Program` with functions like
 //// [`sandbox`](#sandbox) and [`document`](#document).
 ////
-////
-//// # Sandboxes
-////
-//// @docs sandbox
-////
-////
-//// # Elements
-////
-//// @docs element
-////
-////
-//// # Documents
-////
-//// @docs document, Document
-////
-////
-//// # Applications
-////
-//// @docs application, UrlRequest
 
 import elm/browser/navigation
 import elm/html.{type Html}

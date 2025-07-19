@@ -1,6 +1,3 @@
-//// # Processes
-//// @docs Id, spawn, sleep, kill
-//// 
 //// ## Future Plans
 //// 
 //// Right now, this library is pretty sparse. For example, there is no public API

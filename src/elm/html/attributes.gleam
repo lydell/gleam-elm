@@ -2,56 +2,8 @@
 //// category. Each attribute is labeled with the HTML tags it can be used with, so
 //// just search the page for `video` if you want video stuff.
 ////
-//// # Primitives
-//// @docs style, property, attribute, map
-////
-//// # Super Common Attributes
-//// @docs class, classList, id, title, hidden
-////
-//// # Inputs
-//// @docs type_, value, checked, placeholder, selected
-////
-//// ## Input Helpers
-//// @docs accept, acceptCharset, action, autocomplete, autofocus,
-////     disabled, enctype, list, maxlength, minlength, method, multiple,
-////     name, novalidate, pattern, readonly, required, size, for, form
-////
-//// ## Input Ranges
-//// @docs max, min, step
-////
-//// ## Input Text Areas
-//// @docs cols, rows, wrap
-////
-////
-//// # Links and Areas
-//// @docs href, target, download, hreflang, media, ping, rel
-////
-//// ## Maps
-//// @docs ismap, usemap, shape, coords
-////
-////
-//// # Embedded Content
-//// @docs src, height, width, alt
-////
-//// ## Audio and Video
-//// @docs autoplay, controls, loop, preload, poster, default, kind, srclang
-////
-//// ## iframes
-//// @docs sandbox, srcdoc
-////
-//// # Ordered Lists
-//// @docs reversed, start
-////
-//// # Tables
-//// @docs align, colspan, rowspan, headers, scope
-////
 //// # Less Common Global Attributes
 //// Attributes that can be attached to any HTML tag but are less commonly used.
-//// @docs accesskey, contenteditable, contextmenu, dir, draggable, dropzone,
-////       itemprop, lang, spellcheck, tabindex
-////
-//// # Miscellaneous
-//// @docs cite, datetime, pubdate, manifest
 
 import elm/html.{type Attribute}
 import elm/json/encode

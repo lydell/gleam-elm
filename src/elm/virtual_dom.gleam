@@ -1,23 +1,6 @@
 //// API to the core diffing algorithm. Can serve as a foundation for libraries
 //// that expose more helper functions for HTML or SVG.
 ////
-//// # Create
-//// @docs Node, text, node, nodeNS
-////
-//// # Attributes
-//// @docs Attribute, style, property, attribute, attributeNS
-////
-//// # Events
-//// @docs on, Handler
-////
-//// # Routing Messages
-//// @docs map, mapAttribute
-////
-//// # Keyed Nodes
-//// @docs keyedNode, keyedNodeNS
-////
-//// # Lazy Nodes
-//// @docs lazy, lazy2, lazy3, lazy4, lazy5, lazy6, lazy7, lazy8
 
 import elm/json/decode.{type Decoder}
 import elm/json/encode
