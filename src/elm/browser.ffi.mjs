@@ -21,12 +21,7 @@ import Url exposing (fromString)
 
 import {
 	Empty,
-	Ok,
 } from '../gleam.mjs';
-import {
-	None,
-	Some,
-} from '../../gleam_stdlib/gleam/option.mjs';
 import {
 	never as __Basics_never,
 } from './basics.mjs';
@@ -346,6 +341,9 @@ var _Browser_fakeNode = { addEventListener: function() {}, removeEventListener: 
 var _Browser_doc = typeof document !== 'undefined' ? document : _Browser_fakeNode;
 var _Browser_window = typeof window !== 'undefined' ? window : _Browser_fakeNode;
 
+var _Browser_getDoc = function() { return _Browser_doc; };
+var _Browser_getWindow = function() { return _Browser_window; };
+
 var _Browser_on = function(node, eventName, sendToSelf)
 {
 	return __Scheduler_spawn(__Scheduler_binding(function(callback)
@@ -358,8 +356,7 @@ var _Browser_on = function(node, eventName, sendToSelf)
 
 var _Browser_decodeEvent = function(decoder, event)
 {
-	var result = __Json_runHelp(decoder, event);
-	return result instanceof Ok ? new Some(result[0]) : new None;
+	return __Json_runHelp(decoder, event);
 };
 
 
@@ -369,7 +366,7 @@ var _Browser_decodeEvent = function(decoder, event)
 
 function _Browser_visibilityInfo()
 {
-	return (typeof __VirtualDom_doc.hidden !== 'undefined')
+	var info = (typeof __VirtualDom_doc.hidden !== 'undefined')
 		? { hidden: 'hidden', change: 'visibilitychange' }
 		:
 	(typeof __VirtualDom_doc.mozHidden !== 'undefined')
@@ -381,6 +378,7 @@ function _Browser_visibilityInfo()
 	(typeof __VirtualDom_doc.webkitHidden !== 'undefined')
 		? { hidden: 'webkitHidden', change: 'webkitvisibilitychange' }
 		: { hidden: 'hidden', change: 'visibilitychange' };
+	return [ info.hidden, info.change ];
 }
 
 
@@ -587,14 +585,19 @@ function _Browser_load(url)
 
 export {
 	_Browser_application,
+	_Browser_decodeEvent,
 	_Browser_document,
 	_Browser_element,
+	_Browser_getDoc,
+	_Browser_getWindow,
 	_Browser_go,
 	_Browser_load,
 	_Browser_makeAnimator,
 	_Browser_now,
+	_Browser_on,
 	_Browser_pushUrl,
 	_Browser_rAF,
 	_Browser_reload,
 	_Browser_replaceUrl,
+	_Browser_visibilityInfo,
 };
