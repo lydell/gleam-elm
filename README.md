@@ -172,7 +172,7 @@ Key:
 | -------------------------- | ------- | ------------------ | ------ | ------------------------------------------------ |
 | elm/browser                | 1.0.2\* | Browser            | ✅     |                                                  |
 | elm/browser                | 1.0.2\* | Browser.Dom        | 💤     |                                                  |
-| elm/browser                | 1.0.2\* | Browser.Events     | 💤     |                                                  |
+| elm/browser                | 1.0.2\* | Browser.Events     | ✅     |                                                  |
 | elm/browser                | 1.0.2\* | Browser.Navigation | ✅     |                                                  |
 | elm/bytes                  | 1.0.8   | Bytes              | 💤     |                                                  |
 | elm/bytes                  | 1.0.8   | Bytes.Encode       | 💤     |                                                  |
