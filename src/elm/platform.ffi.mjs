@@ -35,6 +35,9 @@ import {
 	_Scheduler_send as __Scheduler_send,
 	_Scheduler_succeed as __Scheduler_succeed,
 } from './scheduler.ffi.mjs';
+import {
+	automatically_registered_effect_manager as task_automatically_registered_effect_manager,
+} from './task.mjs';
 
 var __2_SELF = 0;
 var __2_LEAF = 1;
@@ -115,6 +118,8 @@ function _Platform_registerPreload(url)
 
 
 var _Platform_effectManagers = {};
+var taskEffectManager = task_automatically_registered_effect_manager();
+_Platform_effectManagers[taskEffectManager.home] = taskEffectManager.raw_effect_manager;
 
 
 function _Platform_setupEffects(managers, sendToApp)

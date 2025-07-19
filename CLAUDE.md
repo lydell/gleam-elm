@@ -48,7 +48,6 @@ Each module has a corresponding `.ffi.mjs` file containing JavaScript implementa
 The platform uses effect managers for side effects.
 ```gleam
 effect_managers: [
-  task.effect_manager(),
   time.effect_manager(),
   platform.outgoing_port_to_effect_manager(my_port),
 ]

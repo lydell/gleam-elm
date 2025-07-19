@@ -589,5 +589,10 @@ export {
 	_Browser_application,
 	_Browser_document,
 	_Browser_element,
+	_Browser_go,
+	_Browser_load,
 	_Browser_makeAnimator,
+	_Browser_pushUrl,
+	_Browser_reload,
+	_Browser_replaceUrl,
 };

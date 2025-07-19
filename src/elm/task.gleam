@@ -370,7 +370,10 @@ fn spawn_cmd(
 fn spawn(task: Task(x, a)) -> Task(x, a)
 
 /// This is needed if you use `task.perform` or `task.attempt`.
-pub fn effect_manager() -> platform.EffectManager {
+/// Many things, for example `browser/navigation`, use `task.perform` internally,
+/// so this effect manager is always registered automatically. You don’t need
+/// to import and use this value yourself.
+pub fn automatically_registered_effect_manager() -> platform.EffectManager {
   platform.create_effect_manager(
     module_name,
     init(),
