@@ -346,9 +346,14 @@ function _Platform_toEffect(isCmd, home, taggers, value, effectManagers)
 		return x;
 	}
 
-	var map = isCmd
-		? effectManagers[home].__cmdMap
-		: effectManagers[home].__subMap;
+	var manager = effectManagers[home]; 
+
+	if (!manager)
+	{
+		throw new Error('Missing effect manager for: ' + home);
+	} 
+
+	var map = isCmd ? manager.__cmdMap : manager.__subMap;
 
 	return map(applyTaggers, value)
 }
